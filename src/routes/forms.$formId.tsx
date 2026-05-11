@@ -332,23 +332,68 @@ function FormPage() {
                 >
                   {i + 1}
                 </div>
-                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
-                  {text}
-                </p>
-                {isCustom && (
-                  <>
-                    <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
-                      مضاف
-                    </Badge>
+                {editIdx === i ? (
+                  <div className="flex-1 flex gap-2 items-start">
+                    <Textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={2}
+                      className="text-sm flex-1"
+                      autoFocus
+                    />
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        size="icon"
+                        className="size-7"
+                        onClick={() => {
+                          editItem(i, editText);
+                          setEditIdx(null);
+                        }}
+                      >
+                        <Check className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={() => setEditIdx(null)}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
+                    {text}
+                  </p>
+                )}
+                {isCustom && editIdx !== i && (
+                  <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
+                    مضاف
+                  </Badge>
+                )}
+                {editIdx !== i && (
+                  <div className="flex gap-1 print:hidden">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 text-destructive hover:bg-destructive/10 print:hidden"
-                      onClick={() => removeCustom(text)}
+                      className="size-7 text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        setEditIdx(i);
+                        setEditText(text);
+                      }}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7 text-destructive hover:bg-destructive/10"
+                      onClick={() => deleteItem(i)}
                     >
                       <Trash2 className="size-4" />
                     </Button>
-                  </>
+                  </div>
                 )}
               </div>
 
