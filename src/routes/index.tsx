@@ -52,6 +52,7 @@ function Index() {
               <p className="text-xs text-muted-foreground">متابعة ملف منسوبات المدرسة</p>
             </div>
           </div>
+          <ThemeSwitcher />
         </div>
       </header>
 
