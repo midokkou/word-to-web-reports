@@ -56,7 +56,7 @@ function Index() {
 
       <section className="container mx-auto px-4 pt-10 pb-6">
         <div className="rounded-2xl p-6 sm:p-10 text-primary-foreground shadow-[var(--shadow-elegant)]" style={{ background: "var(--gradient-primary)" }}>
-          <p className="text-sm opacity-90 mb-2">مكتب تعليم المعذر — الإدارة العامة للتعليم بمنطقة الرياض</p>
+          
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-3">استمارات متابعة المهام</h2>
           <p className="opacity-90 max-w-2xl">منصة موحّدة لتعبئة ومتابعة جميع استمارات منسوبات المدرسة بطريقة رقمية وسلسة.</p>
 
