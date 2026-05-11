@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "الاستمارات", url: "/", icon: ClipboardList },
+  { title: "الشاشة الرئيسية", url: "/", icon: ClipboardList },
   { title: "السجلات", url: "/records", icon: FolderOpen },
   { title: "الإحصائيات", url: "/stats", icon: BarChart3 },
 ];
@@ -26,7 +26,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>القوائم</SidebarGroupLabel>
+          
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
