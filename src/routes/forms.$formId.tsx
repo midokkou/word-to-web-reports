@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { getForm, forms } from "@/data/forms";
-import { type FormEval, type ItemStatus, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
+import { type FormEval, type ItemStatus, type ItemEval, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +29,9 @@ import {
   Plus,
   Trash2,
   Search,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -107,6 +110,8 @@ function FormPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     setState(loadEval(form.id));
@@ -158,12 +163,68 @@ function FormPage() {
     setAddOpen(false);
   };
 
-  const removeCustom = (text: string) => {
-    const customItems = (state.customItems ?? []).filter((x) => x !== text);
-    update({ ...state, customItems });
+  const displayItems = useMemo(() => {
+    const builtIns = form.items
+      .map((text, origIdx) => ({
+        text: state.itemOverrides?.[origIdx] ?? text,
+        origIdx,
+        isCustom: false,
+      }))
+      .filter((x) => !(state.hiddenItems ?? []).includes(x.origIdx));
+    const customs = (state.customItems ?? []).map((text, origIdx) => ({
+      text,
+      origIdx,
+      isCustom: true,
+    }));
+    return [...builtIns, ...customs];
+  }, [form.items, state.customItems, state.itemOverrides, state.hiddenItems]);
+
+  const compactItems = (deletedDisplayIdx: number) => {
+    const next: Record<number, ItemEval> = {};
+    Object.entries(state.items).forEach(([k, v]) => {
+      const idx = Number(k);
+      if (idx === deletedDisplayIdx) return;
+      next[idx > deletedDisplayIdx ? idx - 1 : idx] = v;
+    });
+    return next;
   };
 
-  const allDisplayItems = [...form.items, ...(state.customItems ?? [])];
+  const editItem = (displayIdx: number, newText: string) => {
+    const item = displayItems[displayIdx];
+    if (!item) return;
+    const trimmed = newText.trim();
+    if (!trimmed) return;
+    if (item.isCustom) {
+      const customItems = [...(state.customItems ?? [])];
+      customItems[item.origIdx] = trimmed;
+      update({ ...state, customItems });
+    } else {
+      update({
+        ...state,
+        itemOverrides: { ...(state.itemOverrides ?? {}), [item.origIdx]: trimmed },
+      });
+    }
+    toast.success("تم تعديل العنصر");
+  };
+
+  const deleteItem = (displayIdx: number) => {
+    const item = displayItems[displayIdx];
+    if (!item) return;
+    const newItems = compactItems(displayIdx);
+    if (item.isCustom) {
+      const customItems = (state.customItems ?? []).filter((_, i) => i !== item.origIdx);
+      update({ ...state, customItems, items: newItems });
+    } else {
+      update({
+        ...state,
+        hiddenItems: [...(state.hiddenItems ?? []), item.origIdx],
+        items: newItems,
+      });
+    }
+    toast.success("تم حذف العنصر");
+  };
+
+  const allDisplayItems = displayItems.map((x) => x.text);
   const doneCount = Object.values(state.items).filter((i) => i.status === "done").length;
   const pct = allDisplayItems.length ? Math.round((doneCount / allDisplayItems.length) * 100) : 0;
 
@@ -271,23 +332,68 @@ function FormPage() {
                 >
                   {i + 1}
                 </div>
-                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
-                  {text}
-                </p>
-                {isCustom && (
-                  <>
-                    <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
-                      مضاف
-                    </Badge>
+                {editIdx === i ? (
+                  <div className="flex-1 flex gap-2 items-start">
+                    <Textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={2}
+                      className="text-sm flex-1"
+                      autoFocus
+                    />
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        size="icon"
+                        className="size-7"
+                        onClick={() => {
+                          editItem(i, editText);
+                          setEditIdx(null);
+                        }}
+                      >
+                        <Check className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={() => setEditIdx(null)}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
+                    {text}
+                  </p>
+                )}
+                {isCustom && editIdx !== i && (
+                  <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
+                    مضاف
+                  </Badge>
+                )}
+                {editIdx !== i && (
+                  <div className="flex gap-1 print:hidden">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 text-destructive hover:bg-destructive/10 print:hidden"
-                      onClick={() => removeCustom(text)}
+                      className="size-7 text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        setEditIdx(i);
+                        setEditText(text);
+                      }}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7 text-destructive hover:bg-destructive/10"
+                      onClick={() => deleteItem(i)}
                     >
                       <Trash2 className="size-4" />
                     </Button>
-                  </>
+                  </div>
                 )}
               </div>
 
