@@ -119,6 +119,7 @@ function RootComponent() {
 
   useEffect(() => {
     applyTheme(loadTheme());
+    applyViewMode(loadViewMode());
   }, []);
 
   return (
@@ -126,11 +127,12 @@ function RootComponent() {
       <SidebarProvider>
         <div className="min-h-screen flex w-full" dir="rtl">
           <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
-            <div className="h-10 flex items-center px-2 border-b bg-card/60 backdrop-blur print:hidden">
+          <div className="flex-1 flex flex-col min-w-0" data-view-frame-scroll>
+            <div className="h-12 flex items-center justify-between px-2 border-b bg-card/60 backdrop-blur print:hidden">
               <SidebarTrigger />
+              <ViewModeSwitcher />
             </div>
-            <main className="flex-1 min-w-0">
+            <main className="flex-1 min-w-0" data-view-frame>
               <Outlet />
             </main>
           </div>
