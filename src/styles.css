@@ -147,8 +147,19 @@
     border-color: var(--color-border);
   }
 
+  html {
+    direction: rtl;
+  }
+
   body {
-    background-color: var(--color-background);
+    background: var(--gradient-soft);
     color: var(--color-foreground);
+    font-family: "Tajawal", "Cairo", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
   }
 }
+
+@layer base {
+  @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap");
+}
+
