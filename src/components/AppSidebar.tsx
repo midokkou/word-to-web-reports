@@ -26,7 +26,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>القوائم</SidebarGroupLabel>
+          
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
