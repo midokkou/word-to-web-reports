@@ -16,7 +16,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { BarChart3, CheckCircle2, XCircle, ListChecks } from "lucide-react";
+import { BarChart3, CheckCircle2, XCircle, ListChecks, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/stats")({
   component: StatsPage,
@@ -82,10 +83,13 @@ function StatsPage() {
           >
             <BarChart3 className="size-6" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg sm:text-xl font-bold leading-tight">الإحصائيات والرسوم البيانية</h1>
             <p className="text-xs text-muted-foreground">مقارنة الإنجاز بين جميع الاستمارات</p>
           </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
+            <Printer className="size-4 ml-1" /> طباعة
+          </Button>
         </div>
       </header>
 
