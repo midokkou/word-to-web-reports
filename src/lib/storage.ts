@@ -57,3 +57,22 @@ export function getProgress(formId: string, total: number) {
   const done = Object.values(ev.items).filter((i) => i.status === "done").length;
   return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
 }
+
+export type FillStatus = "empty" | "partial" | "complete";
+
+export function getFillStatus(formId: string, total: number): FillStatus {
+  const ev = loadEval(formId);
+  const items = Object.values(ev.items);
+  const touched =
+    items.length > 0 ||
+    !!ev.employeeName ||
+    !!ev.date ||
+    (ev.customItems?.length ?? 0) > 0 ||
+    !!ev.followup1?.recommendations ||
+    !!ev.followup2?.recommendations;
+  if (!touched) return "empty";
+  const done = items.filter((i) => i.status === "done").length;
+  const totalAll = total + (ev.customItems?.length ?? 0);
+  if (totalAll > 0 && done >= totalAll) return "complete";
+  return "partial";
+}
