@@ -197,11 +197,34 @@
   }
 }
 
+/* Forced view modes — apply same layout to every page */
+html[data-view-mode="mobile"] [data-view-frame] {
+  max-width: 430px;
+  margin-inline: auto;
+  border-inline: 1px dashed var(--border);
+  min-height: 100vh;
+  background: var(--background);
+  box-shadow: 0 0 0 1px var(--border), 0 20px 60px -20px rgb(0 0 0 / 0.15);
+}
+html[data-view-mode="mobile"] [data-view-frame] .container {
+  max-width: 100% !important;
+  padding-inline: 0.875rem !important;
+}
+html[data-view-mode="mobile"] [data-view-frame] .grid {
+  grid-template-columns: 1fr !important;
+}
+
+html[data-view-mode="desktop"] [data-view-frame] {
+  min-width: 1280px;
+}
+html[data-view-mode="desktop"] [data-view-frame-scroll] {
+  overflow-x: auto;
+}
+
 @media print {
   .print\:hidden { display: none !important; }
   body { background: white !important; }
   .container { max-width: 100% !important; }
   textarea, input { border: 1px solid #ccc !important; }
 }
-
 
