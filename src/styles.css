@@ -102,9 +102,43 @@
   --sidebar-ring: oklch(0.48 0.14 195);
 
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --gradient-soft: linear-gradient(180deg, oklch(0.97 0.02 195), oklch(0.99 0.005 200));
+  --gradient-soft: linear-gradient(180deg, color-mix(in oklab, var(--primary) 8%, white), oklch(0.99 0.005 200));
+  --gradient-card: linear-gradient(160deg, color-mix(in oklab, var(--primary) 10%, var(--card)) 0%, var(--card) 65%);
   --shadow-elegant: 0 10px 30px -12px color-mix(in oklab, var(--primary) 30%, transparent);
   --shadow-card: 0 2px 10px -4px color-mix(in oklab, var(--primary) 15%, transparent);
+  --shadow-glow: 0 20px 40px -16px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+
+/* Theme variants — switch primary palette via data-theme on <html> */
+:root[data-theme="blue"] {
+  --primary: oklch(0.52 0.18 255);
+  --primary-glow: oklch(0.66 0.17 250);
+  --accent: oklch(0.92 0.06 250);
+  --ring: oklch(0.52 0.18 255);
+}
+:root[data-theme="purple"] {
+  --primary: oklch(0.52 0.20 295);
+  --primary-glow: oklch(0.66 0.18 290);
+  --accent: oklch(0.93 0.06 295);
+  --ring: oklch(0.52 0.20 295);
+}
+:root[data-theme="rose"] {
+  --primary: oklch(0.58 0.20 10);
+  --primary-glow: oklch(0.72 0.16 15);
+  --accent: oklch(0.94 0.05 10);
+  --ring: oklch(0.58 0.20 10);
+}
+:root[data-theme="green"] {
+  --primary: oklch(0.55 0.16 150);
+  --primary-glow: oklch(0.68 0.15 145);
+  --accent: oklch(0.93 0.06 150);
+  --ring: oklch(0.55 0.16 150);
+}
+:root[data-theme="amber"] {
+  --primary: oklch(0.65 0.16 65);
+  --primary-glow: oklch(0.78 0.15 70);
+  --accent: oklch(0.94 0.07 75);
+  --ring: oklch(0.65 0.16 65);
 }
 
 .dark {
