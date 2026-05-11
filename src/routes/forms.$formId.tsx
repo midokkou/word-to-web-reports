@@ -215,6 +215,19 @@ function FormPage() {
             </div>
           </div>
 
+          <div className="mb-5 print:hidden">
+            <Button
+              size="sm"
+              onClick={() => {
+                saveEval(form.id, state);
+                toast.success("تم حفظ الاستمارة");
+              }}
+              className="bg-white text-primary hover:bg-white/90 font-bold"
+            >
+              <Save className="size-4 ml-1" /> حفظ
+            </Button>
+          </div>
+
           <div className="flex items-center justify-between text-sm mb-2">
             <span>{doneCount} منجز من {allDisplayItems.length}</span>
             <span className="font-bold">{pct}%</span>
