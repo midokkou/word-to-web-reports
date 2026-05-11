@@ -99,6 +99,12 @@ function Index() {
                 params={{ formId: f.id }}
                 className="group relative block"
               >
+                {/* status dot — outside marker */}
+                <span
+                  title={dot.label}
+                  className={`absolute -top-2 -left-2 z-20 size-4 rounded-full ring-4 ${dot.cls} shadow-md`}
+                  aria-label={dot.label}
+                />
                 {/* gradient border wrapper */}
                 <div
                   className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm"
