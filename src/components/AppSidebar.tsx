@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ClipboardList, BarChart3 } from "lucide-react";
+import { ClipboardList, BarChart3, FolderOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "السجلات", url: "/", icon: ClipboardList },
+  { title: "الاستمارات", url: "/", icon: ClipboardList },
+  { title: "السجلات", url: "/records", icon: FolderOpen },
   { title: "الإحصائيات", url: "/stats", icon: BarChart3 },
 ];
 
