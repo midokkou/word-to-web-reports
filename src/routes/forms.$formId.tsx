@@ -312,6 +312,22 @@ function FormPage() {
         })}
       </div>
 
+      <div className="container mx-auto px-4 mt-8 flex flex-wrap justify-center gap-3 print:hidden">
+        <Button
+          size="lg"
+          className="min-w-40"
+          onClick={() => {
+            saveEval(form.id, state);
+            toast.success("تم حفظ الاستمارة بنجاح");
+          }}
+        >
+          <Save className="size-4 ml-1" /> حفظ الاستمارة
+        </Button>
+        <Button size="lg" variant="outline" onClick={() => window.print()}>
+          <Printer className="size-4 ml-1" /> طباعة
+        </Button>
+      </div>
+
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
