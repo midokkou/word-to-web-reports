@@ -4,7 +4,8 @@ import { forms } from "@/data/forms";
 import { getProgress } from "@/lib/storage";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ClipboardCheck, Search, ArrowLeft, FileText } from "lucide-react";
+import { ClipboardCheck, Search, ArrowLeft, FileText, Sparkles } from "lucide-react";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export const Route = createFileRoute("/")({
   component: Index,
