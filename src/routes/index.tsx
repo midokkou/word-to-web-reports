@@ -84,7 +84,14 @@ function Index() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((f, idx) => {
             const p = getProgress(f.id, f.items.length);
-            const isComplete = p.pct === 100;
+            const status = getFillStatus(f.id, f.items.length);
+            const isComplete = status === "complete";
+            const dot =
+              status === "complete"
+                ? { cls: "bg-success ring-success/30", label: "مكتمل" }
+                : status === "partial"
+                ? { cls: "bg-warning ring-warning/30", label: "قيد التعبئة" }
+                : { cls: "bg-destructive ring-destructive/30", label: "غير معبّأ" };
             return (
               <Link
                 key={f.id}
