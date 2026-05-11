@@ -188,9 +188,19 @@ function FormPage() {
 
       <div className="container mx-auto px-4 pt-8">
         <div
-          className="rounded-2xl p-6 sm:p-8 text-primary-foreground shadow-[var(--shadow-elegant)]"
+          className="relative rounded-2xl p-6 sm:p-8 text-primary-foreground shadow-[var(--shadow-elegant)]"
           style={{ background: "var(--gradient-primary)" }}
         >
+          <Button
+            size="sm"
+            onClick={() => {
+              saveEval(form.id, state);
+              toast.success("تم حفظ الاستمارة");
+            }}
+            className="absolute top-4 left-4 bg-white text-primary hover:bg-white/90 font-bold shadow-md print:hidden"
+          >
+            <Save className="size-4 ml-1" /> حفظ
+          </Button>
           <Badge className="bg-white/15 text-primary-foreground border-0 mb-3">استمارة متابعة</Badge>
           <h1 className="text-xl sm:text-2xl font-extrabold mb-4">{form.title}</h1>
 
