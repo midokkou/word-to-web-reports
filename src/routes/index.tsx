@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { forms } from "@/data/forms";
-import { getProgress } from "@/lib/storage";
+import { getProgress, getFillStatus } from "@/lib/storage";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ClipboardCheck, Search, ArrowLeft, FileText, Sparkles } from "lucide-react";
@@ -84,7 +84,14 @@ function Index() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((f, idx) => {
             const p = getProgress(f.id, f.items.length);
-            const isComplete = p.pct === 100;
+            const status = getFillStatus(f.id, f.items.length);
+            const isComplete = status === "complete";
+            const dot =
+              status === "complete"
+                ? { cls: "bg-success ring-success/30", label: "مكتمل" }
+                : status === "partial"
+                ? { cls: "bg-warning ring-warning/30", label: "قيد التعبئة" }
+                : { cls: "bg-destructive ring-destructive/30", label: "غير معبّأ" };
             return (
               <Link
                 key={f.id}
@@ -92,6 +99,12 @@ function Index() {
                 params={{ formId: f.id }}
                 className="group relative block"
               >
+                {/* status dot — outside marker */}
+                <span
+                  title={dot.label}
+                  className={`absolute -top-2 -left-2 z-20 size-4 rounded-full ring-4 ${dot.cls} shadow-md`}
+                  aria-label={dot.label}
+                />
                 {/* gradient border wrapper */}
                 <div
                   className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm"
