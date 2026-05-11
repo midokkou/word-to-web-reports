@@ -81,33 +81,72 @@ function Index() {
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((f) => {
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((f, idx) => {
             const p = getProgress(f.id, f.items.length);
+            const isComplete = p.pct === 100;
             return (
               <Link
                 key={f.id}
                 to="/forms/$formId"
                 params={{ formId: f.id }}
-                className="group"
+                className="group relative block"
               >
-                <Card className="p-5 h-full transition-all hover:shadow-[var(--shadow-elegant)] hover:-translate-y-0.5 border-border/60">
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="size-10 rounded-lg bg-accent text-accent-foreground flex items-center justify-center shrink-0">
+                {/* gradient border wrapper */}
+                <div
+                  className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm"
+                  style={{ background: "var(--gradient-primary)" }}
+                  aria-hidden
+                />
+                <Card
+                  className="relative p-5 h-full rounded-2xl border-border/60 overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-glow)]"
+                  style={{ background: "var(--gradient-card)" }}
+                >
+                  {/* decorative corner glow */}
+                  <div
+                    className="absolute -top-12 -left-12 size-32 rounded-full opacity-20 blur-2xl"
+                    style={{ background: "var(--gradient-primary)" }}
+                    aria-hidden
+                  />
+
+                  <div className="relative flex items-start justify-between gap-3 mb-4">
+                    <div
+                      className="size-11 rounded-xl flex items-center justify-center text-primary-foreground shadow-md shrink-0"
+                      style={{ background: "var(--gradient-primary)" }}
+                    >
                       <FileText className="size-5" />
                     </div>
-                    <ArrowLeft className="size-4 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all" />
+                    <div className="flex items-center gap-2">
+                      {isComplete && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-success/15 text-success">
+                          <Sparkles className="size-3" />
+                          مكتمل
+                        </span>
+                      )}
+                      <span className="text-[11px] font-mono text-muted-foreground bg-background/60 backdrop-blur px-2 py-1 rounded-md border border-border/60">
+                        #{String(idx + 1).padStart(2, "0")}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-base leading-snug mb-3 line-clamp-2">{f.title}</h3>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                    <span>{p.done} / {p.total} منجز</span>
-                    <span className="font-semibold text-foreground">{p.pct}%</span>
+
+                  <h3 className="relative font-bold text-base leading-snug mb-4 line-clamp-2 min-h-[2.75rem] group-hover:text-primary transition-colors">
+                    {f.title}
+                  </h3>
+
+                  <div className="relative flex items-center justify-between text-xs text-muted-foreground mb-2">
+                    <span>{p.done} / {p.total} عنصر منجز</span>
+                    <span className="font-bold text-base text-foreground">{p.pct}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                  <div className="relative h-2 rounded-full bg-secondary overflow-hidden">
                     <div
-                      className="h-full transition-all"
+                      className="h-full transition-all duration-500 rounded-full"
                       style={{ width: `${p.pct}%`, background: "var(--gradient-primary)" }}
                     />
+                  </div>
+
+                  <div className="relative flex items-center justify-between mt-4 pt-3 border-t border-border/50">
+                    <span className="text-xs font-medium text-muted-foreground">فتح الاستمارة</span>
+                    <ArrowLeft className="size-4 text-primary group-hover:-translate-x-1 transition-transform" />
                   </div>
                 </Card>
               </Link>
