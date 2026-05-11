@@ -35,15 +35,15 @@ export const emptyFollowup = (): Followup => ({
 const KEY = (formId: string) => `school-report:${formId}`;
 
 export function loadEval(formId: string): FormEval {
-  if (typeof window === "undefined") return { employeeName: "", date: "", items: {}, customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
+  if (typeof window === "undefined") return { employeeName: "", date: "", items: {}, customItems: [], itemOverrides: {}, hiddenItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
   try {
     const raw = localStorage.getItem(KEY(formId));
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup(), ...parsed };
+      return { customItems: [], itemOverrides: {}, hiddenItems: [], followup1: emptyFollowup(), followup2: emptyFollowup(), ...parsed };
     }
   } catch {}
-  return { employeeName: "", date: "", items: {}, customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
+  return { employeeName: "", date: "", items: {}, customItems: [], itemOverrides: {}, hiddenItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
 }
 
 export function saveEval(formId: string, value: FormEval) {
