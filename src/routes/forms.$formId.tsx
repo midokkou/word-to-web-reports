@@ -46,7 +46,7 @@ const STATUS: { value: ItemStatus; label: string; icon: typeof CheckCircle2; cls
 ];
 
 function FormPage() {
-  const { form } = Route.useLoaderData();
+  const { form } = Route.useLoaderData() as { form: import("@/data/forms").SchoolForm };
   const navigate = useNavigate();
   const [state, setState] = useState<FormEval>({ employeeName: "", date: "", items: {} });
 
