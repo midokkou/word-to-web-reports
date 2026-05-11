@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { forms } from "@/data/forms";
-import { getProgress } from "@/lib/storage";
+import { getProgress, getFillStatus } from "@/lib/storage";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ClipboardCheck, Search, ArrowLeft, FileText, Sparkles } from "lucide-react";
