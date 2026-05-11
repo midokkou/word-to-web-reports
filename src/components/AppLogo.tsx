@@ -50,9 +50,13 @@ export function AppLogo({ className = "" }: { className?: string }) {
         type="button"
         onClick={() => inputRef.current?.click()}
         title="اضغط لاستبدال الشعار"
-        className={`group relative shrink-0 rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${className}`}
+        className={`group relative shrink-0 bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg ${className}`}
       >
-        <img src={logo} alt="شعار" className="h-12 w-auto sm:h-14 block" />
+        <img
+          src={logo}
+          alt="شعار"
+          className="h-12 w-auto sm:h-14 block bg-transparent mix-blend-multiply"
+        />
         <span className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors flex items-center justify-center text-[10px] font-bold text-transparent group-hover:text-background">
           استبدال
         </span>
