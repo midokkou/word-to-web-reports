@@ -16,7 +16,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { BarChart3, CheckCircle2, XCircle, ListChecks } from "lucide-react";
+import { BarChart3, CheckCircle2, XCircle, ListChecks, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/stats")({
   component: StatsPage,
