@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as RecordsRouteImport } from './routes/records'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormsFormIdRouteImport } from './routes/forms.$formId'
 
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordsRoute = RecordsRouteImport.update({
+  id: '/records',
+  path: '/records',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const FormsFormIdRoute = FormsFormIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/records': typeof RecordsRoute
   '/stats': typeof StatsRoute
   '/forms/$formId': typeof FormsFormIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/records': typeof RecordsRoute
   '/stats': typeof StatsRoute
   '/forms/$formId': typeof FormsFormIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/records': typeof RecordsRoute
   '/stats': typeof StatsRoute
   '/forms/$formId': typeof FormsFormIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/stats' | '/forms/$formId'
+  fullPaths: '/' | '/records' | '/stats' | '/forms/$formId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/stats' | '/forms/$formId'
-  id: '__root__' | '/' | '/stats' | '/forms/$formId'
+  to: '/' | '/records' | '/stats' | '/forms/$formId'
+  id: '__root__' | '/' | '/records' | '/stats' | '/forms/$formId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RecordsRoute: typeof RecordsRoute
   StatsRoute: typeof StatsRoute
   FormsFormIdRoute: typeof FormsFormIdRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/records': {
+      id: '/records'
+      path: '/records'
+      fullPath: '/records'
+      preLoaderRoute: typeof RecordsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RecordsRoute: RecordsRoute,
   StatsRoute: StatsRoute,
   FormsFormIdRoute: FormsFormIdRoute,
 }
