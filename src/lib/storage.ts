@@ -18,6 +18,8 @@ export type FormEval = {
   date: string;
   items: Record<number, ItemEval>;
   customItems?: string[];
+  itemOverrides?: Record<number, string>;
+  hiddenItems?: number[];
   followup1?: Followup;
   followup2?: Followup;
 };
