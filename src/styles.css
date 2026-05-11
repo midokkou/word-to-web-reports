@@ -222,9 +222,20 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 }
 
 @media print {
+  @page { margin: 12mm; }
+
+  /* Force browsers to print background colors and gradients exactly */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   .print\:hidden { display: none !important; }
-  body { background: white !important; }
   .container { max-width: 100% !important; }
-  textarea, input { border: 1px solid #ccc !important; }
+
+  /* Hide app chrome (sidebar + top bar) when printing so the form fills the page */
+  [data-sidebar], [data-sidebar="sidebar"],
+  aside[data-sidebar="sidebar"] { display: none !important; }
 }
 
