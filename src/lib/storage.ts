@@ -5,12 +5,30 @@ export type ItemEval = {
   notes: string;
 };
 
+export type Followup = {
+  day: string;
+  date: string;
+  recommendations: string;
+  reviewerName: string;
+  signature: string;
+};
+
 export type FormEval = {
   employeeName: string;
   date: string;
   items: Record<number, ItemEval>;
   customItems?: string[];
+  followup1?: Followup;
+  followup2?: Followup;
 };
+
+export const emptyFollowup = (): Followup => ({
+  day: "",
+  date: "",
+  recommendations: "",
+  reviewerName: "",
+  signature: "",
+});
 
 const KEY = (formId: string) => `school-report:${formId}`;
 
