@@ -58,11 +58,46 @@ export const Route = createFileRoute("/forms/$formId")({
   ),
 });
 
-const STATUS: { value: ItemStatus; label: string; icon: typeof CheckCircle2; cls: string }[] = [
-  { value: "done", label: "منجز", icon: CheckCircle2, cls: "data-[on=true]:bg-success data-[on=true]:text-success-foreground" },
-  { value: "partial", label: "جزئي", icon: MinusCircle, cls: "data-[on=true]:bg-warning data-[on=true]:text-warning-foreground" },
-  { value: "not_done", label: "غير منجز", icon: XCircle, cls: "data-[on=true]:bg-destructive data-[on=true]:text-destructive-foreground" },
-  { value: "pending", label: "لاحقاً", icon: Circle, cls: "data-[on=true]:bg-muted data-[on=true]:text-foreground" },
+const STATUS: {
+  value: ItemStatus;
+  label: string;
+  icon: typeof CheckCircle2;
+  cls: string;
+  ring: string;
+  accent: string;
+}[] = [
+  {
+    value: "done",
+    label: "منجز",
+    icon: CheckCircle2,
+    cls: "data-[on=true]:bg-success data-[on=true]:text-success-foreground data-[on=true]:border-success data-[on=true]:shadow-[0_4px_14px_-4px_var(--success)]",
+    ring: "ring-success/40",
+    accent: "var(--success)",
+  },
+  {
+    value: "partial",
+    label: "جزئي",
+    icon: MinusCircle,
+    cls: "data-[on=true]:bg-warning data-[on=true]:text-warning-foreground data-[on=true]:border-warning data-[on=true]:shadow-[0_4px_14px_-4px_var(--warning)]",
+    ring: "ring-warning/40",
+    accent: "var(--warning)",
+  },
+  {
+    value: "not_done",
+    label: "غير منجز",
+    icon: XCircle,
+    cls: "data-[on=true]:bg-destructive data-[on=true]:text-destructive-foreground data-[on=true]:border-destructive data-[on=true]:shadow-[0_4px_14px_-4px_var(--destructive)]",
+    ring: "ring-destructive/40",
+    accent: "var(--destructive)",
+  },
+  {
+    value: "pending",
+    label: "لاحقاً",
+    icon: Circle,
+    cls: "data-[on=true]:bg-muted data-[on=true]:text-foreground data-[on=true]:border-muted-foreground/30",
+    ring: "ring-muted-foreground/30",
+    accent: "var(--muted-foreground)",
+  },
 ];
 
 function FormPage() {
