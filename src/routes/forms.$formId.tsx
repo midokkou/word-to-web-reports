@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { getForm, forms } from "@/data/forms";
-import { type FormEval, type ItemStatus, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
+import { type FormEval, type ItemStatus, type ItemEval, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
