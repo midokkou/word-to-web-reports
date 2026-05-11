@@ -29,6 +29,9 @@ import {
   Plus,
   Trash2,
   Search,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
