@@ -9,17 +9,21 @@ export type FormEval = {
   employeeName: string;
   date: string;
   items: Record<number, ItemEval>;
+  customItems?: string[];
 };
 
 const KEY = (formId: string) => `school-report:${formId}`;
 
 export function loadEval(formId: string): FormEval {
-  if (typeof window === "undefined") return { employeeName: "", date: "", items: {} };
+  if (typeof window === "undefined") return { employeeName: "", date: "", items: {}, customItems: [] };
   try {
     const raw = localStorage.getItem(KEY(formId));
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { customItems: [], ...parsed };
+    }
   } catch {}
-  return { employeeName: "", date: "", items: {} };
+  return { employeeName: "", date: "", items: {}, customItems: [] };
 }
 
 export function saveEval(formId: string, value: FormEval) {
