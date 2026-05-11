@@ -147,22 +147,6 @@ function FormPage() {
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="size-4 ml-1" /> طباعة
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (confirm("هل أنت متأكد من تفريغ الاستمارة؟")) {
-                  clearEval(form.id);
-                  setState({ employeeName: "", date: "", items: {}, customItems: [] });
-                  toast.success("تم تفريغ الاستمارة");
-                }
-              }}
-            >
-              <RotateCcw className="size-4 ml-1" /> تفريغ
-            </Button>
-            <Button size="sm" onClick={() => toast.success("تم الحفظ تلقائياً")}>
-              <Save className="size-4 ml-1" /> محفوظ
-            </Button>
           </div>
         </div>
       </header>
