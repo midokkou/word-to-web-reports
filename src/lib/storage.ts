@@ -5,25 +5,43 @@ export type ItemEval = {
   notes: string;
 };
 
+export type Followup = {
+  day: string;
+  date: string;
+  recommendations: string;
+  reviewerName: string;
+  signature: string;
+};
+
 export type FormEval = {
   employeeName: string;
   date: string;
   items: Record<number, ItemEval>;
   customItems?: string[];
+  followup1?: Followup;
+  followup2?: Followup;
 };
+
+export const emptyFollowup = (): Followup => ({
+  day: "",
+  date: "",
+  recommendations: "",
+  reviewerName: "",
+  signature: "",
+});
 
 const KEY = (formId: string) => `school-report:${formId}`;
 
 export function loadEval(formId: string): FormEval {
-  if (typeof window === "undefined") return { employeeName: "", date: "", items: {}, customItems: [] };
+  if (typeof window === "undefined") return { employeeName: "", date: "", items: {}, customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
   try {
     const raw = localStorage.getItem(KEY(formId));
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { customItems: [], ...parsed };
+      return { customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup(), ...parsed };
     }
   } catch {}
-  return { employeeName: "", date: "", items: {}, customItems: [] };
+  return { employeeName: "", date: "", items: {}, customItems: [], followup1: emptyFollowup(), followup2: emptyFollowup() };
 }
 
 export function saveEval(formId: string, value: FormEval) {

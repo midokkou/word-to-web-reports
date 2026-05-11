@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { getForm, forms } from "@/data/forms";
-import { type FormEval, type ItemStatus, loadEval, saveEval, clearEval } from "@/lib/storage";
+import { type FormEval, type ItemStatus, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -261,6 +261,52 @@ function FormPage() {
                 rows={2}
                 className="text-sm bg-background"
               />
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="container mx-auto px-4 mt-8 space-y-4">
+        <h2 className="text-lg font-bold flex items-center gap-2">
+          <CheckCircle2 className="size-5 text-primary" />
+          متابعة المسؤول
+        </h2>
+        {([
+          { key: "followup1" as const, title: "المتابعة الأولى" },
+          { key: "followup2" as const, title: "المتابعة الثانية" },
+        ]).map(({ key, title }) => {
+          const fu = state[key] ?? emptyFollowup();
+          const setFu = (patch: Partial<Followup>) =>
+            update({ ...state, [key]: { ...fu, ...patch } });
+          return (
+            <Card key={key} className="p-4 sm:p-5 border-border/60">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge className="bg-primary/10 text-primary border-0">{title}</Badge>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">اليوم</label>
+                  <Input value={fu.day} onChange={(e) => setFu({ day: e.target.value })} placeholder="مثال: الأحد" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">التاريخ</label>
+                  <Input type="date" value={fu.date} onChange={(e) => setFu({ date: e.target.value })} />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="text-xs text-muted-foreground mb-1 block">التوصيات</label>
+                <Textarea value={fu.recommendations} onChange={(e) => setFu({ recommendations: e.target.value })} rows={3} placeholder="اكتب التوصيات..." />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">اسم المتابع</label>
+                  <Input value={fu.reviewerName} onChange={(e) => setFu({ reviewerName: e.target.value })} placeholder="..." />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">التوقيع</label>
+                  <Input value={fu.signature} onChange={(e) => setFu({ signature: e.target.value })} placeholder="..." />
+                </div>
+              </div>
             </Card>
           );
         })}
