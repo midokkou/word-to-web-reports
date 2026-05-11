@@ -229,20 +229,48 @@ function FormPage() {
         {allDisplayItems.map((text, i) => {
           const cur = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
           const isCustom = i >= form.items.length;
+          const meta = STATUS.find((s) => s.value === cur.status) ?? STATUS[3];
           return (
-            <Card key={i} className="p-4 sm:p-5 border-border/60">
-              <div className="flex gap-3 items-start mb-3">
-                <div className="size-8 shrink-0 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-sm">
+            <Card
+              key={i}
+              className="relative p-4 sm:p-5 rounded-2xl border-border/60 overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5"
+              style={{
+                background:
+                  "linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), var(--card))",
+              }}
+            >
+              {/* status accent bar (right side because RTL) */}
+              <span
+                className="absolute top-0 right-0 h-full w-1.5 transition-colors"
+                style={{ background: meta.accent }}
+                aria-hidden
+              />
+              {/* soft glow */}
+              <span
+                className="pointer-events-none absolute -top-12 -left-12 size-32 rounded-full opacity-15 blur-2xl"
+                style={{ background: meta.accent }}
+                aria-hidden
+              />
+
+              <div className="relative flex gap-3 items-start mb-4">
+                <div
+                  className={`size-9 shrink-0 rounded-xl flex items-center justify-center font-bold text-sm text-primary-foreground shadow-md ring-2 ${meta.ring}`}
+                  style={{ background: "var(--gradient-primary)" }}
+                >
                   {i + 1}
                 </div>
-                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1">{text}</p>
+                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
+                  {text}
+                </p>
                 {isCustom && (
                   <>
-                    <Badge variant="outline" className="text-[10px] print:hidden">مضاف</Badge>
+                    <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
+                      مضاف
+                    </Badge>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 text-destructive print:hidden"
+                      className="size-7 text-destructive hover:bg-destructive/10 print:hidden"
                       onClick={() => removeCustom(text)}
                     >
                       <Trash2 className="size-4" />
@@ -251,7 +279,7 @@ function FormPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-3 print:hidden">
+              <div className="relative flex flex-wrap gap-2 mb-3 print:hidden">
                 {STATUS.map((s) => {
                   const on = cur.status === s.value;
                   const Icon = s.icon;
@@ -260,7 +288,7 @@ function FormPage() {
                       key={s.value}
                       data-on={on}
                       onClick={() => setStatus(i, s.value)}
-                      className={`inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5 rounded-full border border-border bg-card hover:bg-secondary transition-all ${s.cls}`}
+                      className={`inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-border bg-card hover:border-primary/40 hover:bg-secondary/60 transition-all ${s.cls}`}
                     >
                       <Icon className="size-3.5" />
                       {s.label}
@@ -270,7 +298,7 @@ function FormPage() {
               </div>
 
               <div className="hidden print:block text-sm mb-2">
-                الحالة: {STATUS.find((s) => s.value === cur.status)?.label ?? "—"}
+                الحالة: {meta.label}
               </div>
 
               <Textarea
@@ -278,7 +306,7 @@ function FormPage() {
                 onChange={(e) => setNotes(i, e.target.value)}
                 placeholder="ملاحظات..."
                 rows={2}
-                className="text-sm bg-background"
+                className="text-sm bg-background/70 border-border/70 focus-visible:ring-primary/40 rounded-xl"
               />
             </Card>
           );
