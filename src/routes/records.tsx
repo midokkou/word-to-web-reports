@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FolderOpen, Search, ArrowLeft, User, Calendar, Trash2, FileText } from "lucide-react";
+import { FolderOpen, Search, ArrowLeft, User, Calendar, Trash2, FileText, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -54,10 +54,13 @@ function RecordsPage() {
           >
             <FolderOpen className="size-6" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg sm:text-xl font-bold leading-tight">السجلات</h1>
             <p className="text-xs text-muted-foreground">جميع الاستمارات التي تم البدء بتعبئتها</p>
           </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
+            <Printer className="size-4 ml-1" /> طباعة
+          </Button>
         </div>
       </header>
 
