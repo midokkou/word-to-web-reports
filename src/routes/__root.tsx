@@ -119,7 +119,19 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full" dir="rtl">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="h-10 flex items-center px-2 border-b bg-card/60 backdrop-blur print:hidden">
+              <SidebarTrigger />
+            </div>
+            <main className="flex-1 min-w-0">
+              <Outlet />
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
     </QueryClientProvider>
   );
 }
