@@ -110,6 +110,8 @@ function FormPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     setState(loadEval(form.id));
