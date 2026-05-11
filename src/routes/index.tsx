@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ClipboardCheck, Search, ArrowLeft, FileText, Sparkles } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import moeLogo from "@/assets/moe-logo.png";
+import { AppLogo } from "@/components/AppLogo";
 
 export const Route = createFileRoute("/")({
   component: Index,
