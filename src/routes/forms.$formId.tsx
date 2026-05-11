@@ -58,11 +58,46 @@ export const Route = createFileRoute("/forms/$formId")({
   ),
 });
 
-const STATUS: { value: ItemStatus; label: string; icon: typeof CheckCircle2; cls: string }[] = [
-  { value: "done", label: "منجز", icon: CheckCircle2, cls: "data-[on=true]:bg-success data-[on=true]:text-success-foreground" },
-  { value: "partial", label: "جزئي", icon: MinusCircle, cls: "data-[on=true]:bg-warning data-[on=true]:text-warning-foreground" },
-  { value: "not_done", label: "غير منجز", icon: XCircle, cls: "data-[on=true]:bg-destructive data-[on=true]:text-destructive-foreground" },
-  { value: "pending", label: "لاحقاً", icon: Circle, cls: "data-[on=true]:bg-muted data-[on=true]:text-foreground" },
+const STATUS: {
+  value: ItemStatus;
+  label: string;
+  icon: typeof CheckCircle2;
+  cls: string;
+  ring: string;
+  accent: string;
+}[] = [
+  {
+    value: "done",
+    label: "منجز",
+    icon: CheckCircle2,
+    cls: "data-[on=true]:bg-success data-[on=true]:text-success-foreground data-[on=true]:border-success data-[on=true]:shadow-[0_4px_14px_-4px_var(--success)]",
+    ring: "ring-success/40",
+    accent: "var(--success)",
+  },
+  {
+    value: "partial",
+    label: "جزئي",
+    icon: MinusCircle,
+    cls: "data-[on=true]:bg-warning data-[on=true]:text-warning-foreground data-[on=true]:border-warning data-[on=true]:shadow-[0_4px_14px_-4px_var(--warning)]",
+    ring: "ring-warning/40",
+    accent: "var(--warning)",
+  },
+  {
+    value: "not_done",
+    label: "غير منجز",
+    icon: XCircle,
+    cls: "data-[on=true]:bg-destructive data-[on=true]:text-destructive-foreground data-[on=true]:border-destructive data-[on=true]:shadow-[0_4px_14px_-4px_var(--destructive)]",
+    ring: "ring-destructive/40",
+    accent: "var(--destructive)",
+  },
+  {
+    value: "pending",
+    label: "لاحقاً",
+    icon: Circle,
+    cls: "data-[on=true]:bg-muted data-[on=true]:text-foreground data-[on=true]:border-muted-foreground/30",
+    ring: "ring-muted-foreground/30",
+    accent: "var(--muted-foreground)",
+  },
 ];
 
 function FormPage() {
@@ -194,20 +229,48 @@ function FormPage() {
         {allDisplayItems.map((text, i) => {
           const cur = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
           const isCustom = i >= form.items.length;
+          const meta = STATUS.find((s) => s.value === cur.status) ?? STATUS[3];
           return (
-            <Card key={i} className="p-4 sm:p-5 border-border/60">
-              <div className="flex gap-3 items-start mb-3">
-                <div className="size-8 shrink-0 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-sm">
+            <Card
+              key={i}
+              className="relative p-4 sm:p-5 rounded-2xl border-border/60 overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5"
+              style={{
+                background:
+                  "linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), var(--card))",
+              }}
+            >
+              {/* status accent bar (right side because RTL) */}
+              <span
+                className="absolute top-0 right-0 h-full w-1.5 transition-colors"
+                style={{ background: meta.accent }}
+                aria-hidden
+              />
+              {/* soft glow */}
+              <span
+                className="pointer-events-none absolute -top-12 -left-12 size-32 rounded-full opacity-15 blur-2xl"
+                style={{ background: meta.accent }}
+                aria-hidden
+              />
+
+              <div className="relative flex gap-3 items-start mb-4">
+                <div
+                  className={`size-9 shrink-0 rounded-xl flex items-center justify-center font-bold text-sm text-primary-foreground shadow-md ring-2 ${meta.ring}`}
+                  style={{ background: "var(--gradient-primary)" }}
+                >
                   {i + 1}
                 </div>
-                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1">{text}</p>
+                <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
+                  {text}
+                </p>
                 {isCustom && (
                   <>
-                    <Badge variant="outline" className="text-[10px] print:hidden">مضاف</Badge>
+                    <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
+                      مضاف
+                    </Badge>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 text-destructive print:hidden"
+                      className="size-7 text-destructive hover:bg-destructive/10 print:hidden"
                       onClick={() => removeCustom(text)}
                     >
                       <Trash2 className="size-4" />
@@ -216,7 +279,7 @@ function FormPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-3 print:hidden">
+              <div className="relative flex flex-wrap gap-2 mb-3 print:hidden">
                 {STATUS.map((s) => {
                   const on = cur.status === s.value;
                   const Icon = s.icon;
@@ -225,7 +288,7 @@ function FormPage() {
                       key={s.value}
                       data-on={on}
                       onClick={() => setStatus(i, s.value)}
-                      className={`inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5 rounded-full border border-border bg-card hover:bg-secondary transition-all ${s.cls}`}
+                      className={`inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-border bg-card hover:border-primary/40 hover:bg-secondary/60 transition-all ${s.cls}`}
                     >
                       <Icon className="size-3.5" />
                       {s.label}
@@ -235,7 +298,7 @@ function FormPage() {
               </div>
 
               <div className="hidden print:block text-sm mb-2">
-                الحالة: {STATUS.find((s) => s.value === cur.status)?.label ?? "—"}
+                الحالة: {meta.label}
               </div>
 
               <Textarea
@@ -243,7 +306,7 @@ function FormPage() {
                 onChange={(e) => setNotes(i, e.target.value)}
                 placeholder="ملاحظات..."
                 rows={2}
-                className="text-sm bg-background"
+                className="text-sm bg-background/70 border-border/70 focus-visible:ring-primary/40 rounded-xl"
               />
             </Card>
           );
