@@ -45,6 +45,12 @@ function Index() {
       <header className="border-b bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            <img
+              src={moeLogo}
+              alt="وزارة التعليم"
+              className="h-12 w-auto sm:h-14 shrink-0"
+            />
+            <div className="h-10 w-px bg-border hidden sm:block" />
             <div className="size-11 rounded-xl flex items-center justify-center text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
               <ClipboardCheck className="size-6" />
             </div>
