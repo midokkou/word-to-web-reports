@@ -83,10 +83,13 @@ function StatsPage() {
           >
             <BarChart3 className="size-6" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg sm:text-xl font-bold leading-tight">الإحصائيات والرسوم البيانية</h1>
             <p className="text-xs text-muted-foreground">مقارنة الإنجاز بين جميع الاستمارات</p>
           </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
+            <Printer className="size-4 ml-1" /> طباعة
+          </Button>
         </div>
       </header>
 
