@@ -114,7 +114,27 @@ function FormPage() {
   const [editText, setEditText] = useState("");
 
   useEffect(() => {
+    // Load local cache immediately, then sync from cloud
     setState(loadEval(form.id));
+    (async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const recId = localStorage.getItem(`school-report:rec:${form.id}`);
+        if (!recId) return;
+        const { data } = await supabase
+          .from("form_records")
+          .select("data")
+          .eq("id", recId)
+          .maybeSingle();
+        if (data?.data) {
+          const cloud = data.data as unknown as FormEval;
+          setState((prev) => ({ ...prev, ...cloud }));
+          localStorage.setItem(`school-report:${form.id}`, JSON.stringify(cloud));
+        }
+      } catch (e) {
+        console.error("Failed to fetch from cloud:", e);
+      }
+    })();
   }, [form.id]);
 
   const update = (next: FormEval) => {
