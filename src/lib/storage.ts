@@ -70,7 +70,7 @@ async function pushToCloud(formId: string, value: FormEval) {
       form_id: formId,
       employee_name: value.employeeName || "",
       date: value.date || "",
-      data: value as unknown as Record<string, unknown>,
+      data: value as never,
     };
     if (recId) {
       const { error } = await supabase
