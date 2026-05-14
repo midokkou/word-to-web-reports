@@ -13,6 +13,7 @@ import { Route as StatsRouteImport } from './routes/stats'
 import { Route as RecordsRouteImport } from './routes/records'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksPeriodRouteImport } from './routes/tasks.$period'
+import { Route as StatsTasksRouteImport } from './routes/stats.tasks'
 import { Route as FormsFormIdRouteImport } from './routes/forms.$formId'
 
 const StatsRoute = StatsRouteImport.update({
@@ -35,6 +36,11 @@ const TasksPeriodRoute = TasksPeriodRouteImport.update({
   path: '/tasks/$period',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatsTasksRoute = StatsTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => StatsRoute,
+} as any)
 const FormsFormIdRoute = FormsFormIdRouteImport.update({
   id: '/forms/$formId',
   path: '/forms/$formId',
@@ -44,43 +50,59 @@ const FormsFormIdRoute = FormsFormIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/records': typeof RecordsRoute
-  '/stats': typeof StatsRoute
+  '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
+  '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/records': typeof RecordsRoute
-  '/stats': typeof StatsRoute
+  '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
+  '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/records': typeof RecordsRoute
-  '/stats': typeof StatsRoute
+  '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
+  '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/records' | '/stats' | '/forms/$formId' | '/tasks/$period'
+  fullPaths:
+    | '/'
+    | '/records'
+    | '/stats'
+    | '/forms/$formId'
+    | '/stats/tasks'
+    | '/tasks/$period'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/records' | '/stats' | '/forms/$formId' | '/tasks/$period'
+  to:
+    | '/'
+    | '/records'
+    | '/stats'
+    | '/forms/$formId'
+    | '/stats/tasks'
+    | '/tasks/$period'
   id:
     | '__root__'
     | '/'
     | '/records'
     | '/stats'
     | '/forms/$formId'
+    | '/stats/tasks'
     | '/tasks/$period'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RecordsRoute: typeof RecordsRoute
-  StatsRoute: typeof StatsRoute
+  StatsRoute: typeof StatsRouteWithChildren
   FormsFormIdRoute: typeof FormsFormIdRoute
   TasksPeriodRoute: typeof TasksPeriodRoute
 }
@@ -115,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TasksPeriodRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stats/tasks': {
+      id: '/stats/tasks'
+      path: '/tasks'
+      fullPath: '/stats/tasks'
+      preLoaderRoute: typeof StatsTasksRouteImport
+      parentRoute: typeof StatsRoute
+    }
     '/forms/$formId': {
       id: '/forms/$formId'
       path: '/forms/$formId'
@@ -125,13 +154,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface StatsRouteChildren {
+  StatsTasksRoute: typeof StatsTasksRoute
+}
+
+const StatsRouteChildren: StatsRouteChildren = {
+  StatsTasksRoute: StatsTasksRoute,
+}
+
+const StatsRouteWithChildren = StatsRoute._addFileChildren(StatsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RecordsRoute: RecordsRoute,
-  StatsRoute: StatsRoute,
+  StatsRoute: StatsRouteWithChildren,
   FormsFormIdRoute: FormsFormIdRoute,
   TasksPeriodRoute: TasksPeriodRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
