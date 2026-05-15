@@ -15,7 +15,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
@@ -55,7 +54,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild isActive={currentPath === "/"}>
                   <Link to="/" className="flex items-center gap-2">
                     <ClipboardList className="size-4" />
-                    <span>الشاشة الرئيسية</span>
+                    <span>الاستمارات</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -85,49 +84,45 @@ export function AppSidebar() {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={currentPath === "/records"}>
+                  <Link to="/records" className="flex items-center gap-2">
+                    <FolderOpen className="size-4" />
+                    <span>السجلات</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <Collapsible open={statsOpen} onOpenChange={setStatsOpen}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={currentPath.startsWith("/stats")}>
+                      <BarChart3 className="size-4" />
+                      <span>الإحصائيات</span>
+                      <ChevronDown className={`mr-auto size-4 transition-transform ${statsOpen ? "rotate-180" : ""}`} />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {statsItems.map((s) => (
+                        <SidebarMenuSubItem key={s.url}>
+                          <SidebarMenuSubButton asChild isActive={currentPath === s.url}>
+                            <Link to={s.url} className="flex items-center gap-2">
+                              <s.icon className="size-4" />
+                              <span>{s.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={currentPath === "/records"}>
-              <Link to="/records" className="flex items-center gap-2">
-                <FolderOpen className="size-4" />
-                <span>السجلات</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <Collapsible open={statsOpen} onOpenChange={setStatsOpen}>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton isActive={currentPath.startsWith("/stats")}>
-                  <BarChart3 className="size-4" />
-                  <span>الإحصائيات</span>
-                  <ChevronDown className={`mr-auto size-4 transition-transform ${statsOpen ? "rotate-180" : ""}`} />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {statsItems.map((s) => (
-                    <SidebarMenuSubItem key={s.url}>
-                      <SidebarMenuSubButton asChild isActive={currentPath === s.url}>
-                        <Link to={s.url} className="flex items-center gap-2">
-                          <s.icon className="size-4" />
-                          <span>{s.title}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }
