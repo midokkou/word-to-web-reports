@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useParams, notFound } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, Printer, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ExportButtons } from "@/components/ExportButtons";
 
 export const Route = createFileRoute("/tasks/$period")({
   component: TasksPage,
@@ -42,6 +43,21 @@ function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm());
+  const pdfRef = useRef<HTMLDivElement>(null);
+
+  const buildSheets = () => [
+    {
+      name: TITLES[period] ?? "المهام",
+      rows: tasks.map((t, i) => ({
+        "#": i + 1,
+        "اسم المهمة": t.name,
+        "التاريخ": t.date,
+        "ما تم تنفيذه": t.data.done,
+        "ما لم يتم": t.data.notDone,
+        "ما يستجد": t.data.newWork,
+      })),
+    },
+  ];
 
   async function load() {
     setLoading(true);
@@ -116,12 +132,15 @@ function TasksPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto" ref={pdfRef}>
       <div className="flex items-center justify-between gap-2 flex-wrap mb-4 print:hidden">
         <h1 className="text-2xl font-bold">{TITLES[period]}</h1>
-        <Button onClick={handlePrint} variant="outline" className="gap-2">
-          <Printer className="size-4" /> طباعة
-        </Button>
+        <div className="flex gap-2 items-center flex-wrap">
+          <Button onClick={handlePrint} variant="outline" className="gap-2">
+            <Printer className="size-4" /> طباعة
+          </Button>
+          <ExportButtons filename={TITLES[period] ?? "tasks"} getSheets={buildSheets} pdfTargetRef={pdfRef} />
+        </div>
       </div>
 
       <div className="hidden print:block mb-4">
