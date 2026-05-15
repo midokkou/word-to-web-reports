@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getForm } from "@/data/forms";
 import {
   computeFillStatus,
@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { ExportButtons } from "@/components/ExportButtons";
 
 export const Route = createFileRoute("/records")({
   component: RecordsPage,
@@ -58,6 +59,7 @@ function RecordsPage() {
   const [q, setQ] = useState("");
   const [records, setRecords] = useState<CloudRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const refresh = async () => {
     setLoading(true);
