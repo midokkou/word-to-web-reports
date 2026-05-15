@@ -124,8 +124,32 @@ function RecordsPage() {
     }
   };
 
+  const buildSheets = () => {
+    const formsRows = formRows.map((r) => ({
+      "الاستمارة": r.form?.title ?? r.record.formId,
+      "الموظفة": r.record.employeeName,
+      "التاريخ": r.record.date,
+      "منجز": r.done,
+      "الإجمالي": r.total,
+      "النسبة": r.total ? Math.round((r.done / r.total) * 100) + "%" : "0%",
+      "الحالة": r.status === "complete" ? "مكتمل" : "قيد التعبئة",
+    }));
+    const tasksRows = taskRows.map((r) => ({
+      "اسم المهمة": r.record.employeeName,
+      "النوع": TASK_LABELS[r.period],
+      "التاريخ": r.record.date,
+      "ما تم": (r.record.data as { done?: string })?.done ?? "",
+      "ما لم يتم": (r.record.data as { notDone?: string })?.notDone ?? "",
+      "ما يستجد": (r.record.data as { newWork?: string })?.newWork ?? "",
+    }));
+    return [
+      { name: "الاستمارات", rows: formsRows },
+      { name: "المهام", rows: tasksRows },
+    ];
+  };
+
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-12" ref={pdfRef}>
       <Toaster richColors position="top-center" />
       <header className="border-b bg-card/60 backdrop-blur">
         <div className="container mx-auto px-4 py-5 flex items-center gap-3">
@@ -147,6 +171,7 @@ function RecordsPage() {
           <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
             <Printer className="size-4 ml-1" /> طباعة
           </Button>
+          <ExportButtons filename="السجلات" getSheets={buildSheets} pdfTargetRef={pdfRef} />
         </div>
       </header>
 
