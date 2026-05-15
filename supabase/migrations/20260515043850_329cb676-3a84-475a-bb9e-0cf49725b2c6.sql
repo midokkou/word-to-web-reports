@@ -1,0 +1,1 @@
+DELETE FROM public.form_records WHERE form_id LIKE 'tasks-%';

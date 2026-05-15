@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ExportButtons } from "@/components/ExportButtons";
 import { forms } from "@/data/forms";
 import { loadEval } from "@/lib/storage";
 import { Card } from "@/components/ui/card";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/stats")({
 function StatsPage() {
   const [, setTick] = useState(0);
   useEffect(() => setTick((t) => t + 1), []);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const data = useMemo(() => {
     return forms.map((f, i) => {
@@ -73,8 +75,24 @@ function StatsPage() {
     { name: "لاحقاً", value: totals.pending, color: "hsl(var(--muted-foreground))" },
   ].filter((p) => p.value > 0);
 
+  const buildSheets = () => [
+    {
+      name: "إحصاءات الاستمارات",
+      rows: data.map((d) => ({
+        "#": d.idx,
+        "الاستمارة": d.title,
+        "العناصر": d.total,
+        "منجز": d.done,
+        "جزئي": d.partial,
+        "غير منجز": d.notDone,
+        "لاحقاً": d.pending,
+        "النسبة": d.total ? Math.round((d.done / d.total) * 100) + "%" : "0%",
+      })),
+    },
+  ];
+
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-12" ref={pdfRef}>
       <header className="border-b bg-card/60 backdrop-blur">
         <div className="container mx-auto px-4 py-5 flex items-center gap-3">
           <div
@@ -90,6 +108,7 @@ function StatsPage() {
           <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
             <Printer className="size-4 ml-1" /> طباعة
           </Button>
+          <ExportButtons filename="إحصاءات الاستمارات" getSheets={buildSheets} pdfTargetRef={pdfRef} />
         </div>
       </header>
 
