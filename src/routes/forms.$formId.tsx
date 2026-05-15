@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { getForm, forms } from "@/data/forms";
 import { type FormEval, type ItemStatus, type ItemEval, type Followup, loadEval, saveEval, clearEval, emptyFollowup } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,6 @@ import {
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ExportButtons } from "@/components/ExportButtons";
-import { useRef } from "react";
 
 export const Route = createFileRoute("/forms/$formId")({
   component: FormPage,
