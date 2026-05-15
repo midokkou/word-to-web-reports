@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,17 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { BarChart3, ListChecks, Printer, Loader2, CalendarDays, CalendarRange, CalendarCheck } from "lucide-react";
+import {
+  BarChart3,
+  ListChecks,
+  Printer,
+  Loader2,
+  CalendarDays,
+  CalendarRange,
+  CalendarCheck,
+  ArrowLeft,
+} from "lucide-react";
+import { ExportButtons } from "@/components/ExportButtons";
 
 export const Route = createFileRoute("/stats/tasks")({
   component: TaskStatsPage,
@@ -29,11 +39,19 @@ const PERIODS = [
   { key: "monthly", label: "شهرية", icon: CalendarCheck },
 ] as const;
 
-type Row = { period: string; total: number; done: number; notDone: number; pending: number };
+type Row = {
+  key: "daily" | "weekly" | "monthly";
+  period: string;
+  total: number;
+  done: number;
+  notDone: number;
+  pending: number;
+};
 
 function TaskStatsPage() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -44,7 +62,9 @@ function TaskStatsPage() {
           .from("form_records")
           .select("data")
           .eq("form_id", `tasks-${p.key}`);
-        let done = 0, notDone = 0, pending = 0;
+        let done = 0,
+          notDone = 0,
+          pending = 0;
         const list = data ?? [];
         for (const r of list) {
           const d = (r.data ?? {}) as { done?: string; notDone?: string };
@@ -55,7 +75,7 @@ function TaskStatsPage() {
           else if (hasDone && hasNot) done++;
           else pending++;
         }
-        out.push({ period: p.label, total: list.length, done, notDone, pending });
+        out.push({ key: p.key, period: p.label, total: list.length, done, notDone, pending });
       }
       setRows(out);
       setLoading(false);
@@ -82,8 +102,21 @@ function TaskStatsPage() {
     { name: "قيد الإنجاز", value: totals.pending, color: "hsl(var(--muted-foreground))" },
   ].filter((p) => p.value > 0);
 
+  const buildSheets = () => [
+    {
+      name: "إحصاءات المهام",
+      rows: rows.map((r) => ({
+        "الفترة": r.period,
+        "الإجمالي": r.total,
+        "منجز": r.done,
+        "غير منجز": r.notDone,
+        "قيد الإنجاز": r.pending,
+      })),
+    },
+  ];
+
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen pb-12" ref={pdfRef}>
       <header className="border-b bg-card/60 backdrop-blur">
         <div className="container mx-auto px-4 py-5 flex items-center gap-3">
           <div
@@ -99,6 +132,7 @@ function TaskStatsPage() {
           <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden">
             <Printer className="size-4 ml-1" /> طباعة
           </Button>
+          <ExportButtons filename="إحصاءات المهام" getSheets={buildSheets} pdfTargetRef={pdfRef} />
         </div>
       </header>
 
@@ -108,6 +142,32 @@ function TaskStatsPage() {
         </div>
       ) : (
         <section className="container mx-auto px-4 pt-8 space-y-6">
+          {/* Quick links to task pages */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 print:hidden">
+            {PERIODS.map((p) => {
+              const r = rows.find((x) => x.key === p.key);
+              const Icon = p.icon;
+              return (
+                <Link key={p.key} to="/tasks/$period" params={{ period: p.key }}>
+                  <Card className="p-4 hover:shadow-md transition-all hover:-translate-y-0.5">
+                    <div className="flex items-center gap-3">
+                      <div className="size-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <Icon className="size-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold">المهام {p.label}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {r?.total ?? 0} مهمة • {r?.done ?? 0} منجز
+                        </div>
+                      </div>
+                      <ArrowLeft className="size-4 text-muted-foreground" />
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <SummaryCard label="إجمالي المهام" value={totals.total} icon={BarChart3} tone="primary" />
             <SummaryCard label="منجز" value={totals.done} icon={ListChecks} tone="success" />
