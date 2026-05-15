@@ -35,6 +35,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { ExportButtons } from "@/components/ExportButtons";
+import { useRef } from "react";
 
 export const Route = createFileRoute("/forms/$formId")({
   component: FormPage,
@@ -112,6 +114,18 @@ function FormPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
+  const pdfRef = useRef<HTMLDivElement>(null);
+
+  const buildSheets = () => {
+    const items = displayItemsRef.current.map((text, i) => {
+      const ev = state.items[i];
+      const status = ev?.status ?? "pending";
+      const label = status === "done" ? "منجز" : status === "partial" ? "جزئي" : status === "not_done" ? "غير منجز" : "لاحقاً";
+      return { "#": i + 1, "العنصر": text, "الحالة": label, "ملاحظات": ev?.notes ?? "" };
+    });
+    return [{ name: "الاستمارة", rows: items }];
+  };
+  const displayItemsRef = useRef<string[]>([]);
 
   useEffect(() => {
     // Load local cache immediately, then sync from cloud
@@ -245,24 +259,30 @@ function FormPage() {
   };
 
   const allDisplayItems = displayItems.map((x) => x.text);
+  displayItemsRef.current = allDisplayItems;
   const doneCount = Object.values(state.items).filter((i) => i.status === "done").length;
   const pct = allDisplayItems.length ? Math.round((doneCount / allDisplayItems.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen pb-16">
+    <div className="min-h-screen pb-16" ref={pdfRef}>
       <Toaster richColors position="top-center" />
       <header className="border-b bg-card/70 backdrop-blur sticky top-0 z-10 print:hidden">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-3 flex-wrap">
           <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/" })}>
             <ArrowRight className="size-4 ml-1" /> الرجوع
           </Button>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="size-4 ml-1" /> إضافة عنصر
             </Button>
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="size-4 ml-1" /> طباعة
             </Button>
+            <ExportButtons
+              filename={form.title}
+              getSheets={buildSheets}
+              pdfTargetRef={pdfRef}
+            />
           </div>
         </div>
       </header>
