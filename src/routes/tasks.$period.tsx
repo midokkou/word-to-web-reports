@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Printer, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Printer, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/tasks/$period")({
@@ -29,8 +29,10 @@ type Task = {
   date: string;
 };
 
-function emptyData(): TaskData {
-  return { done: "", notDone: "", newWork: "" };
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
+function emptyForm() {
+  return { name: "", date: todayStr(), done: "", notDone: "", newWork: "" };
 }
 
 function TasksPage() {
@@ -38,7 +40,8 @@ function TasksPage() {
   const formId = `tasks-${period}`;
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(emptyForm());
 
   async function load() {
     setLoading(true);
@@ -55,7 +58,7 @@ function TasksPage() {
           id: r.id,
           name: r.employee_name ?? "",
           date: r.date ?? "",
-          data: { ...emptyData(), ...((r.data ?? {}) as Partial<TaskData>) },
+          data: { done: "", notDone: "", newWork: "", ...((r.data ?? {}) as Partial<TaskData>) },
         })),
       );
     }
@@ -63,25 +66,39 @@ function TasksPage() {
   }
 
   useEffect(() => {
+    setForm(emptyForm());
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
   async function addTask() {
-    const today = new Date().toISOString().slice(0, 10);
+    if (!form.name.trim()) {
+      toast.error("يرجى إدخال اسم المهمة");
+      return;
+    }
+    setSaving(true);
+    const payload: TaskData = { done: form.done, notDone: form.notDone, newWork: form.newWork };
     const { data, error } = await supabase
       .from("form_records")
-      .insert({ form_id: formId, employee_name: "", date: today, data: emptyData() as never })
+      .insert({
+        form_id: formId,
+        employee_name: form.name,
+        date: form.date,
+        data: payload as never,
+      })
       .select("*")
       .single();
+    setSaving(false);
     if (error || !data) {
       toast.error("تعذر إضافة المهمة");
       return;
     }
     setTasks((prev) => [
       ...prev,
-      { id: data.id, name: "", date: data.date, data: emptyData() },
+      { id: data.id, name: data.employee_name ?? "", date: data.date ?? "", data: payload },
     ]);
+    setForm(emptyForm());
+    toast.success("تمت إضافة المهمة إلى السجلات");
   }
 
   async function removeTask(id: string) {
@@ -94,25 +111,6 @@ function TasksPage() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }
 
-  function updateLocal(id: string, patch: Partial<Task>) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-  }
-
-  async function saveTask(t: Task) {
-    setSavingId(t.id);
-    const { error } = await supabase
-      .from("form_records")
-      .update({
-        employee_name: t.name,
-        date: t.date,
-        data: t.data as never,
-      })
-      .eq("id", t.id);
-    setSavingId(null);
-    if (error) toast.error("تعذر الحفظ");
-    else toast.success("تم الحفظ");
-  }
-
   function handlePrint() {
     window.print();
   }
@@ -121,20 +119,74 @@ function TasksPage() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between gap-2 flex-wrap mb-4 print:hidden">
         <h1 className="text-2xl font-bold">{TITLES[period]}</h1>
-        <div className="flex gap-2">
-          <Button onClick={addTask} className="gap-2">
-            <Plus className="size-4" /> إضافة مهمة
-          </Button>
-          <Button onClick={handlePrint} variant="outline" className="gap-2">
-            <Printer className="size-4" /> طباعة
-          </Button>
-        </div>
+        <Button onClick={handlePrint} variant="outline" className="gap-2">
+          <Printer className="size-4" /> طباعة
+        </Button>
       </div>
 
       <div className="hidden print:block mb-4">
         <h1 className="text-2xl font-bold text-center">{TITLES[period]}</h1>
       </div>
 
+      {/* Entry form */}
+      <Card className="mb-6 print:hidden">
+        <CardHeader>
+          <CardTitle className="text-base">إضافة مهمة جديدة</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium mb-1 block">اسم المهمة</label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="اكتب اسم المهمة"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">التاريخ</label>
+              <Input
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">ما تم تنفيذه</label>
+            <Textarea
+              rows={3}
+              value={form.done}
+              onChange={(e) => setForm({ ...form, done: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">ما لم يتم تنفيذه</label>
+            <Textarea
+              rows={3}
+              value={form.notDone}
+              onChange={(e) => setForm({ ...form, notDone: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">ما يستجد من أعمال</label>
+            <Textarea
+              rows={3}
+              value={form.newWork}
+              onChange={(e) => setForm({ ...form, newWork: e.target.value })}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={addTask} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+              إضافة المهمة
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Saved tasks */}
+      <h2 className="text-lg font-bold mb-3">سجل المهام</h2>
       {loading ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader2 className="size-5 animate-spin ml-2" /> جارٍ التحميل...
@@ -142,89 +194,46 @@ function TasksPage() {
       ) : tasks.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">
-            لا توجد مهام بعد. اضغط "إضافة مهمة" للبدء.
+            لا توجد مهام بعد. أضف مهمة من النموذج أعلاه.
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {tasks.map((t, idx) => (
             <Card key={t.id} className="print:break-inside-avoid">
               <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-                <CardTitle className="text-base">مهمة #{idx + 1}</CardTitle>
-                <div className="flex gap-2 print:hidden">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => saveTask(t)}
-                    disabled={savingId === t.id}
-                    className="gap-1"
-                  >
-                    {savingId === t.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Save className="size-4" />
-                    )}
-                    حفظ
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => removeTask(t.id)}
-                    className="gap-1"
-                  >
-                    <Trash2 className="size-4" /> حذف
-                  </Button>
-                </div>
+                <CardTitle className="text-base">
+                  #{idx + 1} — {t.name || "بدون اسم"}
+                  {t.date && <span className="text-xs text-muted-foreground mr-2">({t.date})</span>}
+                </CardTitle>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => removeTask(t.id)}
+                  className="gap-1 print:hidden"
+                >
+                  <Trash2 className="size-4" /> حذف
+                </Button>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <CardContent className="space-y-2 text-sm">
+                {t.data.done && (
                   <div>
-                    <label className="text-sm font-medium mb-1 block">اسم المهمة</label>
-                    <Input
-                      value={t.name}
-                      onChange={(e) => updateLocal(t.id, { name: e.target.value })}
-                      placeholder="اكتب اسم المهمة"
-                    />
+                    <div className="font-medium">ما تم تنفيذه:</div>
+                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.done}</div>
                   </div>
+                )}
+                {t.data.notDone && (
                   <div>
-                    <label className="text-sm font-medium mb-1 block">التاريخ</label>
-                    <Input
-                      type="date"
-                      value={t.date}
-                      onChange={(e) => updateLocal(t.id, { date: e.target.value })}
-                    />
+                    <div className="font-medium">ما لم يتم تنفيذه:</div>
+                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.notDone}</div>
                   </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">ما تم تنفيذه</label>
-                  <Textarea
-                    rows={3}
-                    value={t.data.done}
-                    onChange={(e) =>
-                      updateLocal(t.id, { data: { ...t.data, done: e.target.value } })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">ما لم يتم تنفيذه</label>
-                  <Textarea
-                    rows={3}
-                    value={t.data.notDone}
-                    onChange={(e) =>
-                      updateLocal(t.id, { data: { ...t.data, notDone: e.target.value } })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">ما يستجد من أعمال</label>
-                  <Textarea
-                    rows={3}
-                    value={t.data.newWork}
-                    onChange={(e) =>
-                      updateLocal(t.id, { data: { ...t.data, newWork: e.target.value } })
-                    }
-                  />
-                </div>
+                )}
+                {t.data.newWork && (
+                  <div>
+                    <div className="font-medium">ما يستجد من أعمال:</div>
+                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.newWork}</div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
