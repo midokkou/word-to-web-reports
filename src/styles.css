@@ -224,17 +224,28 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 @media print {
   @page { margin: 12mm; }
 
-  /* Force browsers to print background colors and gradients exactly */
-  *, *::before, *::after {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
+  /* Print everything in black & white — no colored backgrounds or text */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    filter: grayscale(100%) !important;
   }
+  *, *::before, *::after {
+    background: transparent !important;
+    background-image: none !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-color: #000000 !important;
+    -webkit-print-color-adjust: economy !important;
+    print-color-adjust: economy !important;
+    color-adjust: economy !important;
+  }
+  img, svg { filter: grayscale(100%) !important; }
 
   .print\:hidden { display: none !important; }
   .container { max-width: 100% !important; }
 
-  /* Hide app chrome (sidebar + top bar) when printing so the form fills the page */
   [data-sidebar], [data-sidebar="sidebar"],
   aside[data-sidebar="sidebar"] { display: none !important; }
 }
