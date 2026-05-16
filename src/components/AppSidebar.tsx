@@ -9,8 +9,6 @@ import {
   CalendarDays,
   CalendarRange,
   CalendarCheck,
-  FileBarChart,
-  ListChecks,
 } from "lucide-react";
 import {
   Sidebar,
