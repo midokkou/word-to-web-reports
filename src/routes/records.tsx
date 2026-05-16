@@ -290,11 +290,6 @@ function RecordsPage() {
                       ({taskRows.length})
                     </span>
                   </h2>
-                  <Button asChild size="sm" variant="outline" className="print:hidden">
-                    <Link to="/stats/tasks" className="flex items-center gap-1">
-                      <BarChart3 className="size-4" /> إحصاءات المهام
-                    </Link>
-                  </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   {taskRows.map((r) => {
