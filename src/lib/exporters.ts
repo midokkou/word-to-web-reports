@@ -154,7 +154,7 @@ export async function exportToExcel(filename: string, sheets: { name: string; ro
   const wb = new ExcelJS.Workbook();
   wb.creator = "Reports";
   wb.created = new Date();
-  wb.views = [{ rightToLeft: true, x: 0, y: 0, width: 10000, height: 20000, firstSheet: 0, activeTab: 0, visibility: "visible" }];
+  wb.views = [{ x: 0, y: 0, width: 10000, height: 20000, firstSheet: 0, activeTab: 0, visibility: "visible" }];
 
   for (const s of sheets) {
     const safeName = (s.name || "Sheet").replace(/[\\/?*[\]:]/g, " ").slice(0, 31) || "Sheet1";
