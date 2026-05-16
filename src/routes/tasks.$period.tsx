@@ -22,7 +22,8 @@ const TITLES: Record<string, string> = {
   monthly: "المهام الشهرية",
 };
 
-type TaskData = { done: string; notDone: string; newWork: string };
+type TaskStatus = "done" | "notDone";
+type TaskData = { status: TaskStatus; newWork: string };
 type Task = {
   id: string;
   name: string;
@@ -33,7 +34,7 @@ type Task = {
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 function emptyForm() {
-  return { name: "", date: todayStr(), done: "", notDone: "", newWork: "" };
+  return { name: "", date: todayStr(), status: "done" as TaskStatus, newWork: "" };
 }
 
 function TasksPage() {
