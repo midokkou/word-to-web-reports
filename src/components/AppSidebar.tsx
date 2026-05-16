@@ -30,10 +30,6 @@ const taskItems = [
   { title: "المهام الشهرية", url: "/tasks/monthly", icon: CalendarCheck },
 ];
 
-const statsItems = [
-  { title: "إحصاءات الاستمارات", url: "/stats", icon: FileBarChart },
-  { title: "إحصاءات المهام", url: "/stats/tasks", icon: ListChecks },
-];
 
 export function AppSidebar() {
   const currentPath = useRouterState({
