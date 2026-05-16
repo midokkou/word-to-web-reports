@@ -53,8 +53,7 @@ function TasksPage() {
         "#": i + 1,
         "اسم المهمة": t.name,
         "التاريخ": t.date,
-        "ما تم تنفيذه": t.data.done,
-        "ما لم يتم": t.data.notDone,
+        "الحالة": t.data.status === "done" ? "منجز" : "غير منجز",
         "ما يستجد": t.data.newWork,
       })),
     },
@@ -71,12 +70,17 @@ function TasksPage() {
       toast.error("تعذر تحميل المهام");
     } else {
       setTasks(
-        (data ?? []).map((r) => ({
-          id: r.id,
-          name: r.employee_name ?? "",
-          date: r.date ?? "",
-          data: { done: "", notDone: "", newWork: "", ...((r.data ?? {}) as Partial<TaskData>) },
-        })),
+        (data ?? []).map((r) => {
+          const d = (r.data ?? {}) as Partial<TaskData> & { done?: string; notDone?: string };
+          const status: TaskStatus =
+            d.status ?? (d.notDone && !d.done ? "notDone" : "done");
+          return {
+            id: r.id,
+            name: r.employee_name ?? "",
+            date: r.date ?? "",
+            data: { status, newWork: d.newWork ?? "" },
+          };
+        }),
       );
     }
     setLoading(false);
