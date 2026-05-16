@@ -177,20 +177,31 @@ function TasksPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">ما تم تنفيذه</label>
-            <Textarea
-              rows={3}
-              value={form.done}
-              onChange={(e) => setForm({ ...form, done: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1 block">ما لم يتم تنفيذه</label>
-            <Textarea
-              rows={3}
-              value={form.notDone}
-              onChange={(e) => setForm({ ...form, notDone: e.target.value })}
-            />
+            <label className="text-sm font-medium mb-2 block">الحالة</label>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, status: "done" })}
+                className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.status === "done"
+                    ? "bg-success text-success-foreground border-success"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                منجز
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, status: "notDone" })}
+                className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.status === "notDone"
+                    ? "bg-destructive text-destructive-foreground border-destructive"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                غير منجز
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">ما يستجد من أعمال</label>
