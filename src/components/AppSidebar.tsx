@@ -36,7 +36,7 @@ export function AppSidebar() {
     select: (r) => r.location.pathname,
   });
   const [tasksOpen, setTasksOpen] = useState(currentPath.startsWith("/tasks"));
-  const [statsOpen, setStatsOpen] = useState(currentPath.startsWith("/stats"));
+  
 
   return (
     <Sidebar collapsible="icon" side="right">
