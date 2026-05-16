@@ -234,44 +234,57 @@ function TasksPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {tasks.map((t, idx) => (
-            <Card key={t.id} className="print:break-inside-avoid">
-              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-                <CardTitle className="text-base">
-                  #{idx + 1} — {t.name || "بدون اسم"}
-                  {t.date && <span className="text-xs text-muted-foreground mr-2">({t.date})</span>}
-                </CardTitle>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => removeTask(t.id)}
-                  className="gap-1 print:hidden"
-                >
-                  <Trash2 className="size-4" /> حذف
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                {t.data.done && (
-                  <div>
-                    <div className="font-medium">ما تم تنفيذه:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.done}</div>
-                  </div>
-                )}
-                {t.data.notDone && (
-                  <div>
-                    <div className="font-medium">ما لم يتم تنفيذه:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.notDone}</div>
-                  </div>
-                )}
-                {t.data.newWork && (
-                  <div>
-                    <div className="font-medium">ما يستجد من أعمال:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.newWork}</div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+          {tasks.map((t, idx) => {
+            const isDone = t.data.status === "done";
+            return (
+              <Card
+                key={t.id}
+                className={`print:break-inside-avoid border-r-4 ${
+                  isDone
+                    ? "border-r-success bg-success/5"
+                    : "border-r-destructive bg-destructive/5"
+                }`}
+              >
+                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+                  <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+                    <span>
+                      #{idx + 1} — {t.name || "بدون اسم"}
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-md font-semibold ${
+                        isDone
+                          ? "bg-success text-success-foreground"
+                          : "bg-destructive text-destructive-foreground"
+                      }`}
+                    >
+                      {isDone ? "منجز" : "غير منجز"}
+                    </span>
+                    {t.date && (
+                      <span className="text-xs text-muted-foreground">({t.date})</span>
+                    )}
+                  </CardTitle>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => removeTask(t.id)}
+                    className="gap-1 print:hidden"
+                  >
+                    <Trash2 className="size-4" /> حذف
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {t.data.newWork && (
+                    <div>
+                      <div className="font-medium">ما يستجد من أعمال:</div>
+                      <div className="whitespace-pre-wrap text-muted-foreground">
+                        {t.data.newWork}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
