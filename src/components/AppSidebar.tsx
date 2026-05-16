@@ -9,8 +9,6 @@ import {
   CalendarDays,
   CalendarRange,
   CalendarCheck,
-  FileBarChart,
-  ListChecks,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,17 +30,13 @@ const taskItems = [
   { title: "المهام الشهرية", url: "/tasks/monthly", icon: CalendarCheck },
 ];
 
-const statsItems = [
-  { title: "إحصاءات الاستمارات", url: "/stats", icon: FileBarChart },
-  { title: "إحصاءات المهام", url: "/stats/tasks", icon: ListChecks },
-];
 
 export function AppSidebar() {
   const currentPath = useRouterState({
     select: (r) => r.location.pathname,
   });
   const [tasksOpen, setTasksOpen] = useState(currentPath.startsWith("/tasks"));
-  const [statsOpen, setStatsOpen] = useState(currentPath.startsWith("/stats"));
+  
 
   return (
     <Sidebar collapsible="icon" side="right">
@@ -94,31 +88,14 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              <Collapsible open={statsOpen} onOpenChange={setStatsOpen}>
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={currentPath.startsWith("/stats")}>
-                      <BarChart3 className="size-4" />
-                      <span>الإحصائيات</span>
-                      <ChevronDown className={`mr-auto size-4 transition-transform ${statsOpen ? "rotate-180" : ""}`} />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {statsItems.map((s) => (
-                        <SidebarMenuSubItem key={s.url}>
-                          <SidebarMenuSubButton asChild isActive={currentPath === s.url}>
-                            <Link to={s.url} className="flex items-center gap-2">
-                              <s.icon className="size-4" />
-                              <span>{s.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={currentPath === "/stats"}>
+                  <Link to="/stats" className="flex items-center gap-2">
+                    <BarChart3 className="size-4" />
+                    <span>الإحصائيات</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

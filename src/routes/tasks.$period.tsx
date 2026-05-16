@@ -22,7 +22,8 @@ const TITLES: Record<string, string> = {
   monthly: "المهام الشهرية",
 };
 
-type TaskData = { done: string; notDone: string; newWork: string };
+type TaskStatus = "done" | "notDone";
+type TaskData = { status: TaskStatus; newWork: string };
 type Task = {
   id: string;
   name: string;
@@ -33,7 +34,7 @@ type Task = {
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 function emptyForm() {
-  return { name: "", date: todayStr(), done: "", notDone: "", newWork: "" };
+  return { name: "", date: todayStr(), status: "done" as TaskStatus, newWork: "" };
 }
 
 function TasksPage() {
@@ -52,8 +53,7 @@ function TasksPage() {
         "#": i + 1,
         "اسم المهمة": t.name,
         "التاريخ": t.date,
-        "ما تم تنفيذه": t.data.done,
-        "ما لم يتم": t.data.notDone,
+        "الحالة": t.data.status === "done" ? "منجز" : "غير منجز",
         "ما يستجد": t.data.newWork,
       })),
     },
@@ -70,12 +70,17 @@ function TasksPage() {
       toast.error("تعذر تحميل المهام");
     } else {
       setTasks(
-        (data ?? []).map((r) => ({
-          id: r.id,
-          name: r.employee_name ?? "",
-          date: r.date ?? "",
-          data: { done: "", notDone: "", newWork: "", ...((r.data ?? {}) as Partial<TaskData>) },
-        })),
+        (data ?? []).map((r) => {
+          const d = (r.data ?? {}) as Partial<TaskData> & { done?: string; notDone?: string };
+          const status: TaskStatus =
+            d.status ?? (d.notDone && !d.done ? "notDone" : "done");
+          return {
+            id: r.id,
+            name: r.employee_name ?? "",
+            date: r.date ?? "",
+            data: { status, newWork: d.newWork ?? "" },
+          };
+        }),
       );
     }
     setLoading(false);
@@ -93,7 +98,7 @@ function TasksPage() {
       return;
     }
     setSaving(true);
-    const payload: TaskData = { done: form.done, notDone: form.notDone, newWork: form.newWork };
+    const payload: TaskData = { status: form.status, newWork: form.newWork };
     const { data, error } = await supabase
       .from("form_records")
       .insert({
@@ -172,20 +177,31 @@ function TasksPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">ما تم تنفيذه</label>
-            <Textarea
-              rows={3}
-              value={form.done}
-              onChange={(e) => setForm({ ...form, done: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-1 block">ما لم يتم تنفيذه</label>
-            <Textarea
-              rows={3}
-              value={form.notDone}
-              onChange={(e) => setForm({ ...form, notDone: e.target.value })}
-            />
+            <label className="text-sm font-medium mb-2 block">الحالة</label>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, status: "done" })}
+                className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.status === "done"
+                    ? "bg-success text-success-foreground border-success"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                منجز
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, status: "notDone" })}
+                className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.status === "notDone"
+                    ? "bg-destructive text-destructive-foreground border-destructive"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                غير منجز
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">ما يستجد من أعمال</label>
@@ -218,44 +234,57 @@ function TasksPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {tasks.map((t, idx) => (
-            <Card key={t.id} className="print:break-inside-avoid">
-              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
-                <CardTitle className="text-base">
-                  #{idx + 1} — {t.name || "بدون اسم"}
-                  {t.date && <span className="text-xs text-muted-foreground mr-2">({t.date})</span>}
-                </CardTitle>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => removeTask(t.id)}
-                  className="gap-1 print:hidden"
-                >
-                  <Trash2 className="size-4" /> حذف
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                {t.data.done && (
-                  <div>
-                    <div className="font-medium">ما تم تنفيذه:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.done}</div>
-                  </div>
-                )}
-                {t.data.notDone && (
-                  <div>
-                    <div className="font-medium">ما لم يتم تنفيذه:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.notDone}</div>
-                  </div>
-                )}
-                {t.data.newWork && (
-                  <div>
-                    <div className="font-medium">ما يستجد من أعمال:</div>
-                    <div className="whitespace-pre-wrap text-muted-foreground">{t.data.newWork}</div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+          {tasks.map((t, idx) => {
+            const isDone = t.data.status === "done";
+            return (
+              <Card
+                key={t.id}
+                className={`print:break-inside-avoid border-r-4 ${
+                  isDone
+                    ? "border-r-success bg-success/5"
+                    : "border-r-destructive bg-destructive/5"
+                }`}
+              >
+                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+                  <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+                    <span>
+                      #{idx + 1} — {t.name || "بدون اسم"}
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-md font-semibold ${
+                        isDone
+                          ? "bg-success text-success-foreground"
+                          : "bg-destructive text-destructive-foreground"
+                      }`}
+                    >
+                      {isDone ? "منجز" : "غير منجز"}
+                    </span>
+                    {t.date && (
+                      <span className="text-xs text-muted-foreground">({t.date})</span>
+                    )}
+                  </CardTitle>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => removeTask(t.id)}
+                    className="gap-1 print:hidden"
+                  >
+                    <Trash2 className="size-4" /> حذف
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {t.data.newWork && (
+                    <div>
+                      <div className="font-medium">ما يستجد من أعمال:</div>
+                      <div className="whitespace-pre-wrap text-muted-foreground">
+                        {t.data.newWork}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
