@@ -14,9 +14,9 @@ type Props = {
 export function ExportButtons({ filename, getSheets, pdfTargetRef, size = "sm" }: Props) {
   const [busy, setBusy] = useState(false);
 
-  const onExcel = () => {
+  const onExcel = async () => {
     try {
-      exportToExcel(filename, getSheets());
+      await exportToExcel(filename, getSheets());
       toast.success("تم التصدير إلى Excel");
     } catch (e) {
       console.error(e);
