@@ -98,7 +98,7 @@ function TasksPage() {
       return;
     }
     setSaving(true);
-    const payload: TaskData = { done: form.done, notDone: form.notDone, newWork: form.newWork };
+    const payload: TaskData = { status: form.status, newWork: form.newWork };
     const { data, error } = await supabase
       .from("form_records")
       .insert({
