@@ -291,6 +291,53 @@ function StatsPage() {
             </tbody>
           </table>
         </Card>
+
+        <Card className="p-5 lg:col-span-3">
+          <h3 className="font-bold mb-1">إحصاءات المهام</h3>
+          <p className="text-xs text-muted-foreground mb-4">المهام اليومية والأسبوعية والشهرية</p>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+            <SummaryCard label="إجمالي المهام" value={taskTotals.total} icon={ListChecks} tone="primary" />
+            <SummaryCard label="منجز" value={taskTotals.done} icon={CheckCircle2} tone="success" />
+            <SummaryCard label="غير منجز" value={taskTotals.notDone} icon={XCircle} tone="destructive" />
+            <SummaryCard label="الفترات" value={taskRows.length} icon={BarChart3} tone="muted" />
+          </div>
+
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={taskRows}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="period" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="done" name="منجز" stackId="t" fill="hsl(142 70% 45%)" />
+                <Bar dataKey="notDone" name="غير منجز" stackId="t" fill="hsl(0 75% 55%)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <table className="w-full text-sm mt-5">
+            <thead>
+              <tr className="text-right border-b">
+                <th className="py-2 px-2">الفترة</th>
+                <th className="py-2 px-2">الإجمالي</th>
+                <th className="py-2 px-2 text-success">منجز</th>
+                <th className="py-2 px-2 text-destructive">غير منجز</th>
+              </tr>
+            </thead>
+            <tbody>
+              {taskRows.map((r) => (
+                <tr key={r.key} className="border-b border-border/50 hover:bg-secondary/40">
+                  <td className="py-2 px-2">{r.period}</td>
+                  <td className="py-2 px-2">{r.total}</td>
+                  <td className="py-2 px-2 text-success font-semibold">{r.done}</td>
+                  <td className="py-2 px-2 text-destructive">{r.notDone}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
       </section>
     </div>
   );
