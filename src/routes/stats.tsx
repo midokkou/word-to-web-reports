@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { forms } from "@/data/forms";
 import { loadEval } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
+import { CalendarDays, CalendarRange, CalendarCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   ResponsiveContainer,
@@ -27,10 +29,54 @@ export const Route = createFileRoute("/stats")({
   }),
 });
 
+type TaskRow = {
+  key: "daily" | "weekly" | "monthly";
+  period: string;
+  total: number;
+  done: number;
+  notDone: number;
+};
+
+const TASK_PERIODS = [
+  { key: "daily" as const, label: "يومية", icon: CalendarDays },
+  { key: "weekly" as const, label: "أسبوعية", icon: CalendarRange },
+  { key: "monthly" as const, label: "شهرية", icon: CalendarCheck },
+];
+
 function StatsPage() {
   const [, setTick] = useState(0);
   useEffect(() => setTick((t) => t + 1), []);
   const pdfRef = useRef<HTMLDivElement>(null);
+
+  const [taskRows, setTaskRows] = useState<TaskRow[]>([]);
+  useEffect(() => {
+    (async () => {
+      const out: TaskRow[] = [];
+      for (const p of TASK_PERIODS) {
+        const { data } = await supabase
+          .from("form_records")
+          .select("data")
+          .eq("form_id", `tasks-${p.key}`);
+        let done = 0, notDone = 0;
+        for (const r of data ?? []) {
+          const d = (r.data ?? {}) as { status?: string; done?: string; notDone?: string };
+          const status = d.status ?? (d.done ? "done" : d.notDone ? "notDone" : null);
+          if (status === "done") done++;
+          else if (status === "notDone") notDone++;
+        }
+        out.push({ key: p.key, period: p.label, total: (data ?? []).length, done, notDone });
+      }
+      setTaskRows(out);
+    })();
+  }, []);
+
+  const taskTotals = useMemo(
+    () => taskRows.reduce(
+      (s, r) => ({ total: s.total + r.total, done: s.done + r.done, notDone: s.notDone + r.notDone }),
+      { total: 0, done: 0, notDone: 0 },
+    ),
+    [taskRows],
+  );
 
   const data = useMemo(() => {
     return forms.map((f, i) => {
@@ -87,6 +133,15 @@ function StatsPage() {
         "غير منجز": d.notDone,
         "لاحقاً": d.pending,
         "النسبة": d.total ? Math.round((d.done / d.total) * 100) + "%" : "0%",
+      })),
+    },
+    {
+      name: "إحصاءات المهام",
+      rows: taskRows.map((r) => ({
+        "الفترة": r.period,
+        "الإجمالي": r.total,
+        "منجز": r.done,
+        "غير منجز": r.notDone,
       })),
     },
   ];
@@ -231,6 +286,53 @@ function StatsPage() {
                   <td className="py-2 px-2 font-bold">
                     {d.total ? Math.round((d.done / d.total) * 100) : 0}%
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+
+        <Card className="p-5 lg:col-span-3">
+          <h3 className="font-bold mb-1">إحصاءات المهام</h3>
+          <p className="text-xs text-muted-foreground mb-4">المهام اليومية والأسبوعية والشهرية</p>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+            <SummaryCard label="إجمالي المهام" value={taskTotals.total} icon={ListChecks} tone="primary" />
+            <SummaryCard label="منجز" value={taskTotals.done} icon={CheckCircle2} tone="success" />
+            <SummaryCard label="غير منجز" value={taskTotals.notDone} icon={XCircle} tone="destructive" />
+            <SummaryCard label="الفترات" value={taskRows.length} icon={BarChart3} tone="muted" />
+          </div>
+
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={taskRows}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="period" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="done" name="منجز" stackId="t" fill="hsl(142 70% 45%)" />
+                <Bar dataKey="notDone" name="غير منجز" stackId="t" fill="hsl(0 75% 55%)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <table className="w-full text-sm mt-5">
+            <thead>
+              <tr className="text-right border-b">
+                <th className="py-2 px-2">الفترة</th>
+                <th className="py-2 px-2">الإجمالي</th>
+                <th className="py-2 px-2 text-success">منجز</th>
+                <th className="py-2 px-2 text-destructive">غير منجز</th>
+              </tr>
+            </thead>
+            <tbody>
+              {taskRows.map((r) => (
+                <tr key={r.key} className="border-b border-border/50 hover:bg-secondary/40">
+                  <td className="py-2 px-2">{r.period}</td>
+                  <td className="py-2 px-2">{r.total}</td>
+                  <td className="py-2 px-2 text-success font-semibold">{r.done}</td>
+                  <td className="py-2 px-2 text-destructive">{r.notDone}</td>
                 </tr>
               ))}
             </tbody>
