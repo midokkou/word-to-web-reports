@@ -135,6 +135,15 @@ function StatsPage() {
         "النسبة": d.total ? Math.round((d.done / d.total) * 100) + "%" : "0%",
       })),
     },
+    {
+      name: "إحصاءات المهام",
+      rows: taskRows.map((r) => ({
+        "الفترة": r.period,
+        "الإجمالي": r.total,
+        "منجز": r.done,
+        "غير منجز": r.notDone,
+      })),
+    },
   ];
 
   return (
