@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ExportButtons } from "@/components/ExportButtons";
 import { forms } from "@/data/forms";
 import { loadEval } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
+import { CalendarDays, CalendarRange, CalendarCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   ResponsiveContainer,
