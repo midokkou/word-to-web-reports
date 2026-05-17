@@ -29,10 +29,54 @@ export const Route = createFileRoute("/stats")({
   }),
 });
 
+type TaskRow = {
+  key: "daily" | "weekly" | "monthly";
+  period: string;
+  total: number;
+  done: number;
+  notDone: number;
+};
+
+const TASK_PERIODS = [
+  { key: "daily" as const, label: "يومية", icon: CalendarDays },
+  { key: "weekly" as const, label: "أسبوعية", icon: CalendarRange },
+  { key: "monthly" as const, label: "شهرية", icon: CalendarCheck },
+];
+
 function StatsPage() {
   const [, setTick] = useState(0);
   useEffect(() => setTick((t) => t + 1), []);
   const pdfRef = useRef<HTMLDivElement>(null);
+
+  const [taskRows, setTaskRows] = useState<TaskRow[]>([]);
+  useEffect(() => {
+    (async () => {
+      const out: TaskRow[] = [];
+      for (const p of TASK_PERIODS) {
+        const { data } = await supabase
+          .from("form_records")
+          .select("data")
+          .eq("form_id", `tasks-${p.key}`);
+        let done = 0, notDone = 0;
+        for (const r of data ?? []) {
+          const d = (r.data ?? {}) as { status?: string; done?: string; notDone?: string };
+          const status = d.status ?? (d.done ? "done" : d.notDone ? "notDone" : null);
+          if (status === "done") done++;
+          else if (status === "notDone") notDone++;
+        }
+        out.push({ key: p.key, period: p.label, total: (data ?? []).length, done, notDone });
+      }
+      setTaskRows(out);
+    })();
+  }, []);
+
+  const taskTotals = useMemo(
+    () => taskRows.reduce(
+      (s, r) => ({ total: s.total + r.total, done: s.done + r.done, notDone: s.notDone + r.notDone }),
+      { total: 0, done: 0, notDone: 0 },
+    ),
+    [taskRows],
+  );
 
   const data = useMemo(() => {
     return forms.map((f, i) => {
