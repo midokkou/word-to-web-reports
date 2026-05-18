@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Printer, Loader2 } from "lucide-react";
+import { Plus, Trash2, Printer, Loader2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 import { ExportButtons } from "@/components/ExportButtons";
 
@@ -44,6 +44,7 @@ function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm());
+  const [editingId, setEditingId] = useState<string | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const buildSheets = () => [
@@ -92,13 +93,41 @@ function TasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
-  async function addTask() {
+  async function saveTask() {
     if (!form.name.trim()) {
       toast.error("يرجى إدخال اسم المهمة");
       return;
     }
     setSaving(true);
     const payload: TaskData = { status: form.status, newWork: form.newWork };
+
+    if (editingId) {
+      const { error } = await supabase
+        .from("form_records")
+        .update({
+          employee_name: form.name,
+          date: form.date,
+          data: payload as never,
+        })
+        .eq("id", editingId);
+      setSaving(false);
+      if (error) {
+        toast.error("تعذر تحديث المهمة");
+        return;
+      }
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === editingId
+            ? { ...t, name: form.name, date: form.date, data: payload }
+            : t,
+        ),
+      );
+      setEditingId(null);
+      setForm(emptyForm());
+      toast.success("تم تحديث المهمة");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("form_records")
       .insert({
@@ -122,6 +151,22 @@ function TasksPage() {
     toast.success("تمت إضافة المهمة إلى السجلات");
   }
 
+  function startEdit(task: Task) {
+    setEditingId(task.id);
+    setForm({
+      name: task.name,
+      date: task.date,
+      status: task.data.status,
+      newWork: task.data.newWork,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm());
+  }
+
   async function removeTask(id: string) {
     if (!confirm("حذف هذه المهمة؟")) return;
     const { error } = await supabase.from("form_records").delete().eq("id", id);
@@ -130,6 +175,7 @@ function TasksPage() {
       return;
     }
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    if (editingId === id) cancelEdit();
   }
 
   function handlePrint() {
@@ -155,7 +201,9 @@ function TasksPage() {
       {/* Entry form */}
       <Card className="mb-6 print:hidden">
         <CardHeader>
-          <CardTitle className="text-base">إضافة مهمة جديدة</CardTitle>
+          <CardTitle className="text-base">
+            {editingId ? "تعديل المهمة" : "إضافة مهمة جديدة"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -211,10 +259,15 @@ function TasksPage() {
               onChange={(e) => setForm({ ...form, newWork: e.target.value })}
             />
           </div>
-          <div className="flex justify-end">
-            <Button onClick={addTask} disabled={saving} className="gap-2">
-              {saving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-              إضافة المهمة
+          <div className="flex justify-end gap-2">
+            {editingId && (
+              <Button onClick={cancelEdit} variant="ghost" className="gap-1">
+                <X className="size-4" /> إلغاء
+              </Button>
+            )}
+            <Button onClick={saveTask} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="size-4 animate-spin" /> : editingId ? <Pencil className="size-4" /> : <Plus className="size-4" />}
+              {editingId ? "حفظ التعديل" : "إضافة المهمة"}
             </Button>
           </div>
         </CardContent>
@@ -263,14 +316,14 @@ function TasksPage() {
                       <span className="text-xs text-muted-foreground">({t.date})</span>
                     )}
                   </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => removeTask(t.id)}
-                    className="gap-1 print:hidden"
-                  >
-                    <Trash2 className="size-4" /> حذف
-                  </Button>
+                  <div className="flex gap-2 print:hidden">
+                    <Button size="sm" variant="outline" onClick={() => startEdit(t)} className="gap-1">
+                      <Pencil className="size-4" /> تعديل
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => removeTask(t.id)} className="gap-1">
+                      <Trash2 className="size-4" /> حذف
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   {t.data.newWork && (
