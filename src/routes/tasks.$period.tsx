@@ -93,13 +93,41 @@ function TasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
-  async function addTask() {
+  async function saveTask() {
     if (!form.name.trim()) {
       toast.error("يرجى إدخال اسم المهمة");
       return;
     }
     setSaving(true);
     const payload: TaskData = { status: form.status, newWork: form.newWork };
+
+    if (editingId) {
+      const { error } = await supabase
+        .from("form_records")
+        .update({
+          employee_name: form.name,
+          date: form.date,
+          data: payload as never,
+        })
+        .eq("id", editingId);
+      setSaving(false);
+      if (error) {
+        toast.error("تعذر تحديث المهمة");
+        return;
+      }
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === editingId
+            ? { ...t, name: form.name, date: form.date, data: payload }
+            : t,
+        ),
+      );
+      setEditingId(null);
+      setForm(emptyForm());
+      toast.success("تم تحديث المهمة");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("form_records")
       .insert({
@@ -123,6 +151,22 @@ function TasksPage() {
     toast.success("تمت إضافة المهمة إلى السجلات");
   }
 
+  function startEdit(task: Task) {
+    setEditingId(task.id);
+    setForm({
+      name: task.name,
+      date: task.date,
+      status: task.data.status,
+      newWork: task.data.newWork,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm());
+  }
+
   async function removeTask(id: string) {
     if (!confirm("حذف هذه المهمة؟")) return;
     const { error } = await supabase.from("form_records").delete().eq("id", id);
@@ -131,6 +175,7 @@ function TasksPage() {
       return;
     }
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    if (editingId === id) cancelEdit();
   }
 
   function handlePrint() {
