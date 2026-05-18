@@ -44,6 +44,7 @@ function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm());
+  const [editingId, setEditingId] = useState<string | null>(null);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const buildSheets = () => [
