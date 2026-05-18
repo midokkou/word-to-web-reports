@@ -316,14 +316,14 @@ function TasksPage() {
                       <span className="text-xs text-muted-foreground">({t.date})</span>
                     )}
                   </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => removeTask(t.id)}
-                    className="gap-1 print:hidden"
-                  >
-                    <Trash2 className="size-4" /> حذف
-                  </Button>
+                  <div className="flex gap-2 print:hidden">
+                    <Button size="sm" variant="outline" onClick={() => startEdit(t)} className="gap-1">
+                      <Pencil className="size-4" /> تعديل
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => removeTask(t.id)} className="gap-1">
+                      <Trash2 className="size-4" /> حذف
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   {t.data.newWork && (
