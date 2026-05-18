@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Printer, Loader2 } from "lucide-react";
+import { Plus, Trash2, Printer, Loader2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 import { ExportButtons } from "@/components/ExportButtons";
 
