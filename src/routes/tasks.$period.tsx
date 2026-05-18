@@ -201,7 +201,9 @@ function TasksPage() {
       {/* Entry form */}
       <Card className="mb-6 print:hidden">
         <CardHeader>
-          <CardTitle className="text-base">إضافة مهمة جديدة</CardTitle>
+          <CardTitle className="text-base">
+            {editingId ? "تعديل المهمة" : "إضافة مهمة جديدة"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -257,10 +259,15 @@ function TasksPage() {
               onChange={(e) => setForm({ ...form, newWork: e.target.value })}
             />
           </div>
-          <div className="flex justify-end">
-            <Button onClick={addTask} disabled={saving} className="gap-2">
-              {saving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-              إضافة المهمة
+          <div className="flex justify-end gap-2">
+            {editingId && (
+              <Button onClick={cancelEdit} variant="ghost" className="gap-1">
+                <X className="size-4" /> إلغاء
+              </Button>
+            )}
+            <Button onClick={saveTask} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="size-4 animate-spin" /> : editingId ? <Pencil className="size-4" /> : <Plus className="size-4" />}
+              {editingId ? "حفظ التعديل" : "إضافة المهمة"}
             </Button>
           </div>
         </CardContent>
