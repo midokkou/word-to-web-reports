@@ -14,6 +14,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { PrintLetterhead } from "@/components/PrintLetterhead";
+import { PrintSpacingControl } from "@/components/PrintSpacingControl";
 
 import appCss from "../styles.css?url";
 
@@ -136,7 +137,10 @@ function RootComponent() {
           <div className="flex-1 flex flex-col min-w-0" data-view-frame-scroll>
             <div className="h-12 flex items-center justify-between px-2 border-b bg-card/60 backdrop-blur print:hidden">
               <SidebarTrigger />
-              <ViewModeSwitcher />
+              <div className="flex items-center gap-1">
+                <PrintSpacingControl />
+                <ViewModeSwitcher />
+              </div>
             </div>
             <main className="flex-1 min-w-0" data-view-frame>
               <Outlet />
