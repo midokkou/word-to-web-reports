@@ -222,7 +222,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 }
 
 @media print {
-  @page { size: A4 portrait; margin: 38mm 14mm 22mm 14mm; }
+  @page { size: A4 portrait; margin: 32mm 10mm 18mm 10mm; }
 
   /* Print everything in black & white — no colored backgrounds or text */
   html, body {
@@ -244,43 +244,52 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   img, svg { filter: grayscale(100%) !important; }
 
   .print\:hidden { display: none !important; }
-  .container { max-width: 100% !important; padding: 0 !important; }
+  .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
 
   [data-sidebar], [data-sidebar="sidebar"],
   aside[data-sidebar="sidebar"] { display: none !important; }
 
-  /* ===== Print typography & layout ===== */
+  /* ===== Print typography & layout — compact, no clipping ===== */
   body {
     font-family: "Tajawal", "Cairo", system-ui, sans-serif !important;
-    font-size: 12pt !important;
-    line-height: 1.7 !important;
+    font-size: 10pt !important;
+    line-height: 1.45 !important;
   }
-  main, [data-view-frame] { display: block !important; }
+  main, [data-view-frame], section, div { display: block !important; }
 
-  h1 { font-size: 20pt !important; font-weight: 800 !important; margin: 0 0 10pt !important; text-align: center !important; border-bottom: 2pt solid #000 !important; padding-bottom: 6pt !important; }
-  h2 { font-size: 16pt !important; font-weight: 700 !important; margin: 14pt 0 8pt !important; border-bottom: 1pt solid #000 !important; padding-bottom: 3pt !important; }
-  h3 { font-size: 13pt !important; font-weight: 700 !important; margin: 10pt 0 6pt !important; }
-  h4, h5, h6 { font-size: 12pt !important; font-weight: 700 !important; margin: 8pt 0 4pt !important; }
-  p { margin: 0 0 6pt !important; text-align: justify !important; }
+  h1 { font-size: 15pt !important; font-weight: 800 !important; margin: 0 0 6pt !important; text-align: center !important; border-bottom: 1.5pt solid #000 !important; padding-bottom: 3pt !important; }
+  h2 { font-size: 12pt !important; font-weight: 700 !important; margin: 8pt 0 4pt !important; border-bottom: 0.75pt solid #000 !important; padding-bottom: 2pt !important; }
+  h3 { font-size: 11pt !important; font-weight: 700 !important; margin: 6pt 0 3pt !important; }
+  h4, h5, h6 { font-size: 10pt !important; font-weight: 700 !important; margin: 4pt 0 2pt !important; }
+  p { margin: 0 0 3pt !important; text-align: justify !important; }
 
-  h1, h2, h3, h4, h5, h6, img, table, figure, .card { page-break-inside: avoid !important; break-inside: avoid !important; }
-  h1, h2, h3 { page-break-after: avoid !important; break-after: avoid !important; }
-  tr, li { page-break-inside: avoid !important; break-inside: avoid !important; }
+  /* Strong anti-clipping: every block keeps itself together */
+  *, p, div, section, article, header, footer, ul, ol, dl, table, figure {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+  h1, h2, h3, h4, h5, h6 { page-break-after: avoid !important; break-after: avoid !important; }
+  tr, li, th, td { page-break-inside: avoid !important; break-inside: avoid !important; }
   thead { display: table-header-group !important; }
   tfoot { display: table-footer-group !important; }
 
-  /* Tables — formal bordered look */
+  /* Tables — formal compact bordered look */
   table {
     width: 100% !important;
     border-collapse: collapse !important;
-    margin: 8pt 0 !important;
-    font-size: 11pt !important;
+    margin: 4pt 0 !important;
+    font-size: 9.5pt !important;
+    table-layout: fixed !important;
+    word-wrap: break-word !important;
   }
   th, td {
-    border: 0.75pt solid #000 !important;
-    padding: 5pt 7pt !important;
+    border: 0.5pt solid #000 !important;
+    padding: 3pt 5pt !important;
     vertical-align: middle !important;
     text-align: right !important;
+    overflow-wrap: break-word !important;
   }
   th {
     background: #e8e8e8 !important;
@@ -295,38 +304,55 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     print-color-adjust: exact !important;
   }
 
-  /* Cards / panels become clean bordered boxes */
+  /* Cards / panels become compact bordered boxes */
   .card, [class*="rounded"][class*="border"] {
-    border: 0.75pt solid #000 !important;
-    border-radius: 4pt !important;
-    padding: 8pt !important;
-    margin: 0 0 8pt !important;
+    border: 0.5pt solid #000 !important;
+    border-radius: 3pt !important;
+    padding: 5pt 6pt !important;
+    margin: 0 0 4pt !important;
     background: #fff !important;
   }
+
+  /* Grids stay multi-column so more fits per page */
+  [class*="grid-cols-2"] { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4pt !important; }
+  [class*="grid-cols-3"] { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 4pt !important; }
+  [class*="grid-cols-4"] { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 4pt !important; }
 
   /* Form fields render as labelled text */
   input, textarea, select {
     border: none !important;
     border-bottom: 0.5pt solid #000 !important;
     border-radius: 0 !important;
-    padding: 2pt 0 !important;
+    padding: 1pt 0 !important;
     background: transparent !important;
     font: inherit !important;
     color: #000 !important;
+    min-height: 0 !important;
   }
+  textarea { white-space: pre-wrap !important; word-wrap: break-word !important; }
   label { font-weight: 700 !important; }
 
   /* Lists */
-  ul, ol { margin: 4pt 0 6pt 18pt !important; padding: 0 !important; }
-  li { margin: 0 0 3pt !important; }
+  ul, ol { margin: 2pt 0 4pt 16pt !important; padding: 0 !important; }
+  li { margin: 0 0 1.5pt !important; }
 
-  /* Headers inside route pages — drop sticky/backdrop */
-  header { position: static !important; backdrop-filter: none !important; border-bottom: 1pt solid #000 !important; padding: 0 0 6pt !important; margin: 0 0 10pt !important; }
+  /* Page headers inside route pages — drop sticky/backdrop, compact */
+  header { position: static !important; backdrop-filter: none !important; border-bottom: 0.75pt solid #000 !important; padding: 0 0 4pt !important; margin: 0 0 6pt !important; }
 
-  /* Hide charts & decorative svg icons that don't read well in print */
-  .recharts-wrapper { display: none !important; }
+  /* Hide charts & non-essential visuals */
+  .recharts-wrapper, .recharts-responsive-container { display: none !important; }
+
+  /* Trim oversized icon decorations */
+  svg { max-width: 14pt !important; max-height: 14pt !important; }
 
   a { color: #000 !important; text-decoration: none !important; }
+
+  /* Avoid huge gaps from screen spacing utilities */
+  [class*="gap-"], [class*="space-y-"] > * + * { margin-top: 4pt !important; }
+  [class*="py-"], [class*="pt-"] { padding-top: 4pt !important; }
+  [class*="pb-"] { padding-bottom: 4pt !important; }
+  [class*="my-"], [class*="mt-"] { margin-top: 4pt !important; }
+  [class*="mb-"] { margin-bottom: 4pt !important; }
 
   /* Ministry letterhead — colored, repeats on every printed page */
   .print-letterhead-header,
