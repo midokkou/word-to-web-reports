@@ -249,6 +249,85 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   [data-sidebar], [data-sidebar="sidebar"],
   aside[data-sidebar="sidebar"] { display: none !important; }
 
+  /* ===== Print typography & layout ===== */
+  body {
+    font-family: "Tajawal", "Cairo", system-ui, sans-serif !important;
+    font-size: 12pt !important;
+    line-height: 1.7 !important;
+  }
+  main, [data-view-frame] { display: block !important; }
+
+  h1 { font-size: 20pt !important; font-weight: 800 !important; margin: 0 0 10pt !important; text-align: center !important; border-bottom: 2pt solid #000 !important; padding-bottom: 6pt !important; }
+  h2 { font-size: 16pt !important; font-weight: 700 !important; margin: 14pt 0 8pt !important; border-bottom: 1pt solid #000 !important; padding-bottom: 3pt !important; }
+  h3 { font-size: 13pt !important; font-weight: 700 !important; margin: 10pt 0 6pt !important; }
+  h4, h5, h6 { font-size: 12pt !important; font-weight: 700 !important; margin: 8pt 0 4pt !important; }
+  p { margin: 0 0 6pt !important; text-align: justify !important; }
+
+  h1, h2, h3, h4, h5, h6, img, table, figure, .card { page-break-inside: avoid !important; break-inside: avoid !important; }
+  h1, h2, h3 { page-break-after: avoid !important; break-after: avoid !important; }
+  tr, li { page-break-inside: avoid !important; break-inside: avoid !important; }
+  thead { display: table-header-group !important; }
+  tfoot { display: table-footer-group !important; }
+
+  /* Tables — formal bordered look */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 8pt 0 !important;
+    font-size: 11pt !important;
+  }
+  th, td {
+    border: 0.75pt solid #000 !important;
+    padding: 5pt 7pt !important;
+    vertical-align: middle !important;
+    text-align: right !important;
+  }
+  th {
+    background: #e8e8e8 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+  }
+  tbody tr:nth-child(even) td {
+    background: #f5f5f5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Cards / panels become clean bordered boxes */
+  .card, [class*="rounded"][class*="border"] {
+    border: 0.75pt solid #000 !important;
+    border-radius: 4pt !important;
+    padding: 8pt !important;
+    margin: 0 0 8pt !important;
+    background: #fff !important;
+  }
+
+  /* Form fields render as labelled text */
+  input, textarea, select {
+    border: none !important;
+    border-bottom: 0.5pt solid #000 !important;
+    border-radius: 0 !important;
+    padding: 2pt 0 !important;
+    background: transparent !important;
+    font: inherit !important;
+    color: #000 !important;
+  }
+  label { font-weight: 700 !important; }
+
+  /* Lists */
+  ul, ol { margin: 4pt 0 6pt 18pt !important; padding: 0 !important; }
+  li { margin: 0 0 3pt !important; }
+
+  /* Headers inside route pages — drop sticky/backdrop */
+  header { position: static !important; backdrop-filter: none !important; border-bottom: 1pt solid #000 !important; padding: 0 0 6pt !important; margin: 0 0 10pt !important; }
+
+  /* Hide charts & decorative svg icons that don't read well in print */
+  .recharts-wrapper { display: none !important; }
+
+  a { color: #000 !important; text-decoration: none !important; }
+
   /* Ministry letterhead — colored, repeats on every printed page */
   .print-letterhead-header,
   .print-letterhead-footer {
