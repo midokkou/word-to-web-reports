@@ -222,7 +222,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 }
 
 @media print {
-  @page { margin: 12mm; }
+  @page { size: A4 portrait; margin: 40mm 12mm 18mm 12mm; }
 
   /* Print everything in black & white — no colored backgrounds or text */
   html, body {
@@ -248,5 +248,41 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 
   [data-sidebar], [data-sidebar="sidebar"],
   aside[data-sidebar="sidebar"] { display: none !important; }
+
+  /* Ministry letterhead — repeats on every printed page */
+  .print-letterhead-header,
+  .print-letterhead-footer {
+    display: block !important;
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    background-image: url("/print-letterhead.jpg") !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% auto !important;
+    filter: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 9999 !important;
+    pointer-events: none !important;
+  }
+  .print-letterhead-header {
+    top: -28mm !important;
+    height: 66mm !important;
+    background-position: top center !important;
+  }
+  .print-letterhead-footer {
+    bottom: 0 !important;
+    height: 14mm !important;
+    background-position: bottom center !important;
+    background-size: 100% 720% !important;
+  }
+  .print-letterhead-header *,
+  .print-letterhead-footer * { filter: none !important; }
 }
+
+/* Hide letterhead on screen */
+.print-letterhead-header,
+.print-letterhead-footer { display: none; }
 
