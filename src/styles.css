@@ -352,7 +352,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .print-letterhead-header { top: -28mm !important; }
+  .print-letterhead-header { top: 0 !important; }
   .print-letterhead-footer { bottom: 0 !important; }
   .print-letterhead-header img,
   .print-letterhead-footer img {
