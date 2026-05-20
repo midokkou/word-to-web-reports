@@ -74,7 +74,7 @@ function Index() {
       </section>
 
       <section className="container mx-auto px-4 pb-12">
-        <div className="relative max-w-md mb-6">
+        <div className="relative max-w-md mb-6 print:hidden">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             placeholder="ابحث عن استمارة..."
