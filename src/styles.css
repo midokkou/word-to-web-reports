@@ -377,58 +377,58 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     margin: 0 0 8pt !important;
   }
 
-  /* Form banner — remove gradient fill, elegant border only, force visible dark text */
+  /* Form banner — keep the green gradient look in print */
   .form-banner {
-    background: #ffffff !important;
-    background-image: none !important;
-    color: #111 !important;
-    border: 1.5pt solid var(--primary) !important;
+    background: var(--gradient-primary) !important;
+    background-color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+    border: none !important;
     box-shadow: none !important;
-    border-radius: 4pt !important;
-    padding: 7pt 9pt !important;
-    margin-bottom: 8pt !important;
+    border-radius: 6pt !important;
+    padding: 10pt 12pt !important;
+    margin-bottom: 10pt !important;
     display: block !important;
     visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  /* Override white/transparent utility colors inside the banner so text is readable */
-  .form-banner *,
-  .form-banner span,
-  .form-banner div,
-  .form-banner label {
-    color: #111 !important;
-    background-color: transparent !important;
-    opacity: 1 !important;
+  .form-banner * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  .form-banner h1 { color: var(--primary) !important; }
   .form-banner h1 {
     border-bottom: none !important;
-    color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
     text-align: right !important;
   }
-  .form-banner label {
-    color: #111 !important;
+  .form-banner label,
+  .form-banner span,
+  .form-banner div {
+    color: var(--primary-foreground) !important;
   }
   .form-banner input,
   .form-banner .form-banner-input {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 0.6pt solid color-mix(in oklab, var(--primary) 55%, #777) !important;
-    color: #111 !important;
-    padding: 1pt 2pt !important;
+    background: rgba(255,255,255,0.18) !important;
+    border: 0.5pt solid rgba(255,255,255,0.4) !important;
+    border-radius: 3pt !important;
+    color: var(--primary-foreground) !important;
+    padding: 2pt 4pt !important;
   }
   .form-banner .form-banner-badge,
   .form-banner .form-banner-badge * {
-    background: transparent !important;
-    color: var(--primary) !important;
-    border: 0.5pt solid var(--primary) !important;
-    padding: 2pt 5pt !important;
+    background: rgba(255,255,255,0.18) !important;
+    color: var(--primary-foreground) !important;
+    border: 0.5pt solid rgba(255,255,255,0.35) !important;
+    padding: 2pt 6pt !important;
+    border-radius: 3pt !important;
   }
   .form-banner .form-progress-track {
-    background: color-mix(in oklab, var(--primary) 12%, #eee) !important;
+    background: rgba(255,255,255,0.25) !important;
   }
   .form-banner .form-progress-bar {
-    background: var(--primary) !important;
+    background: #ffffff !important;
   }
+
 
   /* Charts not legible at print scale */
   .recharts-wrapper, .recharts-responsive-container { display: none !important; }
