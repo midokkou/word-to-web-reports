@@ -225,6 +225,40 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   /* Reserve space at top/bottom for the letterhead images */
   @page { size: A4 portrait; margin: 42mm 14mm 28mm 14mm; }
 
+  /* Neutralize forced mobile/desktop view modes so print always fits A4 */
+  html[data-view-mode="mobile"] [data-view-frame],
+  html[data-view-mode="desktop"] [data-view-frame] {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  html[data-view-mode="mobile"] [data-view-frame] .container {
+    padding-inline: 0 !important;
+  }
+  html[data-view-mode="mobile"] [data-view-frame] .grid {
+    grid-template-columns: revert !important;
+  }
+  /* Form: two-column field layout for print regardless of screen view */
+  .form-banner { width: 100% !important; }
+  form .grid,
+  .form-banner ~ * .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6pt 12pt !important;
+  }
+  /* Long inputs / textareas span full width */
+  form .grid > *:has(textarea),
+  form .grid > .col-span-2,
+  form .grid > [class*="col-span-full"] {
+    grid-column: 1 / -1 !important;
+  }
+  form fieldset, form section { break-inside: avoid !important; }
+
+
   /* Keep brand colors — no grayscale */
   html, body {
     background: #ffffff !important;
