@@ -338,6 +338,46 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     margin: 0 0 8pt !important;
   }
 
+  /* Form banner — remove green fill, elegant green border only */
+  .form-banner {
+    background: #ffffff !important;
+    color: var(--primary) !important;
+    border: 1.5pt solid var(--primary) !important;
+    box-shadow: none !important;
+    border-radius: 4pt !important;
+    padding: 7pt 9pt !important;
+    margin-bottom: 8pt !important;
+  }
+  .form-banner h1 {
+    border-bottom: none !important;
+    color: var(--primary) !important;
+    text-align: right !important;
+  }
+  .form-banner label {
+    color: #111 !important;
+  }
+  .form-banner input,
+  .form-banner .form-banner-input {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 0.6pt solid color-mix(in oklab, var(--primary) 55%, #777) !important;
+    color: #111 !important;
+    padding: 1pt 2pt !important;
+  }
+  .form-banner .form-banner-badge,
+  .form-banner .form-banner-badge * {
+    background: transparent !important;
+    color: var(--primary) !important;
+    border: 0.5pt solid var(--primary) !important;
+    padding: 2pt 5pt !important;
+  }
+  .form-banner .form-progress-track {
+    background: color-mix(in oklab, var(--primary) 12%, #eee) !important;
+  }
+  .form-banner .form-progress-bar {
+    background: var(--primary) !important;
+  }
+
   /* Charts not legible at print scale */
   .recharts-wrapper, .recharts-responsive-container { display: none !important; }
 
