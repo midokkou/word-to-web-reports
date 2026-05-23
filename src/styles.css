@@ -377,16 +377,29 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     margin: 0 0 8pt !important;
   }
 
-  /* Form banner — remove green fill, elegant green border only */
+  /* Form banner — remove gradient fill, elegant border only, force visible dark text */
   .form-banner {
     background: #ffffff !important;
-    color: var(--primary) !important;
+    background-image: none !important;
+    color: #111 !important;
     border: 1.5pt solid var(--primary) !important;
     box-shadow: none !important;
     border-radius: 4pt !important;
     padding: 7pt 9pt !important;
     margin-bottom: 8pt !important;
+    display: block !important;
+    visibility: visible !important;
   }
+  /* Override white/transparent utility colors inside the banner so text is readable */
+  .form-banner *,
+  .form-banner span,
+  .form-banner div,
+  .form-banner label {
+    color: #111 !important;
+    background-color: transparent !important;
+    opacity: 1 !important;
+  }
+  .form-banner h1 { color: var(--primary) !important; }
   .form-banner h1 {
     border-bottom: none !important;
     color: var(--primary) !important;
