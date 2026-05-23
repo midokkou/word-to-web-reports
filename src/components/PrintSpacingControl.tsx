@@ -99,27 +99,48 @@ export function PrintSpacingControl() {
   const sideMm = 14;
   const sidePct = (sideMm / pageW) * 100;
   const contentTopOffset = (topPad / pageH) * 100;
+  const previewWidth = 220;
+  const contentAreaWidthPx = previewWidth * (1 - (2 * sideMm) / pageW);
+
+  // When opened, snapshot the live main content and compute scale to fit preview width
+  useEffect(() => {
+    if (!open) return;
+    const main = document.querySelector(
+      "main[data-view-frame], [data-view-frame]"
+    ) as HTMLElement | null;
+    if (!main) return;
+    const mainW = main.offsetWidth || 800;
+    setScale(contentAreaWidthPx / mainW);
+    // Clone HTML (strip interactive widgets that won't render well at scale)
+    const clone = main.cloneNode(true) as HTMLElement;
+    clone
+      .querySelectorAll(
+        "script, [data-radix-popper-content-wrapper], [role='dialog']"
+      )
+      .forEach((n) => n.remove());
+    setMainHTML(clone.innerHTML);
+  }, [open, contentAreaWidthPx]);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button size="sm" variant="ghost" className="h-8 gap-1" title="ضبط هوامش الطباعة">
           <Printer className="size-4" />
           <span className="text-xs hidden sm:inline">هوامش الطباعة</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[22rem]" align="end">
+      <PopoverContent className="w-[26rem]" align="end">
         <div className="space-y-4">
           {/* Live A4 preview */}
           <div className="flex justify-center">
             <div
               className="relative bg-white border border-border shadow-sm overflow-hidden"
-              style={{ width: 160, aspectRatio: `${pageW} / ${pageH}` }}
+              style={{ width: previewWidth, aspectRatio: `${pageW} / ${pageH}` }}
               aria-label="معاينة الصفحة"
             >
               {/* Header band */}
               <div
-                className="absolute inset-x-0 top-0 overflow-hidden bg-primary/10"
+                className="absolute inset-x-0 top-0 overflow-hidden bg-primary/10 z-10"
                 style={{ height: `${topPct}%` }}
               >
                 <img
@@ -131,7 +152,7 @@ export function PrintSpacingControl() {
               </div>
               {/* Footer band */}
               <div
-                className="absolute inset-x-0 bottom-0 overflow-hidden bg-primary/10"
+                className="absolute inset-x-0 bottom-0 overflow-hidden bg-primary/10 z-10"
                 style={{ height: `${bottomPct}%` }}
               >
                 <img
@@ -141,9 +162,9 @@ export function PrintSpacingControl() {
                   onError={(e) => ((e.currentTarget.style.display = "none"))}
                 />
               </div>
-              {/* Content area with side margins + top padding */}
+              {/* Content area with side margins + top padding — live scaled clone of main */}
               <div
-                className="absolute"
+                className="absolute overflow-hidden"
                 style={{
                   top: `calc(${topPct}% + ${contentTopOffset}%)`,
                   bottom: `${bottomPct}%`,
@@ -151,19 +172,21 @@ export function PrintSpacingControl() {
                   right: `${sidePct}%`,
                 }}
               >
-                <div className="h-full border border-dashed border-primary/40 p-1 flex flex-col gap-[3px]">
-                  <div className="h-[6px] w-3/4 bg-primary/60 rounded-sm" />
-                  <div className="h-[3px] w-full bg-muted-foreground/40 rounded-sm" />
-                  <div className="h-[3px] w-[92%] bg-muted-foreground/40 rounded-sm" />
-                  <div className="h-[3px] w-[88%] bg-muted-foreground/40 rounded-sm" />
-                  <div className="h-[3px] w-[80%] bg-muted-foreground/40 rounded-sm" />
-                  <div className="mt-1 h-[3px] w-[70%] bg-muted-foreground/40 rounded-sm" />
-                  <div className="h-[3px] w-[95%] bg-muted-foreground/40 rounded-sm" />
-                  <div className="h-[3px] w-[85%] bg-muted-foreground/40 rounded-sm" />
-                </div>
+                <div
+                  ref={previewContentRef}
+                  dir="rtl"
+                  style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: "top right",
+                    width: `${100 / scale}%`,
+                    pointerEvents: "none",
+                  }}
+                  dangerouslySetInnerHTML={{ __html: mainHTML }}
+                />
               </div>
             </div>
           </div>
+
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
