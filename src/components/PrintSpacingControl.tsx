@@ -50,6 +50,11 @@ export function PrintSpacingControl() {
   const [topPad, setTopPad] = useState<number>(DEFAULT_TOP_PAD);
   const [pageTop, setPageTop] = useState<number>(DEFAULT_PAGE_TOP);
   const [pageBottom, setPageBottom] = useState<number>(DEFAULT_PAGE_BOTTOM);
+  const [open, setOpen] = useState(false);
+  const [scale, setScale] = useState(0.2);
+  const [mainHTML, setMainHTML] = useState<string>("");
+  const previewContentRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     const tp = loadNum(TOP_PAD_KEY, DEFAULT_TOP_PAD);
