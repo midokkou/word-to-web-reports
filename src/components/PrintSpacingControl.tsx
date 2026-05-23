@@ -230,9 +230,21 @@ export function PrintSpacingControl() {
             />
           </div>
 
-          <Button size="sm" variant="outline" className="w-full" onClick={resetAll}>
-            إعادة الضبط الافتراضي
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1 gap-1"
+              onClick={() => {
+                setOpen(false);
+                setTimeout(() => window.print(), 150);
+              }}
+            >
+              <Printer className="size-4" /> طباعة الآن
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1" onClick={resetAll}>
+              إعادة الضبط
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
