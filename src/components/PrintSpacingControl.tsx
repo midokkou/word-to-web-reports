@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { Printer } from "lucide-react";
+
 
 const TOP_PAD_KEY = "print-top-padding-mm";
 const PAGE_TOP_KEY = "print-page-top-mm";
