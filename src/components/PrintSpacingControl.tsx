@@ -85,6 +85,15 @@ export function PrintSpacingControl() {
     updatePageBottom(DEFAULT_PAGE_BOTTOM);
   };
 
+  // A4 = 210 x 297 mm
+  const pageW = 210;
+  const pageH = 297;
+  const topPct = (pageTop / pageH) * 100;
+  const bottomPct = (pageBottom / pageH) * 100;
+  const sideMm = 14;
+  const sidePct = (sideMm / pageW) * 100;
+  const contentTopOffset = (topPad / pageH) * 100;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -93,8 +102,63 @@ export function PrintSpacingControl() {
           <span className="text-xs hidden sm:inline">هوامش الطباعة</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72" align="end">
+      <PopoverContent className="w-[22rem]" align="end">
         <div className="space-y-4">
+          {/* Live A4 preview */}
+          <div className="flex justify-center">
+            <div
+              className="relative bg-white border border-border shadow-sm overflow-hidden"
+              style={{ width: 160, aspectRatio: `${pageW} / ${pageH}` }}
+              aria-label="معاينة الصفحة"
+            >
+              {/* Header band */}
+              <div
+                className="absolute inset-x-0 top-0 overflow-hidden bg-primary/10"
+                style={{ height: `${topPct}%` }}
+              >
+                <img
+                  src="/print-header.jpg"
+                  alt=""
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => ((e.currentTarget.style.display = "none"))}
+                />
+              </div>
+              {/* Footer band */}
+              <div
+                className="absolute inset-x-0 bottom-0 overflow-hidden bg-primary/10"
+                style={{ height: `${bottomPct}%` }}
+              >
+                <img
+                  src="/print-footer.jpg"
+                  alt=""
+                  className="w-full h-full object-cover object-bottom"
+                  onError={(e) => ((e.currentTarget.style.display = "none"))}
+                />
+              </div>
+              {/* Content area with side margins + top padding */}
+              <div
+                className="absolute"
+                style={{
+                  top: `calc(${topPct}% + ${contentTopOffset}%)`,
+                  bottom: `${bottomPct}%`,
+                  left: `${sidePct}%`,
+                  right: `${sidePct}%`,
+                }}
+              >
+                <div className="h-full border border-dashed border-primary/40 p-1 flex flex-col gap-[3px]">
+                  <div className="h-[6px] w-3/4 bg-primary/60 rounded-sm" />
+                  <div className="h-[3px] w-full bg-muted-foreground/40 rounded-sm" />
+                  <div className="h-[3px] w-[92%] bg-muted-foreground/40 rounded-sm" />
+                  <div className="h-[3px] w-[88%] bg-muted-foreground/40 rounded-sm" />
+                  <div className="h-[3px] w-[80%] bg-muted-foreground/40 rounded-sm" />
+                  <div className="mt-1 h-[3px] w-[70%] bg-muted-foreground/40 rounded-sm" />
+                  <div className="h-[3px] w-[95%] bg-muted-foreground/40 rounded-sm" />
+                  <div className="h-[3px] w-[85%] bg-muted-foreground/40 rounded-sm" />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">هامش الرأس (أعلى الصفحة)</span>
