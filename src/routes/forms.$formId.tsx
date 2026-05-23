@@ -288,7 +288,7 @@ function FormPage() {
 
       <div className="container mx-auto px-4 pt-8">
         <div
-          className="relative rounded-2xl p-6 sm:p-8 text-primary-foreground shadow-[var(--shadow-elegant)]"
+          className="form-banner relative rounded-2xl p-6 sm:p-8 text-primary-foreground shadow-[var(--shadow-elegant)]"
           style={{ background: "var(--gradient-primary)" }}
         >
           <Button
@@ -301,7 +301,7 @@ function FormPage() {
           >
             <Save className="size-4 ml-1" /> حفظ
           </Button>
-          <Badge className="bg-white/15 text-primary-foreground border-0 mb-3">استمارة متابعة</Badge>
+          <Badge className="form-banner-badge bg-white/15 text-primary-foreground border-0 mb-3">استمارة متابعة</Badge>
           <h1 className="text-xl sm:text-2xl font-extrabold mb-4">{form.title}</h1>
 
           <div className="grid sm:grid-cols-2 gap-3 mb-5">
@@ -311,7 +311,7 @@ function FormPage() {
                 value={state.employeeName}
                 onChange={(e) => update({ ...state, employeeName: e.target.value })}
                 placeholder="..."
-                className="bg-white/15 border-white/20 text-primary-foreground placeholder:text-white/60"
+                className="form-banner-input bg-white/15 border-white/20 text-primary-foreground placeholder:text-white/60"
               />
             </div>
             <div>
@@ -320,19 +320,17 @@ function FormPage() {
                 type="date"
                 value={state.date}
                 onChange={(e) => update({ ...state, date: e.target.value })}
-                className="bg-white/15 border-white/20 text-primary-foreground"
+                className="form-banner-input bg-white/15 border-white/20 text-primary-foreground"
               />
             </div>
           </div>
-
-
 
           <div className="flex items-center justify-between text-sm mb-2">
             <span>{doneCount} منجز من {allDisplayItems.length}</span>
             <span className="font-bold">{pct}%</span>
           </div>
-          <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-            <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
+          <div className="form-progress-track h-2 rounded-full bg-white/20 overflow-hidden">
+            <div className="form-progress-bar h-full bg-white transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
       </div>
