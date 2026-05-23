@@ -253,6 +253,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     color: #111 !important;
   }
   h1 {
+    font-family: "Helvetica Neue W23 Sky Bold", "Helvetica Neue", "Tajawal", system-ui, sans-serif !important;
     font-size: 16pt !important; font-weight: 800 !important;
     margin: 0 0 8pt !important; text-align: center !important;
     color: var(--primary) !important;
@@ -260,11 +261,15 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     padding-bottom: 4pt !important;
   }
   h2 {
+    font-family: "Helvetica Neue W23 Sky Bold", "Helvetica Neue", "Tajawal", system-ui, sans-serif !important;
     font-size: 13pt !important; font-weight: 700 !important;
     margin: 10pt 0 5pt !important;
     color: var(--primary) !important;
     border-bottom: 0.75pt solid color-mix(in oklab, var(--primary) 60%, transparent) !important;
     padding-bottom: 2pt !important;
+  }
+  h3, h4, h5, h6 {
+    font-family: "Helvetica Neue W23 Sky Bold Regular", "Helvetica Neue W23 Sky Regular", "Helvetica Neue", "Tajawal", system-ui, sans-serif !important;
   }
   h3 { font-size: 11.5pt !important; font-weight: 700 !important; margin: 7pt 0 3pt !important; color: var(--primary) !important; }
   h4, h5, h6 { font-size: 10.5pt !important; font-weight: 700 !important; margin: 5pt 0 2pt !important; }
