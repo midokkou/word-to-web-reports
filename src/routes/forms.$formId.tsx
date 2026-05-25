@@ -712,9 +712,9 @@ function FormPage() {
             <Button variant="outline" onClick={() => setSummaryOpen(false)}>إغلاق</Button>
             <Button
               onClick={() => {
-                document.body.classList.add("print-summary");
+                document.body.classList.add("print-summary-only");
                 const cleanup = () => {
-                  document.body.classList.remove("print-summary");
+                  document.body.classList.remove("print-summary-only");
                   window.removeEventListener("afterprint", cleanup);
                 };
                 window.addEventListener("afterprint", cleanup);
