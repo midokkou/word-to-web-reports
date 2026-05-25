@@ -546,7 +546,186 @@ function FormPage() {
         >
           <Printer className="size-4 ml-1" /> طباعة ملخّصة (صفحة واحدة)
         </Button>
+        <Button
+          size="lg"
+          variant="default"
+          className="bg-gradient-to-l from-primary to-primary/80"
+          onClick={() => setSummaryOpen(true)}
+        >
+          <FileText className="size-4 ml-1" /> ملخص
+        </Button>
       </div>
+
+      <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <FileText className="size-5 text-primary" />
+              ملخص الاستمارة
+            </DialogTitle>
+            <DialogDescription>{form.title}</DialogDescription>
+          </DialogHeader>
+
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            <div id="summary-print-area" className="space-y-5 py-2">
+              {/* Header info */}
+              <div
+                className="rounded-2xl p-5 text-primary-foreground shadow-md"
+                style={{ background: "var(--gradient-primary)" }}
+              >
+                <h2 className="text-lg font-extrabold mb-3">{form.title}</h2>
+                <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                  <div className="bg-white/15 rounded-lg px-3 py-2">
+                    <span className="opacity-80 text-xs block mb-0.5">اسم الموظفة</span>
+                    <span className="font-bold">{state.employeeName || "—"}</span>
+                  </div>
+                  <div className="bg-white/15 rounded-lg px-3 py-2">
+                    <span className="opacity-80 text-xs block mb-0.5">التاريخ</span>
+                    <span className="font-bold">{state.date || "—"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats cards */}
+              {(() => {
+                const counts = { done: 0, partial: 0, not_done: 0, pending: 0 };
+                allDisplayItems.forEach((_, i) => {
+                  const s = state.items[i]?.status ?? "pending";
+                  counts[s]++;
+                });
+                const cards = [
+                  { label: "منجز", value: counts.done, color: "var(--success)" },
+                  { label: "جزئي", value: counts.partial, color: "var(--warning)" },
+                  { label: "غير منجز", value: counts.not_done, color: "var(--destructive)" },
+                  { label: "لاحقاً", value: counts.pending, color: "var(--muted-foreground)" },
+                ];
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {cards.map((c) => (
+                      <div
+                        key={c.label}
+                        className="rounded-xl border p-3 text-center bg-card"
+                        style={{ borderColor: c.color }}
+                      >
+                        <div className="text-2xl font-extrabold" style={{ color: c.color }}>
+                          {c.value}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">{c.label}</div>
+                      </div>
+                    ))}
+                    <div className="rounded-xl border-2 border-primary p-3 text-center bg-primary/5 col-span-2 sm:col-span-4">
+                      <div className="text-sm text-muted-foreground">نسبة الإنجاز</div>
+                      <div className="text-3xl font-extrabold text-primary">{pct}%</div>
+                      <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full bg-primary transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Items table */}
+              <div className="rounded-xl border overflow-hidden">
+                <div className="bg-primary text-primary-foreground px-4 py-2 font-bold text-sm">
+                  بنود الاستمارة
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-12 text-center">#</TableHead>
+                      <TableHead className="text-right">البند</TableHead>
+                      <TableHead className="w-28 text-center">الحالة</TableHead>
+                      <TableHead className="text-right">ملاحظات</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allDisplayItems.map((text, i) => {
+                      const ev = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
+                      const meta = STATUS.find((s) => s.value === ev.status) ?? STATUS[3];
+                      return (
+                        <TableRow key={i}>
+                          <TableCell className="text-center font-bold text-muted-foreground">
+                            {i + 1}
+                          </TableCell>
+                          <TableCell className="text-right text-sm">{text}</TableCell>
+                          <TableCell className="text-center">
+                            <span
+                              className="inline-block text-xs font-bold px-2 py-1 rounded-full text-white"
+                              style={{ background: meta.accent }}
+                            >
+                              {meta.label}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right text-xs text-muted-foreground">
+                            {ev.notes || "—"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Followups */}
+              {([
+                { fu: state.followup1, title: "المتابعة الأولى" },
+                { fu: state.followup2, title: "المتابعة الثانية" },
+              ] as const).map(({ fu, title }, idx) => {
+                const f = fu ?? emptyFollowup();
+                const hasContent = f.day || f.date || f.recommendations || f.reviewerName || f.signature;
+                if (!hasContent) return null;
+                return (
+                  <div key={idx} className="rounded-xl border overflow-hidden">
+                    <div className="bg-secondary text-secondary-foreground px-4 py-2 font-bold text-sm">
+                      {title}
+                    </div>
+                    <Table>
+                      <TableBody>
+                        <TableRow>
+                          <TableHead className="w-32 text-right bg-muted/30">اليوم</TableHead>
+                          <TableCell>{f.day || "—"}</TableCell>
+                          <TableHead className="w-32 text-right bg-muted/30">التاريخ</TableHead>
+                          <TableCell>{f.date || "—"}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableHead className="text-right bg-muted/30">التوصيات</TableHead>
+                          <TableCell colSpan={3} className="whitespace-pre-wrap">{f.recommendations || "—"}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableHead className="text-right bg-muted/30">اسم المتابع</TableHead>
+                          <TableCell>{f.reviewerName || "—"}</TableCell>
+                          <TableHead className="text-right bg-muted/30">التوقيع</TableHead>
+                          <TableCell>{f.signature || "—"}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSummaryOpen(false)}>إغلاق</Button>
+            <Button
+              onClick={() => {
+                document.body.classList.add("print-summary");
+                const cleanup = () => {
+                  document.body.classList.remove("print-summary");
+                  window.removeEventListener("afterprint", cleanup);
+                };
+                window.addEventListener("afterprint", cleanup);
+                setTimeout(() => window.print(), 50);
+              }}
+            >
+              <Printer className="size-4 ml-1" /> طباعة الملخص
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="max-w-2xl">
