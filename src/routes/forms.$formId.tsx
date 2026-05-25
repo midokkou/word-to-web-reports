@@ -32,7 +32,9 @@ import {
   Pencil,
   Check,
   X,
+  FileText,
 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ExportButtons } from "@/components/ExportButtons";
