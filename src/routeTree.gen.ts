@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksPeriodRouteImport } from './routes/tasks.$period'
 import { Route as StatsTasksRouteImport } from './routes/stats.tasks'
 import { Route as FormsFormIdRouteImport } from './routes/forms.$formId'
+import { Route as RecordsFormFormIdRouteImport } from './routes/records.form.$formId'
 
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
@@ -46,31 +47,39 @@ const FormsFormIdRoute = FormsFormIdRouteImport.update({
   path: '/forms/$formId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecordsFormFormIdRoute = RecordsFormFormIdRouteImport.update({
+  id: '/form/$formId',
+  path: '/form/$formId',
+  getParentRoute: () => RecordsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/records': typeof RecordsRoute
+  '/records': typeof RecordsRouteWithChildren
   '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
   '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
+  '/records/form/$formId': typeof RecordsFormFormIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/records': typeof RecordsRoute
+  '/records': typeof RecordsRouteWithChildren
   '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
   '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
+  '/records/form/$formId': typeof RecordsFormFormIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/records': typeof RecordsRoute
+  '/records': typeof RecordsRouteWithChildren
   '/stats': typeof StatsRouteWithChildren
   '/forms/$formId': typeof FormsFormIdRoute
   '/stats/tasks': typeof StatsTasksRoute
   '/tasks/$period': typeof TasksPeriodRoute
+  '/records/form/$formId': typeof RecordsFormFormIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/forms/$formId'
     | '/stats/tasks'
     | '/tasks/$period'
+    | '/records/form/$formId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/forms/$formId'
     | '/stats/tasks'
     | '/tasks/$period'
+    | '/records/form/$formId'
   id:
     | '__root__'
     | '/'
@@ -97,11 +108,12 @@ export interface FileRouteTypes {
     | '/forms/$formId'
     | '/stats/tasks'
     | '/tasks/$period'
+    | '/records/form/$formId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  RecordsRoute: typeof RecordsRoute
+  RecordsRoute: typeof RecordsRouteWithChildren
   StatsRoute: typeof StatsRouteWithChildren
   FormsFormIdRoute: typeof FormsFormIdRoute
   TasksPeriodRoute: typeof TasksPeriodRoute
@@ -151,8 +163,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsFormIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/records/form/$formId': {
+      id: '/records/form/$formId'
+      path: '/form/$formId'
+      fullPath: '/records/form/$formId'
+      preLoaderRoute: typeof RecordsFormFormIdRouteImport
+      parentRoute: typeof RecordsRoute
+    }
   }
 }
+
+interface RecordsRouteChildren {
+  RecordsFormFormIdRoute: typeof RecordsFormFormIdRoute
+}
+
+const RecordsRouteChildren: RecordsRouteChildren = {
+  RecordsFormFormIdRoute: RecordsFormFormIdRoute,
+}
+
+const RecordsRouteWithChildren =
+  RecordsRoute._addFileChildren(RecordsRouteChildren)
 
 interface StatsRouteChildren {
   StatsTasksRoute: typeof StatsTasksRoute
@@ -166,7 +196,7 @@ const StatsRouteWithChildren = StatsRoute._addFileChildren(StatsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  RecordsRoute: RecordsRoute,
+  RecordsRoute: RecordsRouteWithChildren,
   StatsRoute: StatsRouteWithChildren,
   FormsFormIdRoute: FormsFormIdRoute,
   TasksPeriodRoute: TasksPeriodRoute,
