@@ -198,86 +198,100 @@ function RecordsPage() {
           </Card>
         ) : (
           <div className="space-y-10">
-            {/* Forms section */}
-            {formRows.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold flex items-center gap-2">
-                    <FileText className="size-4 text-primary" />
-                    الاستمارات
-                    <span className="text-xs font-normal text-muted-foreground">
-                      ({formRows.length})
-                    </span>
-                  </h2>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {formRows.map((r) => {
-                    const s = styles[r.status];
-                    const pct = r.total ? Math.round((r.done / r.total) * 100) : 0;
-                    const title = r.form?.title ?? r.record.formId;
-                    return (
-                      <Card key={r.record.id} className="p-5 border-border/60 relative overflow-hidden">
-                        <span
-                          className={`absolute top-0 right-0 h-full w-1.5 ${
-                            r.status === "complete" ? "bg-success" : "bg-warning"
-                          }`}
-                        />
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <h3 className="font-bold leading-snug flex-1">{title}</h3>
-                          <Badge className={`${s.bg} ${s.text} border-0 shrink-0`}>{s.label}</Badge>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                          {r.record.employeeName && (
-                            <span className="inline-flex items-center gap-1">
-                              <User className="size-3.5" /> {r.record.employeeName}
-                            </span>
-                          )}
-                          {r.record.date && (
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="size-3.5" /> {r.record.date}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs mb-2">
-                          <span className="text-muted-foreground">
-                            {r.done} / {r.total} عنصر منجز
-                          </span>
-                          <span className="font-bold text-base text-foreground">{pct}%</span>
-                        </div>
-                        <div className="h-2 rounded-full bg-secondary overflow-hidden mb-4">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${pct}%`, background: "var(--gradient-primary)" }}
+            {/* Forms section — grouped by form */}
+            {formRows.length > 0 && (() => {
+              const grouped = new Map<string, { form: ReturnType<typeof getForm>; rows: FormRow[] }>();
+              for (const r of formRows) {
+                const key = r.record.formId;
+                if (!grouped.has(key)) grouped.set(key, { form: r.form, rows: [] });
+                grouped.get(key)!.rows.push(r);
+              }
+              const groups = Array.from(grouped.entries());
+              return (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-bold flex items-center gap-2">
+                      <FileText className="size-4 text-primary" />
+                      الاستمارات
+                      <span className="text-xs font-normal text-muted-foreground">
+                        ({groups.length} استمارة • {formRows.length} إدخال)
+                      </span>
+                    </h2>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {groups.map(([formId, g]) => {
+                      const completeCount = g.rows.filter((r) => r.status === "complete").length;
+                      const partialCount = g.rows.filter((r) => r.status === "partial").length;
+                      const totalItems = g.rows.reduce((s, r) => s + r.total, 0);
+                      const doneItems = g.rows.reduce((s, r) => s + r.done, 0);
+                      const pct = totalItems ? Math.round((doneItems / totalItems) * 100) : 0;
+                      const title = g.form?.title ?? formId;
+                      return (
+                        <Card
+                          key={formId}
+                          className="p-5 border-border/60 relative overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                          <span
+                            className="absolute top-0 right-0 h-full w-1.5"
+                            style={{ background: "var(--gradient-primary)" }}
                           />
-                        </div>
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <h3 className="font-bold leading-snug flex-1">{title}</h3>
+                            <Badge className="bg-primary/10 text-primary border-0 shrink-0">
+                              {g.rows.length} إدخال
+                            </Badge>
+                          </div>
 
-                        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
-                          {r.form ? (
-                            <Button asChild size="sm" variant="outline">
-                              <Link to="/forms/$formId" params={{ formId: r.form.id }}>
-                                فتح <ArrowLeft className="size-4 mr-1" />
-                              </Link>
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">استمارة محذوفة</span>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() => handleDelete(r.record.id, title)}
-                          >
-                            <Trash2 className="size-4 ml-1" /> حذف
-                          </Button>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                          <div className="flex flex-wrap gap-2 text-xs mb-3">
+                            <span className="inline-flex items-center gap-1 bg-success/10 text-success px-2 py-1 rounded-md">
+                              مكتمل: {completeCount}
+                            </span>
+                            <span className="inline-flex items-center gap-1 bg-warning/15 text-warning-foreground px-2 py-1 rounded-md">
+                              قيد التعبئة: {partialCount}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-muted-foreground">
+                              {doneItems} / {totalItems} بند منجز
+                            </span>
+                            <span className="font-bold text-base text-foreground">{pct}%</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-secondary overflow-hidden mb-4">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${pct}%`, background: "var(--gradient-primary)" }}
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-3 border-t border-border/50">
+                            {g.form ? (
+                              <>
+                                <Button asChild size="sm" className="flex-1">
+                                  <Link
+                                    to="/records/form/$formId"
+                                    params={{ formId: g.form.id }}
+                                  >
+                                    <FileText className="size-4 ml-1" /> السجل المفصّل
+                                  </Link>
+                                </Button>
+                                <Button asChild size="sm" variant="outline">
+                                  <Link to="/forms/$formId" params={{ formId: g.form.id }}>
+                                    فتح <ArrowLeft className="size-4 mr-1" />
+                                  </Link>
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">استمارة محذوفة</span>
+                            )}
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Tasks section */}
             {taskRows.length > 0 && (
