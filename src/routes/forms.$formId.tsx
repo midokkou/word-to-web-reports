@@ -627,46 +627,61 @@ function FormPage() {
                 );
               })()}
 
-              {/* Items table */}
+              {/* Items: two side-by-side tables */}
               <div className="rounded-xl border overflow-hidden">
                 <div className="bg-primary text-primary-foreground px-4 py-2 font-bold text-sm">
                   بنود الاستمارة
                 </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="w-12 text-center">#</TableHead>
-                      <TableHead className="text-right">البند</TableHead>
-                      <TableHead className="w-28 text-center">الحالة</TableHead>
-                      <TableHead className="text-right">ملاحظات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allDisplayItems.map((text, i) => {
-                      const ev = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
-                      const meta = STATUS.find((s) => s.value === ev.status) ?? STATUS[3];
-                      return (
-                        <TableRow key={i}>
-                          <TableCell className="text-center font-bold text-muted-foreground">
-                            {i + 1}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">{text}</TableCell>
-                          <TableCell className="text-center">
-                            <span
-                              className="inline-block text-xs font-bold px-2 py-1 rounded-full text-white"
-                              style={{ background: meta.accent }}
-                            >
-                              {meta.label}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right text-xs text-muted-foreground">
-                            {ev.notes || "—"}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                {(() => {
+                  const mid = Math.ceil(allDisplayItems.length / 2);
+                  const halves = [
+                    allDisplayItems.slice(0, mid).map((t, i) => ({ text: t, idx: i })),
+                    allDisplayItems.slice(mid).map((t, i) => ({ text: t, idx: i + mid })),
+                  ];
+                  return (
+                    <div className="grid grid-cols-2 gap-0">
+                      {halves.map((half, hi) => (
+                        <div key={hi} className={hi === 0 ? "border-l" : ""}>
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="w-10 text-center">#</TableHead>
+                                <TableHead className="text-right">البند</TableHead>
+                                <TableHead className="w-20 text-center">الحالة</TableHead>
+                                <TableHead className="text-right">ملاحظات</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {half.map(({ text, idx }) => {
+                                const ev = state.items[idx] ?? { status: "pending" as ItemStatus, notes: "" };
+                                const meta = STATUS.find((s) => s.value === ev.status) ?? STATUS[3];
+                                return (
+                                  <TableRow key={idx}>
+                                    <TableCell className="text-center font-bold text-muted-foreground">
+                                      {idx + 1}
+                                    </TableCell>
+                                    <TableCell className="text-right text-sm">{text}</TableCell>
+                                    <TableCell className="text-center">
+                                      <span
+                                        className="inline-block text-xs font-bold px-2 py-1 rounded-full text-white"
+                                        style={{ background: meta.accent }}
+                                      >
+                                        {meta.label}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell className="text-right text-xs text-muted-foreground">
+                                      {ev.notes || "—"}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Followups */}
