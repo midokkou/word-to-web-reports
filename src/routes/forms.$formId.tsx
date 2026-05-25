@@ -712,13 +712,30 @@ function FormPage() {
             <Button variant="outline" onClick={() => setSummaryOpen(false)}>إغلاق</Button>
             <Button
               onClick={() => {
-                document.body.classList.add("print-summary-only");
+                const area = document.getElementById("summary-print-area");
+                // A4 portrait minus 8mm margins, at 96dpi ≈ 1093px usable height, 714px width
+                const MAX_H = 1080;
+                const MAX_W = 714;
+                let scale = 1;
+                if (area) {
+                  // Reset any previous scale
+                  document.body.style.setProperty("--summary-fit-scale", "1");
+                  const naturalH = area.scrollHeight;
+                  const naturalW = area.scrollWidth;
+                  const sH = MAX_H / naturalH;
+                  const sW = MAX_W / naturalW;
+                  scale = Math.min(1, sH, sW);
+                  if (scale < 0.4) scale = 0.4;
+                  document.body.style.setProperty("--summary-fit-scale", String(scale));
+                }
+                document.body.classList.add("print-summary-only", "print-summary-fit");
                 const cleanup = () => {
-                  document.body.classList.remove("print-summary-only");
+                  document.body.classList.remove("print-summary-only", "print-summary-fit");
+                  document.body.style.removeProperty("--summary-fit-scale");
                   window.removeEventListener("afterprint", cleanup);
                 };
                 window.addEventListener("afterprint", cleanup);
-                setTimeout(() => window.print(), 50);
+                setTimeout(() => window.print(), 80);
               }}
             >
               <Printer className="size-4 ml-1" /> طباعة الملخص
