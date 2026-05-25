@@ -528,6 +528,21 @@ function FormPage() {
         <Button size="lg" variant="outline" onClick={() => window.print()}>
           <Printer className="size-4 ml-1" /> طباعة
         </Button>
+        <Button
+          size="lg"
+          variant="secondary"
+          onClick={() => {
+            document.body.classList.add("print-summary");
+            const cleanup = () => {
+              document.body.classList.remove("print-summary");
+              window.removeEventListener("afterprint", cleanup);
+            };
+            window.addEventListener("afterprint", cleanup);
+            setTimeout(() => window.print(), 50);
+          }}
+        >
+          <Printer className="size-4 ml-1" /> طباعة ملخّصة (صفحة واحدة)
+        </Button>
       </div>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
