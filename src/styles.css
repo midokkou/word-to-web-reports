@@ -499,55 +499,121 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   body.print-summary .container > .space-y-4 .grid { gap: 1pt 4pt !important; margin-bottom: 1pt !important; }
   body.print-summary input { padding: 0 2pt !important; font-size: 7.5pt !important; height: auto !important; min-height: 0 !important; }
 
-  /* ===== Summary dialog: print only the summary, fit on one page ===== */
+  /* ===== Summary dialog: print only the summary, force one A4 page ===== */
+  body.print-summary-only { margin: 0 !important; padding: 0 !important; background: white !important; }
   body.print-summary-only > *:not([data-radix-popper-content-wrapper]):not(script):not(style) { display: none !important; }
-  body.print-summary-only [data-radix-popper-content-wrapper] { all: unset !important; display: block !important; }
+  body.print-summary-only [data-radix-popper-content-wrapper] { all: unset !important; display: block !important; position: static !important; }
   body.print-summary-only [role="dialog"] {
     position: static !important;
     transform: none !important;
+    inset: auto !important;
+    top: auto !important; left: auto !important;
     max-width: 100% !important;
     max-height: none !important;
     width: 100% !important;
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
     background: white !important;
     overflow: visible !important;
+    display: block !important;
   }
-  body.print-summary-only [role="dialog"] > *:not(#summary-print-area):not(:has(#summary-print-area)) { display: none !important; }
-  body.print-summary-only [role="dialog"] [data-radix-scroll-area-viewport] {
+  body.print-summary-only [role="dialog"] > *:not(:has(#summary-print-area)) { display: none !important; }
+  body.print-summary-only [role="dialog"] [data-radix-scroll-area-viewport],
+  body.print-summary-only [role="dialog"] [data-radix-scroll-area-root] {
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   body.print-summary-only [role="dialog"] [data-radix-scroll-area-scrollbar] { display: none !important; }
+
+  /* Force the whole summary into a single page via scale */
   body.print-summary-only #summary-print-area {
     display: block !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-size: 8.5pt !important;
-    line-height: 1.25 !important;
+    font-size: 7.5pt !important;
+    line-height: 1.15 !important;
+    transform-origin: top right !important;
   }
-  body.print-summary-only #summary-print-area > * { margin-bottom: 4pt !important; }
-  body.print-summary-only #summary-print-area h2 { font-size: 11pt !important; margin: 0 0 3pt !important; }
-  body.print-summary-only #summary-print-area .rounded-2xl { padding: 5pt 8pt !important; border-radius: 4pt !important; }
-  body.print-summary-only #summary-print-area .rounded-xl { padding: 3pt !important; border-radius: 3pt !important; }
-  body.print-summary-only #summary-print-area .text-2xl { font-size: 12pt !important; }
-  body.print-summary-only #summary-print-area .text-3xl { font-size: 14pt !important; }
-  body.print-summary-only #summary-print-area table { width: 100% !important; border-collapse: collapse !important; font-size: 7.5pt !important; }
+  body.print-summary-only #summary-print-area > * { margin-bottom: 3pt !important; }
+  body.print-summary-only #summary-print-area * {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Header banner — compact */
+  body.print-summary-only #summary-print-area .rounded-2xl {
+    padding: 4pt 6pt !important;
+    border-radius: 3pt !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body.print-summary-only #summary-print-area h2 { font-size: 10pt !important; margin: 0 0 2pt !important; }
+  body.print-summary-only #summary-print-area .rounded-xl { padding: 2pt 3pt !important; border-radius: 2pt !important; }
+
+  /* Stats: force 5 columns inline */
+  body.print-summary-only #summary-print-area .grid { gap: 2pt !important; }
+  body.print-summary-only #summary-print-area .text-2xl { font-size: 10pt !important; line-height: 1 !important; }
+  body.print-summary-only #summary-print-area .text-3xl { font-size: 12pt !important; line-height: 1 !important; }
+  body.print-summary-only #summary-print-area .text-xs,
+  body.print-summary-only #summary-print-area .text-sm { font-size: 6.5pt !important; line-height: 1.1 !important; }
+
+  /* Items table — ultra compact */
+  body.print-summary-only #summary-print-area table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 6.8pt !important;
+    table-layout: fixed !important;
+  }
   body.print-summary-only #summary-print-area table th,
   body.print-summary-only #summary-print-area table td {
-    padding: 1.5pt 3pt !important;
-    border: 0.3pt solid #cbd5e1 !important;
-    line-height: 1.2 !important;
+    padding: 1pt 2pt !important;
+    border: 0.3pt solid #94a3b8 !important;
+    line-height: 1.15 !important;
     height: auto !important;
+    vertical-align: top !important;
+    word-wrap: break-word !important;
   }
-  body.print-summary-only #summary-print-area table th { font-weight: 700 !important; background: #f1f5f9 !important; }
+  body.print-summary-only #summary-print-area table th {
+    font-weight: 700 !important;
+    background: #e2e8f0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body.print-summary-only #summary-print-area tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+  body.print-summary-only #summary-print-area [class*="bg-primary"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 1.5pt 4pt !important;
+    font-size: 7pt !important;
+  }
+  body.print-summary-only #summary-print-area .rounded-full {
+    padding: 0.5pt 3pt !important;
+    font-size: 6pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide letterhead and footer/buttons in summary print */
   body.print-summary-only .print-letterhead-header,
   body.print-summary-only .print-letterhead-footer { display: none !important; }
   body.print-summary-only [role="dialog"] [data-dialog-footer],
   body.print-summary-only [role="dialog"] button { display: none !important; }
+
+  /* Page setup for the summary */
+  @page { size: A4 portrait; margin: 8mm; }
+}
+
+/* Dynamic single-page fit class (applied via JS before printing) */
+body.print-summary-fit #summary-print-area {
+  transform: scale(var(--summary-fit-scale, 1));
+  transform-origin: top right;
+  width: calc(100% / var(--summary-fit-scale, 1));
 }
 
 
