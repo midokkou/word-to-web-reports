@@ -115,6 +115,7 @@ function FormPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const buildSheets = () => {
