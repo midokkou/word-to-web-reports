@@ -335,138 +335,134 @@ function FormPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-6 space-y-3">
-        {allDisplayItems.map((text, i) => {
-          const cur = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
-          const isCustom = i >= form.items.length;
-          const meta = STATUS.find((s) => s.value === cur.status) ?? STATUS[3];
-          return (
-            <Card
-              key={i}
-              className="relative p-4 sm:p-5 rounded-2xl border-border/60 overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5"
-              style={{
-                background:
-                  "linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), var(--card))",
-              }}
-            >
-              {/* status accent bar (right side because RTL) */}
-              <span
-                className="absolute top-0 right-0 h-full w-1.5 transition-colors"
-                style={{ background: meta.accent }}
-                aria-hidden
-              />
-              {/* soft glow */}
-              <span
-                className="pointer-events-none absolute -top-12 -left-12 size-32 rounded-full opacity-15 blur-2xl"
-                style={{ background: meta.accent }}
-                aria-hidden
-              />
-
-              <div className="relative flex gap-3 items-start mb-4">
-                <div
-                  className={`size-9 shrink-0 rounded-xl flex items-center justify-center font-bold text-sm text-primary-foreground shadow-md ring-2 ${meta.ring}`}
-                  style={{ background: "var(--gradient-primary)" }}
-                >
-                  {i + 1}
-                </div>
-                {editIdx === i ? (
-                  <div className="flex-1 flex gap-2 items-start">
-                    <Textarea
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      rows={2}
-                      className="text-sm flex-1"
-                      autoFocus
-                    />
-                    <div className="flex flex-col gap-1">
-                      <Button
-                        size="icon"
-                        className="size-7"
-                        onClick={() => {
-                          editItem(i, editText);
-                          setEditIdx(null);
-                        }}
-                      >
-                        <Check className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-7"
-                        onClick={() => setEditIdx(null)}
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm sm:text-base font-medium leading-relaxed flex-1 pt-1">
-                    {text}
-                  </p>
-                )}
-                {isCustom && editIdx !== i && (
-                  <Badge variant="outline" className="text-[10px] print:hidden border-primary/40 text-primary">
-                    مضاف
-                  </Badge>
-                )}
-                {editIdx !== i && (
-                  <div className="flex gap-1 print:hidden">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7 text-primary hover:bg-primary/10"
-                      onClick={() => {
-                        setEditIdx(i);
-                        setEditText(text);
-                      }}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7 text-destructive hover:bg-destructive/10"
-                      onClick={() => deleteItem(i)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative flex flex-wrap gap-2 mb-3 print:hidden">
-                {STATUS.map((s) => {
-                  const on = cur.status === s.value;
-                  const Icon = s.icon;
-                  return (
-                    <button
-                      key={s.value}
-                      data-on={on}
-                      onClick={() => setStatus(i, s.value)}
-                      className={`inline-flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-border bg-card hover:border-primary/40 hover:bg-secondary/60 transition-all ${s.cls}`}
-                    >
-                      <Icon className="size-3.5" />
-                      {s.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="hidden print:block text-sm mb-2">
-                الحالة: {meta.label}
-              </div>
-
-              <Textarea
-                value={cur.notes}
-                onChange={(e) => setNotes(i, e.target.value)}
-                placeholder="ملاحظات..."
-                rows={2}
-                className="text-sm bg-background/70 border-border/70 focus-visible:ring-primary/40 rounded-xl"
-              />
-            </Card>
-          );
-        })}
+      <div className="container mx-auto px-4 mt-6">
+        <div className="rounded-xl border overflow-hidden bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-secondary/50 text-xs">
+              <tr className="border-b">
+                <th className="p-2 text-right w-10">#</th>
+                <th className="p-2 text-right">العنصر</th>
+                <th className="p-2 text-right w-[280px] print:hidden">الحالة</th>
+                <th className="p-2 text-right hidden print:table-cell w-24">الحالة</th>
+                <th className="p-2 text-right w-[220px]">ملاحظات</th>
+                <th className="p-2 text-right w-16 print:hidden">إجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allDisplayItems.map((text, i) => {
+                const cur = state.items[i] ?? { status: "pending" as ItemStatus, notes: "" };
+                const isCustom = i >= form.items.length;
+                const meta = STATUS.find((s) => s.value === cur.status) ?? STATUS[3];
+                return (
+                  <tr key={i} className="border-b last:border-0 hover:bg-secondary/30 align-top">
+                    <td className="p-2 text-xs text-muted-foreground font-bold">
+                      <span
+                        className="inline-block size-2 rounded-full ml-1 align-middle"
+                        style={{ background: meta.accent }}
+                        aria-hidden
+                      />
+                      {i + 1}
+                    </td>
+                    <td className="p-2">
+                      {editIdx === i ? (
+                        <div className="flex gap-1 items-start">
+                          <Textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={2}
+                            className="text-xs flex-1 min-h-0"
+                            autoFocus
+                          />
+                          <Button
+                            size="icon"
+                            className="size-6"
+                            onClick={() => {
+                              editItem(i, editText);
+                              setEditIdx(null);
+                            }}
+                          >
+                            <Check className="size-3" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="size-6"
+                            onClick={() => setEditIdx(null)}
+                          >
+                            <X className="size-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-1.5">
+                          <span className="leading-snug">{text}</span>
+                          {isCustom && (
+                            <Badge variant="outline" className="text-[9px] px-1 py-0 print:hidden border-primary/40 text-primary shrink-0">
+                              مضاف
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="p-2 print:hidden">
+                      <div className="flex flex-wrap gap-1">
+                        {STATUS.map((s) => {
+                          const on = cur.status === s.value;
+                          const Icon = s.icon;
+                          return (
+                            <button
+                              key={s.value}
+                              data-on={on}
+                              onClick={() => setStatus(i, s.value)}
+                              className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border bg-card hover:bg-secondary transition-all ${s.cls}`}
+                              title={s.label}
+                            >
+                              <Icon className="size-3" />
+                              {s.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td className="p-2 hidden print:table-cell text-xs">{meta.label}</td>
+                    <td className="p-2">
+                      <Input
+                        value={cur.notes}
+                        onChange={(e) => setNotes(i, e.target.value)}
+                        placeholder="..."
+                        className="h-7 text-xs"
+                      />
+                    </td>
+                    <td className="p-2 print:hidden">
+                      <div className="flex gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 text-primary hover:bg-primary/10"
+                          onClick={() => {
+                            setEditIdx(i);
+                            setEditText(text);
+                          }}
+                        >
+                          <Pencil className="size-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 text-destructive hover:bg-destructive/10"
+                          onClick={() => deleteItem(i)}
+                        >
+                          <Trash2 className="size-3" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+
 
       <div className="container mx-auto px-4 mt-8 space-y-4">
         <h2 className="text-lg font-bold flex items-center gap-2">
