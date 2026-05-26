@@ -13,6 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   FolderOpen,
   Search,
   ArrowLeft,
@@ -210,71 +218,75 @@ function RecordsPage() {
                     </span>
                   </h2>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {formRows.map((r) => {
-                    const s = styles[r.status];
-                    const pct = r.total ? Math.round((r.done / r.total) * 100) : 0;
-                    const title = r.form?.title ?? r.record.formId;
-                    return (
-                      <Card key={r.record.id} className="p-5 border-border/60 relative overflow-hidden">
-                        <span
-                          className={`absolute top-0 right-0 h-full w-1.5 ${
-                            r.status === "complete" ? "bg-success" : "bg-warning"
-                          }`}
-                        />
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <h3 className="font-bold leading-snug flex-1">{title}</h3>
-                          <Badge className={`${s.bg} ${s.text} border-0 shrink-0`}>{s.label}</Badge>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
-                          {r.record.employeeName && (
-                            <span className="inline-flex items-center gap-1">
-                              <User className="size-3.5" /> {r.record.employeeName}
-                            </span>
-                          )}
-                          {r.record.date && (
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="size-3.5" /> {r.record.date}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs mb-2">
-                          <span className="text-muted-foreground">
-                            {r.done} / {r.total} عنصر منجز
-                          </span>
-                          <span className="font-bold text-base text-foreground">{pct}%</span>
-                        </div>
-                        <div className="h-2 rounded-full bg-secondary overflow-hidden mb-4">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${pct}%`, background: "var(--gradient-primary)" }}
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
-                          {r.form ? (
-                            <Button asChild size="sm" variant="outline">
-                              <Link to="/forms/$formId" params={{ formId: r.form.id }}>
-                                فتح <ArrowLeft className="size-4 mr-1" />
-                              </Link>
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">استمارة محذوفة</span>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() => handleDelete(r.record.id, title)}
-                          >
-                            <Trash2 className="size-4 ml-1" /> حذف
-                          </Button>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                <div className="rounded-xl border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">الاستمارة</TableHead>
+                        <TableHead className="text-right">الموظفة</TableHead>
+                        <TableHead className="text-right">التاريخ</TableHead>
+                        <TableHead className="text-right">الإنجاز</TableHead>
+                        <TableHead className="text-right">الحالة</TableHead>
+                        <TableHead className="text-right w-24">إجراء</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {formRows.map((r) => {
+                        const s = styles[r.status];
+                        const pct = r.total ? Math.round((r.done / r.total) * 100) : 0;
+                        const title = r.form?.title ?? r.record.formId;
+                        return (
+                          <TableRow key={r.record.id}>
+                            <TableCell className="font-medium">{title}</TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <User className="size-3.5" /> {r.record.employeeName || "—"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Calendar className="size-3.5" /> {r.record.date || "—"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">{r.done}/{r.total}</span>
+                                <span className="text-sm font-bold">{pct}%</span>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-secondary overflow-hidden mt-1 w-20">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{ width: `${pct}%`, background: "var(--gradient-primary)" }}
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={`${s.bg} ${s.text} border-0`}>{s.label}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                {r.form ? (
+                                  <Button asChild size="sm" variant="ghost" className="text-primary">
+                                    <Link to="/forms/$formId" params={{ formId: r.form.id }}>
+                                      <ArrowLeft className="size-4" />
+                                    </Link>
+                                  </Button>
+                                ) : null}
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-destructive"
+                                  onClick={() => handleDelete(r.record.id, title)}
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             )}
@@ -291,43 +303,59 @@ function RecordsPage() {
                     </span>
                   </h2>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {taskRows.map((r) => {
-                    const name = r.record.employeeName || "(بدون اسم)";
-                    return (
-                      <Card key={r.record.id} className="p-5 border-border/60 relative overflow-hidden">
-                        <span className="absolute top-0 right-0 h-full w-1.5 bg-primary" />
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <h3 className="font-bold leading-snug flex-1">{name}</h3>
-                          <Badge className="bg-primary/10 text-primary border-0 shrink-0">
-                            {TASK_LABELS[r.period]}
-                          </Badge>
-                        </div>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
-                          {r.record.date && (
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="size-3.5" /> {r.record.date}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50">
-                          <Button asChild size="sm" variant="outline">
-                            <Link to="/tasks/$period" params={{ period: r.period }}>
-                              فتح <ArrowLeft className="size-4 mr-1" />
-                            </Link>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() => handleDelete(r.record.id, name)}
-                          >
-                            <Trash2 className="size-4 ml-1" /> حذف
-                          </Button>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                <div className="rounded-xl border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">الموظفة</TableHead>
+                        <TableHead className="text-right">النوع</TableHead>
+                        <TableHead className="text-right">التاريخ</TableHead>
+                        <TableHead className="text-right">ما تم</TableHead>
+                        <TableHead className="text-right">ما لم يتم</TableHead>
+                        <TableHead className="text-right w-24">إجراء</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {taskRows.map((r) => {
+                        const name = r.record.employeeName || "(بدون اسم)";
+                        const data = (r.record.data ?? {}) as { done?: string; notDone?: string };
+                        return (
+                          <TableRow key={r.record.id}>
+                            <TableCell className="font-medium">{name}</TableCell>
+                            <TableCell>
+                              <Badge className="bg-primary/10 text-primary border-0">
+                                {TASK_LABELS[r.period]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Calendar className="size-3.5" /> {r.record.date || "—"}
+                              </span>
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate text-muted-foreground">{data.done || "—"}</TableCell>
+                            <TableCell className="max-w-[200px] truncate text-muted-foreground">{data.notDone || "—"}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button asChild size="sm" variant="ghost" className="text-primary">
+                                  <Link to="/tasks/$period" params={{ period: r.period }}>
+                                    <ArrowLeft className="size-4" />
+                                  </Link>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-destructive"
+                                  onClick={() => handleDelete(r.record.id, name)}
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             )}
