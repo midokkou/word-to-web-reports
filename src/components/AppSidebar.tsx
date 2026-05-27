@@ -96,6 +96,15 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={currentPath === "/forms-stats"}>
+                  <Link to="/forms-stats" className="flex items-center gap-2">
+                    <BarChart3 className="size-4" />
+                    <span>احصائيات الاستمارات</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
