@@ -377,12 +377,11 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     margin: 0 0 8pt !important;
   }
 
-  /* Form banner — keep the green gradient look in print */
+  /* Form banner — clean bordered style for print */
   .form-banner {
-    background: var(--gradient-primary) !important;
-    background-color: var(--primary) !important;
-    color: var(--primary-foreground) !important;
-    border: none !important;
+    background: #ffffff !important;
+    border: 1.5pt solid var(--primary) !important;
+    color: #111 !important;
     box-shadow: none !important;
     border-radius: 6pt !important;
     padding: 10pt 12pt !important;
@@ -398,35 +397,36 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   }
   .form-banner h1 {
     border-bottom: none !important;
-    color: var(--primary-foreground) !important;
+    color: var(--primary) !important;
     text-align: right !important;
   }
   .form-banner label,
   .form-banner span,
   .form-banner div {
-    color: var(--primary-foreground) !important;
+    color: #111 !important;
   }
   .form-banner input,
   .form-banner .form-banner-input {
-    background: rgba(255,255,255,0.18) !important;
-    border: 0.5pt solid rgba(255,255,255,0.4) !important;
-    border-radius: 3pt !important;
-    color: var(--primary-foreground) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 0.6pt solid #999 !important;
+    border-radius: 0 !important;
+    color: #111 !important;
     padding: 2pt 4pt !important;
   }
   .form-banner .form-banner-badge,
   .form-banner .form-banner-badge * {
-    background: rgba(255,255,255,0.18) !important;
-    color: var(--primary-foreground) !important;
-    border: 0.5pt solid rgba(255,255,255,0.35) !important;
+    background: transparent !important;
+    color: var(--primary) !important;
+    border: 0.5pt solid var(--primary) !important;
     padding: 2pt 6pt !important;
     border-radius: 3pt !important;
   }
   .form-banner .form-progress-track {
-    background: rgba(255,255,255,0.25) !important;
+    background: #eee !important;
   }
   .form-banner .form-progress-bar {
-    background: #ffffff !important;
+    background: var(--primary) !important;
   }
 
 
