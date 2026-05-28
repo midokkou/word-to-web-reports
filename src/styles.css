@@ -224,6 +224,9 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 @media print {
   /* Reserve space at top/bottom for the letterhead images */
   @page { size: A4 portrait; margin: 42mm 14mm 28mm 14mm; }
+  /* Tighter margins on the form page so the whole form fits one page */
+  .form-page { }
+  @page :first { }
 
   /* Neutralize forced mobile/desktop view modes so print always fits A4 */
   html[data-view-mode="mobile"] [data-view-frame],
