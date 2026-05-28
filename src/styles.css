@@ -509,6 +509,41 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     line-height: 1.2 !important;
   }
   .form-page .form-items-table tr { page-break-inside: avoid !important; }
+
+  /* Follow-up section compact for print */
+  .form-page .container > h2 {
+    font-size: 9pt !important;
+    margin: 3pt 0 2pt !important;
+    border-bottom: 0.5pt solid var(--primary) !important;
+  }
+  .form-page .card {
+    padding: 3pt 5pt !important;
+    margin-bottom: 3pt !important;
+    border-radius: 3pt !important;
+    border-width: 0.5pt !important;
+  }
+  .form-page .card [class*="badge"] {
+    font-size: 7pt !important;
+    padding: 1pt 3pt !important;
+  }
+  .form-page .card label {
+    font-size: 7pt !important;
+    margin-bottom: 1pt !important;
+  }
+  .form-page .card input,
+  .form-page .card textarea {
+    font-size: 7.5pt !important;
+    padding: 1pt 2pt !important;
+    border-bottom-width: 0.4pt !important;
+  }
+  .form-page .card textarea {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .form-page .card .grid {
+    gap: 2pt 6pt !important;
+  }
+
   .form-page header { display: none !important; }
 }
 
