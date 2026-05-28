@@ -224,6 +224,9 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 @media print {
   /* Reserve space at top/bottom for the letterhead images */
   @page { size: A4 portrait; margin: 42mm 14mm 28mm 14mm; }
+  /* Tighter margins on the form page so the whole form fits one page */
+  .form-page { }
+  @page :first { }
 
   /* Neutralize forced mobile/desktop view modes so print always fits A4 */
   html[data-view-mode="mobile"] [data-view-frame],
@@ -463,7 +466,52 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
+  /* === Form page — compact print to fit a single A4 page === */
+  .form-page .form-banner {
+    padding: 5pt 8pt !important;
+    margin-bottom: 5pt !important;
+    border-radius: 4pt !important;
+    border-width: 0.8pt !important;
+  }
+  .form-page .form-banner h1 {
+    font-size: 11pt !important;
+    margin: 0 0 3pt !important;
+    padding: 0 !important;
+    text-align: right !important;
+  }
+  .form-page .form-banner .form-banner-badge { display: none !important; }
+  .form-page .form-banner label { font-size: 7.5pt !important; margin: 0 !important; }
+  .form-page .form-banner input { font-size: 8.5pt !important; padding: 0 2pt !important; }
+  .form-page .form-banner .form-progress-track { height: 3pt !important; }
+  .form-page .form-banner .grid { gap: 2pt 8pt !important; margin-bottom: 3pt !important; }
+
+  .form-page .form-items-table {
+    font-size: 8pt !important;
+    line-height: 1.25 !important;
+    table-layout: fixed !important;
+  }
+  .form-page .form-items-table th,
+  .form-page .form-items-table td {
+    padding: 1.5pt 3pt !important;
+    border: 0.3pt solid #999 !important;
+    font-size: 8pt !important;
+  }
+  .form-page .form-items-table th {
+    font-size: 7.5pt !important;
+    padding: 2pt 3pt !important;
+  }
+  .form-page .form-items-table input,
+  .form-page .form-items-table textarea {
+    font-size: 7.5pt !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1.2 !important;
+  }
+  .form-page .form-items-table tr { page-break-inside: avoid !important; }
+  .form-page header { display: none !important; }
 }
+
 
 /* Hide letterhead on screen */
 .print-letterhead-header,
