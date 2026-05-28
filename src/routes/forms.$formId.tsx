@@ -286,9 +286,9 @@ function FormPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 pt-8">
+      <div className="container mx-auto px-4 pt-4">
         <div
-          className="form-banner relative rounded-2xl p-6 sm:p-8 border-2 border-primary bg-card text-foreground shadow-[var(--shadow-card)]"
+          className="form-banner relative rounded-xl p-4 sm:p-5 border-2 border-primary bg-card text-foreground shadow-[var(--shadow-card)]"
         >
           <Button
             size="sm"
@@ -296,55 +296,55 @@ function FormPage() {
               saveEval(form.id, state);
               toast.success("تم حفظ الاستمارة");
             }}
-            className="absolute top-4 left-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md print:hidden"
+            className="absolute top-3 left-3 bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md print:hidden h-7 px-3 text-xs"
           >
-            <Save className="size-4 ml-1" /> حفظ
+            <Save className="size-3 ml-1" /> حفظ
           </Button>
-          <Badge className="form-banner-badge bg-primary/10 text-primary border-primary/20 mb-3">استمارة متابعة</Badge>
-          <h1 className="text-xl sm:text-2xl font-extrabold mb-4 text-primary">{form.title}</h1>
+          <Badge className="form-banner-badge bg-primary/10 text-primary border-primary/20 mb-2 text-[10px] px-2 py-0">استمارة متابعة</Badge>
+          <h1 className="text-base sm:text-lg font-extrabold mb-3 text-primary leading-tight">{form.title}</h1>
 
-          <div className="grid sm:grid-cols-2 gap-3 mb-5">
+          <div className="grid sm:grid-cols-2 gap-2 mb-3">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">اسم الموظفة</label>
+              <label className="text-[10px] text-muted-foreground mb-0.5 block">اسم الموظفة</label>
               <Input
                 value={state.employeeName}
                 onChange={(e) => update({ ...state, employeeName: e.target.value })}
                 placeholder="..."
-                className="form-banner-input bg-muted/50 border-border text-foreground placeholder:text-muted-foreground"
+                className="form-banner-input bg-muted/50 border-border text-foreground placeholder:text-muted-foreground h-7 text-xs"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">التاريخ</label>
+              <label className="text-[10px] text-muted-foreground mb-0.5 block">التاريخ</label>
               <Input
                 type="date"
                 value={state.date}
                 onChange={(e) => update({ ...state, date: e.target.value })}
-                className="form-banner-input bg-muted/50 border-border text-foreground"
+                className="form-banner-input bg-muted/50 border-border text-foreground h-7 text-xs"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm mb-2">
+          <div className="flex items-center justify-between text-xs mb-1">
             <span>{doneCount} منجز من {allDisplayItems.length}</span>
             <span className="font-bold">{pct}%</span>
           </div>
-          <div className="form-progress-track h-2 rounded-full bg-muted overflow-hidden">
+          <div className="form-progress-track h-1.5 rounded-full bg-muted overflow-hidden">
             <div className="form-progress-bar h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-6">
+      <div className="container mx-auto px-4 mt-4">
         <div className="rounded-xl border overflow-hidden bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-secondary/50 text-xs">
+          <table className="form-items-table w-full text-xs">
+            <thead className="bg-secondary/50 text-[10px]">
               <tr className="border-b">
-                <th className="p-2 text-right w-10">#</th>
-                <th className="p-2 text-right">العنصر</th>
-                <th className="p-2 text-right w-[280px] print:hidden">الحالة</th>
-                <th className="p-2 text-right hidden print:table-cell w-24">الحالة</th>
-                <th className="p-2 text-right w-[220px]">ملاحظات</th>
-                <th className="p-2 text-right w-16 print:hidden">إجراء</th>
+                <th className="p-1.5 text-right w-8">#</th>
+                <th className="p-1.5 text-right">العنصر</th>
+                <th className="p-1.5 text-right w-[240px] print:hidden">الحالة</th>
+                <th className="p-1.5 text-right hidden print:table-cell w-20">الحالة</th>
+                <th className="p-1.5 text-right w-[200px]">ملاحظات</th>
+                <th className="p-1.5 text-right w-14 print:hidden">إجراء</th>
               </tr>
             </thead>
             <tbody>
