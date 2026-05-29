@@ -486,6 +486,8 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     font-size: 12pt !important;
     margin: 0 0 4pt !important;
     padding: 0 !important;
+  }
+
   .form-page .form-items-table {
     font-size: 9.5pt !important;
     line-height: 1.4 !important;
@@ -501,10 +503,11 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     overflow: visible !important;
     word-wrap: break-word !important;
     vertical-align: top !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
   .form-page .form-items-table th {
     font-size: 9pt !important;
-    padding: 3pt 5pt !important;
   }
   .form-page .form-items-table input,
   .form-page .form-items-table textarea {
@@ -516,10 +519,18 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     overflow: visible !important;
     height: auto !important;
     width: 100% !important;
+    display: block !important;
   }
-  .form-page .form-items-table tr { page-break-inside: avoid !important; }
+  /* Allow long rows to break across pages instead of being clipped */
+  .form-page .form-items-table,
+  .form-page .form-items-table tbody,
+  .form-page .form-items-table tr,
+  .form-page .form-items-table td {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
 
-  /* Follow-up section — show full content in print */
+  /* Follow-up section — show full content in print, allow page breaks */
   .form-page .container > h2 {
     font-size: 11pt !important;
     margin: 6pt 0 4pt !important;
@@ -531,6 +542,9 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     border-radius: 3pt !important;
     border-width: 0.6pt !important;
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: visible !important;
+    max-height: none !important;
   }
   .form-page .card [class*="badge"] {
     font-size: 8.5pt !important;
@@ -549,6 +563,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     overflow: visible !important;
     height: auto !important;
     width: 100% !important;
+    display: block !important;
   }
   .form-page .card textarea {
     min-height: 0 !important;
@@ -558,38 +573,25 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     gap: 3pt 8pt !important;
   }
 
-    margin: 3pt 0 2pt !important;
-    border-bottom: 0.5pt solid var(--primary) !important;
+  /* Global anti-clipping: never hide overflow in print, allow flow across pages */
+  .form-page,
+  .form-page * {
+    overflow: visible !important;
+    max-height: none !important;
   }
-  .form-page .card {
-    padding: 3pt 5pt !important;
-    margin-bottom: 3pt !important;
-    border-radius: 3pt !important;
-    border-width: 0.5pt !important;
-  }
-  .form-page .card [class*="badge"] {
-    font-size: 7pt !important;
-    padding: 1pt 3pt !important;
-  }
-  .form-page .card label {
-    font-size: 7pt !important;
-    margin-bottom: 1pt !important;
-  }
-  .form-page .card input,
-  .form-page .card textarea {
-    font-size: 7.5pt !important;
-    padding: 1pt 2pt !important;
-    border-bottom-width: 0.4pt !important;
-  }
-  .form-page .card textarea {
-    min-height: 0 !important;
-    height: auto !important;
-  }
-  .form-page .card .grid {
-    gap: 2pt 6pt !important;
+  .form-page main,
+  .form-page section,
+  .form-page form,
+  .form-page .container,
+  .form-page [data-view-frame] {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    overflow: visible !important;
   }
 
   .form-page header { display: none !important; }
+}
+
 }
 
 
