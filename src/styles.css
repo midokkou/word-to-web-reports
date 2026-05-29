@@ -590,6 +590,49 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   }
 
   .form-page header { display: none !important; }
+
+  /* === Smart page breaks: keep important blocks together === */
+  /* Headings should never be orphaned at the bottom of a page */
+  .form-page h1,
+  .form-page h2,
+  .form-page h3,
+  .form-page h4 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* Keep a heading attached to the following block (table/card/section) */
+  .form-page h2 + *,
+  .form-page h3 + *,
+  .form-page h4 + * {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+  /* Follow-up cards stay intact as a unit */
+  .form-page .card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* Table header repeats on every page, and individual rows don't split */
+  .form-page .form-items-table thead {
+    display: table-header-group !important;
+  }
+  .form-page .form-items-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* Field group (label + input) shouldn't split across pages */
+  .form-page .card .grid > * {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* Form banner (header box) stays on one page */
+  .form-page .form-banner {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
 }
 
 }
