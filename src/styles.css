@@ -486,63 +486,78 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     font-size: 12pt !important;
     margin: 0 0 4pt !important;
     padding: 0 !important;
-    text-align: right !important;
-    border-bottom: none !important;
-    color: var(--primary) !important;
-  }
-  .form-page .form-banner .form-banner-badge { display: none !important; }
-  .form-page .form-banner label {
-    font-size: 8pt !important;
-    font-weight: 700 !important;
-    margin: 0 0 1pt !important;
-    color: #333 !important;
-    display: block !important;
-  }
-  .form-page .form-banner input {
-    font-size: 9pt !important;
-    padding: 1pt 3pt !important;
-    border: none !important;
-    border-bottom: 0.5pt solid #666 !important;
-    color: #111 !important;
-    display: block !important;
-    width: 100% !important;
-  }
-  .form-page .form-banner .form-progress-track { height: 3pt !important; }
-  .form-page .form-banner .grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 3pt 12pt !important;
-    margin-bottom: 4pt !important;
-  }
-
-
   .form-page .form-items-table {
-    font-size: 8pt !important;
-    line-height: 1.25 !important;
-    table-layout: fixed !important;
+    font-size: 9.5pt !important;
+    line-height: 1.4 !important;
+    table-layout: auto !important;
+    width: 100% !important;
   }
   .form-page .form-items-table th,
   .form-page .form-items-table td {
-    padding: 1.5pt 3pt !important;
-    border: 0.3pt solid #999 !important;
-    font-size: 8pt !important;
+    padding: 3pt 5pt !important;
+    border: 0.4pt solid #888 !important;
+    font-size: 9.5pt !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    word-wrap: break-word !important;
+    vertical-align: top !important;
   }
   .form-page .form-items-table th {
-    font-size: 7.5pt !important;
-    padding: 2pt 3pt !important;
+    font-size: 9pt !important;
+    padding: 3pt 5pt !important;
   }
   .form-page .form-items-table input,
   .form-page .form-items-table textarea {
-    font-size: 7.5pt !important;
+    font-size: 9pt !important;
     padding: 0 !important;
     border: none !important;
-    line-height: 1.2 !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
   }
   .form-page .form-items-table tr { page-break-inside: avoid !important; }
 
-  /* Follow-up section compact for print */
+  /* Follow-up section — show full content in print */
   .form-page .container > h2 {
+    font-size: 11pt !important;
+    margin: 6pt 0 4pt !important;
+    border-bottom: 0.6pt solid var(--primary) !important;
+  }
+  .form-page .card {
+    padding: 5pt 7pt !important;
+    margin-bottom: 5pt !important;
+    border-radius: 3pt !important;
+    border-width: 0.6pt !important;
+    page-break-inside: avoid !important;
+  }
+  .form-page .card [class*="badge"] {
+    font-size: 8.5pt !important;
+    padding: 1pt 4pt !important;
+  }
+  .form-page .card label {
+    font-size: 8.5pt !important;
+    margin-bottom: 1pt !important;
+  }
+  .form-page .card input,
+  .form-page .card textarea {
     font-size: 9pt !important;
+    padding: 1pt 2pt !important;
+    border-bottom-width: 0.4pt !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+  .form-page .card textarea {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .form-page .card .grid {
+    gap: 3pt 8pt !important;
+  }
+
     margin: 3pt 0 2pt !important;
     border-bottom: 0.5pt solid var(--primary) !important;
   }
