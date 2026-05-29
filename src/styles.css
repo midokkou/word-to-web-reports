@@ -469,22 +469,52 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 
   /* === Form page — compact print to fit a single A4 page === */
   .form-page .form-banner {
-    padding: 5pt 8pt !important;
-    margin-bottom: 5pt !important;
+    display: block !important;
+    visibility: visible !important;
+    padding: 6pt 10pt !important;
+    margin-bottom: 6pt !important;
+    border: 1pt solid var(--primary) !important;
     border-radius: 4pt !important;
-    border-width: 0.8pt !important;
+    background: #fff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .form-page .form-banner * {
+    visibility: visible !important;
   }
   .form-page .form-banner h1 {
-    font-size: 11pt !important;
-    margin: 0 0 3pt !important;
+    font-size: 12pt !important;
+    margin: 0 0 4pt !important;
     padding: 0 !important;
     text-align: right !important;
+    border-bottom: none !important;
+    color: var(--primary) !important;
   }
   .form-page .form-banner .form-banner-badge { display: none !important; }
-  .form-page .form-banner label { font-size: 7.5pt !important; margin: 0 !important; }
-  .form-page .form-banner input { font-size: 8.5pt !important; padding: 0 2pt !important; }
+  .form-page .form-banner label {
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    margin: 0 0 1pt !important;
+    color: #333 !important;
+    display: block !important;
+  }
+  .form-page .form-banner input {
+    font-size: 9pt !important;
+    padding: 1pt 3pt !important;
+    border: none !important;
+    border-bottom: 0.5pt solid #666 !important;
+    color: #111 !important;
+    display: block !important;
+    width: 100% !important;
+  }
   .form-page .form-banner .form-progress-track { height: 3pt !important; }
-  .form-page .form-banner .grid { gap: 2pt 8pt !important; margin-bottom: 3pt !important; }
+  .form-page .form-banner .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 3pt 12pt !important;
+    margin-bottom: 4pt !important;
+  }
+
 
   .form-page .form-items-table {
     font-size: 8pt !important;
