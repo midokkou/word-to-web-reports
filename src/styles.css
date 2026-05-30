@@ -476,8 +476,10 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     border: 1pt solid var(--primary) !important;
     border-radius: 4pt !important;
     background: #fff !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    /* Allow the banner to flow across pages if it's taller than the
+       remaining space — otherwise the top can get clipped. */
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
   .form-page .form-banner * {
     visibility: visible !important;
@@ -503,8 +505,6 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     overflow: visible !important;
     word-wrap: break-word !important;
     vertical-align: top !important;
-    page-break-inside: auto !important;
-    break-inside: auto !important;
   }
   .form-page .form-items-table th {
     font-size: 9pt !important;
@@ -521,13 +521,24 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     width: 100% !important;
     display: block !important;
   }
-  /* Allow long rows to break across pages instead of being clipped */
+  /* Table flows across pages; each row stays intact so it moves to the
+     next page instead of being split (which causes rows to disappear
+     across the page boundary). */
   .form-page .form-items-table,
-  .form-page .form-items-table tbody,
-  .form-page .form-items-table tr,
-  .form-page .form-items-table td {
+  .form-page .form-items-table tbody {
     page-break-inside: auto !important;
     break-inside: auto !important;
+  }
+  .form-page .form-items-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+  .form-page .form-items-table td,
+  .form-page .form-items-table th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* Follow-up section — show full content in print, allow page breaks */
