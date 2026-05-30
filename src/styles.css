@@ -476,8 +476,10 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     border: 1pt solid var(--primary) !important;
     border-radius: 4pt !important;
     background: #fff !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    /* Allow the banner to flow across pages if it's taller than the
+       remaining space — otherwise the top can get clipped. */
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
   .form-page .form-banner * {
     visibility: visible !important;
