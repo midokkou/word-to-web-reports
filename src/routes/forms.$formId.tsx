@@ -463,11 +463,35 @@ function FormPage() {
       </div>
 
 
-      <div className="container mx-auto px-4 mt-4 space-y-3 print:break-before-page">
-        <h2 className="text-sm font-bold flex items-center gap-1.5">
-          <CheckCircle2 className="size-4 text-primary" />
-          متابعة المسؤول
-        </h2>
+      <div
+        className="container mx-auto px-4 mt-4 space-y-3 print:break-before-page print:block"
+        data-print-section="followup"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-bold flex items-center gap-1.5">
+            <CheckCircle2 className="size-4 text-primary" />
+            متابعة المسؤول
+          </h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className="print:hidden h-7 text-xs"
+            onClick={() => {
+              const prevTitle = document.title;
+              document.title = `${form.title} - متابعة المسؤول`;
+              document.body.setAttribute("data-print-mode", "followup");
+              setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                  document.body.removeAttribute("data-print-mode");
+                  document.title = prevTitle;
+                }, 500);
+              }, 100);
+            }}
+          >
+            <Printer className="size-3 ml-1" /> طباعة المتابعة
+          </Button>
+        </div>
         {([
           { key: "followup1" as const, title: "المتابعة الأولى" },
           { key: "followup2" as const, title: "المتابعة الثانية" },
