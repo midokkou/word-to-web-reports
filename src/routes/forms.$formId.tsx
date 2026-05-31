@@ -463,7 +463,7 @@ function FormPage() {
       </div>
 
 
-      <div className="container mx-auto px-4 mt-4 space-y-3">
+      <div className="container mx-auto px-4 mt-4 space-y-3 print:break-before-page">
         <h2 className="text-sm font-bold flex items-center gap-1.5">
           <CheckCircle2 className="size-4 text-primary" />
           متابعة المسؤول
