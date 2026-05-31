@@ -602,6 +602,25 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 
   .form-page header { display: none !important; }
 
+  /* Ensure follow-up section is always visible in print */
+  [data-print-section="followup"] {
+    display: block !important;
+    visibility: visible !important;
+  }
+  [data-print-section="followup"] * {
+    visibility: visible !important;
+  }
+
+  /* Print only the follow-up section when this mode is active */
+  body[data-print-mode="followup"] .form-page > *:not([data-print-section="followup"]) {
+    display: none !important;
+  }
+  body[data-print-mode="followup"] [data-print-section="followup"] {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-top: 0 !important;
+  }
+
   /* === Smart page breaks: keep important blocks together === */
   /* Headings should never be orphaned at the bottom of a page */
   .form-page h1,
