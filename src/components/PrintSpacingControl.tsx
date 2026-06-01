@@ -23,6 +23,20 @@ const KEYS = {
   showHeader: "print-show-header",
   showFooter: "print-show-footer",
   orientation: "print-orientation",
+  // Per-page overrides
+  perPageEnabled: "print-per-page-enabled",
+  firstTop: "print-first-top-mm",
+  firstBottom: "print-first-bottom-mm",
+  firstLeft: "print-first-left-mm",
+  firstRight: "print-first-right-mm",
+  oddTop: "print-odd-top-mm",
+  oddBottom: "print-odd-bottom-mm",
+  oddLeft: "print-odd-left-mm",
+  oddRight: "print-odd-right-mm",
+  evenTop: "print-even-top-mm",
+  evenBottom: "print-even-bottom-mm",
+  evenLeft: "print-even-left-mm",
+  evenRight: "print-even-right-mm",
 } as const;
 
 // Defaults
@@ -33,11 +47,15 @@ const D = {
   pageBottom: 22,
   pageLeft: 14,
   pageRight: 14,
-  fontScale: 100, // %
+  fontScale: 100,
   lineHeight: 1.55,
   showHeader: true,
   showFooter: true,
   orientation: "portrait" as "portrait" | "landscape",
+  perPageEnabled: false,
+  firstTop: 48, firstBottom: 22, firstLeft: 14, firstRight: 14,
+  oddTop: 48, oddBottom: 22, oddLeft: 14, oddRight: 14,
+  evenTop: 48, evenBottom: 22, evenLeft: 14, evenRight: 14,
 };
 
 const STYLE_ID = "print-page-margins";
@@ -75,22 +93,21 @@ export function applyLineHeight(lh: number) {
   document.documentElement.style.setProperty("--print-line-height", String(lh));
 }
 
+type PageMargins = { top: number; bottom: number; left: number; right: number };
+
 export function applyPageStyle(opts: {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
+  base: PageMargins;
+  perPage: { enabled: boolean; first: PageMargins; odd: PageMargins; even: PageMargins };
   showHeader: boolean;
   showFooter: boolean;
   orientation: "portrait" | "landscape";
 }) {
   if (typeof document === "undefined") return;
-  // Expose margins as CSS variables so the fixed letterhead header/footer
-  // images can size themselves to the exact configured margin on every page.
-  document.documentElement.style.setProperty("--print-page-top", `${opts.top}mm`);
-  document.documentElement.style.setProperty("--print-page-bottom", `${opts.bottom}mm`);
-  document.documentElement.style.setProperty("--print-page-left", `${opts.left}mm`);
-  document.documentElement.style.setProperty("--print-page-right", `${opts.right}mm`);
+  const { base, perPage, showHeader, showFooter, orientation } = opts;
+  document.documentElement.style.setProperty("--print-page-top", `${base.top}mm`);
+  document.documentElement.style.setProperty("--print-page-bottom", `${base.bottom}mm`);
+  document.documentElement.style.setProperty("--print-page-left", `${base.left}mm`);
+  document.documentElement.style.setProperty("--print-page-right", `${base.right}mm`);
 
   let style = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
   if (!style) {
@@ -98,14 +115,17 @@ export function applyPageStyle(opts: {
     style.id = STYLE_ID;
     document.head.appendChild(style);
   }
-  const headerCSS = opts.showHeader ? "" : ".print-letterhead-header{display:none !important;}";
-  const footerCSS = opts.showFooter ? "" : ".print-letterhead-footer{display:none !important;}";
-  // A single @page rule applies to every printed page (first, left, right, last).
+  const headerCSS = showHeader ? "" : ".print-letterhead-header{display:none !important;}";
+  const footerCSS = showFooter ? "" : ".print-letterhead-footer{display:none !important;}";
+  const mk = (m: PageMargins) => `size: A4 ${orientation}; margin: ${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;`;
+  const first = perPage.enabled ? perPage.first : base;
+  const odd = perPage.enabled ? perPage.odd : base;
+  const even = perPage.enabled ? perPage.even : base;
   style.textContent = `@media print {
-    @page { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
-    @page :first { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
-    @page :left  { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
-    @page :right { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
+    @page { ${mk(base)} }
+    @page :first { ${mk(first)} }
+    @page :right { ${mk(odd)} }
+    @page :left  { ${mk(even)} }
     ${headerCSS}
     ${footerCSS}
     body { font-size: calc(10.5pt * var(--print-font-scale, 1)) !important; line-height: var(--print-line-height, 1.55) !important; }
@@ -130,9 +150,9 @@ export function PrintSpacingControl() {
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(0.2);
   const [mainHTML, setMainHTML] = useState<string>("");
+  const [pagePreview, setPagePreview] = useState<"first" | "odd" | "even">("first");
   const previewContentRef = useRef<HTMLDivElement | null>(null);
 
-  // Load all settings on mount
   useEffect(() => {
     const next: State = {
       topPad: loadNum(KEYS.topPad, D.topPad),
@@ -146,6 +166,19 @@ export function PrintSpacingControl() {
       showHeader: loadBool(KEYS.showHeader, D.showHeader),
       showFooter: loadBool(KEYS.showFooter, D.showFooter),
       orientation: (loadStr(KEYS.orientation, D.orientation) as State["orientation"]),
+      perPageEnabled: loadBool(KEYS.perPageEnabled, D.perPageEnabled),
+      firstTop: loadNum(KEYS.firstTop, D.firstTop),
+      firstBottom: loadNum(KEYS.firstBottom, D.firstBottom),
+      firstLeft: loadNum(KEYS.firstLeft, D.firstLeft),
+      firstRight: loadNum(KEYS.firstRight, D.firstRight),
+      oddTop: loadNum(KEYS.oddTop, D.oddTop),
+      oddBottom: loadNum(KEYS.oddBottom, D.oddBottom),
+      oddLeft: loadNum(KEYS.oddLeft, D.oddLeft),
+      oddRight: loadNum(KEYS.oddRight, D.oddRight),
+      evenTop: loadNum(KEYS.evenTop, D.evenTop),
+      evenBottom: loadNum(KEYS.evenBottom, D.evenBottom),
+      evenLeft: loadNum(KEYS.evenLeft, D.evenLeft),
+      evenRight: loadNum(KEYS.evenRight, D.evenRight),
     };
     setS(next);
     applyAll(next);
@@ -157,10 +190,13 @@ export function PrintSpacingControl() {
     applyFontScale(next.fontScale);
     applyLineHeight(next.lineHeight);
     applyPageStyle({
-      top: next.pageTop,
-      bottom: next.pageBottom,
-      left: next.pageLeft,
-      right: next.pageRight,
+      base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight },
+      perPage: {
+        enabled: next.perPageEnabled,
+        first: { top: next.firstTop, bottom: next.firstBottom, left: next.firstLeft, right: next.firstRight },
+        odd: { top: next.oddTop, bottom: next.oddBottom, left: next.oddLeft, right: next.oddRight },
+        even: { top: next.evenTop, bottom: next.evenBottom, left: next.evenLeft, right: next.evenRight },
+      },
       showHeader: next.showHeader,
       showFooter: next.showFooter,
       orientation: next.orientation,
@@ -171,9 +207,30 @@ export function PrintSpacingControl() {
     const next = { ...s, [key]: value };
     setS(next);
     applyAll(next);
-    const raw =
-      typeof value === "boolean" ? (value ? "1" : "0") : String(value);
+    const raw = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
     window.localStorage.setItem((KEYS as Record<string, string>)[key], raw);
+  }
+
+  function syncPerPageFromBase(next: State): State {
+    // When per-page is first enabled, seed the overrides with the base values.
+    return {
+      ...next,
+      firstTop: next.pageTop, firstBottom: next.pageBottom, firstLeft: next.pageLeft, firstRight: next.pageRight,
+      oddTop: next.pageTop, oddBottom: next.pageBottom, oddLeft: next.pageLeft, oddRight: next.pageRight,
+      evenTop: next.pageTop, evenBottom: next.pageBottom, evenLeft: next.pageLeft, evenRight: next.pageRight,
+    };
+  }
+
+  function togglePerPage(v: boolean) {
+    let next = { ...s, perPageEnabled: v };
+    if (v) next = syncPerPageFromBase(next);
+    setS(next);
+    applyAll(next);
+    (Object.keys(KEYS) as (keyof typeof KEYS)[]).forEach((k) => {
+      const val = (next as State)[k];
+      const raw = typeof val === "boolean" ? (val ? "1" : "0") : String(val);
+      window.localStorage.setItem(KEYS[k], raw);
+    });
   }
 
   function applyPreset(name: keyof typeof PRESETS) {
@@ -193,17 +250,26 @@ export function PrintSpacingControl() {
     Object.values(KEYS).forEach((k) => window.localStorage.removeItem(k));
   }
 
-  // A4 preview dimensions (swap for landscape)
   const isLandscape = s.orientation === "landscape";
   const pageW = isLandscape ? 297 : 210;
   const pageH = isLandscape ? 210 : 297;
-  const topPct = (s.pageTop / pageH) * 100;
-  const bottomPct = (s.pageBottom / pageH) * 100;
-  const leftPct = (s.pageLeft / pageW) * 100;
-  const rightPct = (s.pageRight / pageW) * 100;
+
+  // Preview reflects the selected page type when per-page is enabled
+  const previewMargins: PageMargins = s.perPageEnabled
+    ? pagePreview === "first"
+      ? { top: s.firstTop, bottom: s.firstBottom, left: s.firstLeft, right: s.firstRight }
+      : pagePreview === "odd"
+      ? { top: s.oddTop, bottom: s.oddBottom, left: s.oddLeft, right: s.oddRight }
+      : { top: s.evenTop, bottom: s.evenBottom, left: s.evenLeft, right: s.evenRight }
+    : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+
+  const topPct = (previewMargins.top / pageH) * 100;
+  const bottomPct = (previewMargins.bottom / pageH) * 100;
+  const leftPct = (previewMargins.left / pageW) * 100;
+  const rightPct = (previewMargins.right / pageW) * 100;
   const contentTopOffset = (s.topPad / pageH) * 100;
   const previewWidth = isLandscape ? 280 : 220;
-  const contentAreaWidthPx = previewWidth * (1 - (s.pageLeft + s.pageRight) / pageW);
+  const contentAreaWidthPx = previewWidth * (1 - (previewMargins.left + previewMargins.right) / pageW);
 
   useEffect(() => {
     if (!open) return;
@@ -215,12 +281,14 @@ export function PrintSpacingControl() {
     setScale(contentAreaWidthPx / mainW);
     const clone = main.cloneNode(true) as HTMLElement;
     clone
-      .querySelectorAll(
-        "script, [data-radix-popper-content-wrapper], [role='dialog']"
-      )
+      .querySelectorAll("script, [data-radix-popper-content-wrapper], [role='dialog']")
       .forEach((n) => n.remove());
     setMainHTML(clone.innerHTML);
   }, [open, contentAreaWidthPx]);
+
+  // Per-page sliders bound to the currently previewed page type
+  const prefix = pagePreview === "first" ? "first" : pagePreview === "odd" ? "odd" : "even";
+  const k = (suffix: "Top" | "Bottom" | "Left" | "Right") => `${prefix}${suffix}` as keyof State;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -232,7 +300,6 @@ export function PrintSpacingControl() {
       </PopoverTrigger>
       <PopoverContent className="w-[28rem] max-h-[85vh] overflow-y-auto" align="end">
         <div className="space-y-4">
-          {/* Live A4 preview */}
           <div className="flex justify-center">
             <div
               className="relative bg-white border border-border shadow-sm overflow-hidden"
@@ -240,58 +307,26 @@ export function PrintSpacingControl() {
               aria-label="معاينة الصفحة"
             >
               {s.showHeader && (
-                <div
-                  className="absolute inset-x-0 top-0 overflow-hidden bg-primary/10 z-10"
-                  style={{ height: `${topPct}%` }}
-                >
-                  <img
-                    src="/print-header.jpg"
-                    alt=""
-                    className="w-full h-full object-cover object-top"
-                    onError={(e) => ((e.currentTarget.style.display = "none"))}
-                  />
+                <div className="absolute inset-x-0 top-0 overflow-hidden bg-primary/10 z-10" style={{ height: `${topPct}%` }}>
+                  <img src="/print-header.jpg" alt="" className="w-full h-full object-cover object-top" onError={(e) => ((e.currentTarget.style.display = "none"))} />
                 </div>
               )}
               {s.showFooter && (
-                <div
-                  className="absolute inset-x-0 bottom-0 overflow-hidden bg-primary/10 z-10"
-                  style={{ height: `${bottomPct}%` }}
-                >
-                  <img
-                    src="/print-footer.jpg"
-                    alt=""
-                    className="w-full h-full object-cover object-bottom"
-                    onError={(e) => ((e.currentTarget.style.display = "none"))}
-                  />
+                <div className="absolute inset-x-0 bottom-0 overflow-hidden bg-primary/10 z-10" style={{ height: `${bottomPct}%` }}>
+                  <img src="/print-footer.jpg" alt="" className="w-full h-full object-cover object-bottom" onError={(e) => ((e.currentTarget.style.display = "none"))} />
                 </div>
               )}
-              <div
-                className="absolute overflow-hidden"
-                style={{
-                  top: `calc(${topPct}% + ${contentTopOffset}%)`,
-                  bottom: `${bottomPct}%`,
-                  left: `${leftPct}%`,
-                  right: `${rightPct}%`,
-                }}
-              >
+              <div className="absolute overflow-hidden" style={{ top: `calc(${topPct}% + ${contentTopOffset}%)`, bottom: `${bottomPct}%`, left: `${leftPct}%`, right: `${rightPct}%` }}>
                 <div
                   ref={previewContentRef}
                   dir="rtl"
-                  style={{
-                    transform: `scale(${scale})`,
-                    transformOrigin: "top right",
-                    width: `${100 / scale}%`,
-                    pointerEvents: "none",
-                    fontSize: `${s.fontScale}%`,
-                    lineHeight: s.lineHeight,
-                  }}
+                  style={{ transform: `scale(${scale})`, transformOrigin: "top right", width: `${100 / scale}%`, pointerEvents: "none", fontSize: `${s.fontScale}%`, lineHeight: s.lineHeight }}
                   dangerouslySetInnerHTML={{ __html: mainHTML }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Presets */}
           <div className="flex gap-1.5">
             <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => applyPreset("compact")}>مضغوط</Button>
             <Button size="sm" variant="outline" className="flex-1 text-xs h-7" onClick={() => applyPreset("standard")}>قياسي</Button>
@@ -306,10 +341,37 @@ export function PrintSpacingControl() {
             </TabsList>
 
             <TabsContent value="margins" className="space-y-3 mt-3">
-              <SliderRow label="هامش الرأس (أعلى)" value={s.pageTop} unit="مم" min={5} max={90} onChange={(v) => update("pageTop", v)} />
-              <SliderRow label="هامش التذييل (أسفل)" value={s.pageBottom} unit="مم" min={5} max={70} onChange={(v) => update("pageBottom", v)} />
-              <SliderRow label="الهامش الأيمن" value={s.pageRight} unit="مم" min={5} max={50} onChange={(v) => update("pageRight", v)} />
-              <SliderRow label="الهامش الأيسر" value={s.pageLeft} unit="مم" min={5} max={50} onChange={(v) => update("pageLeft", v)} />
+              <div className="flex items-center justify-between rounded-md bg-muted/40 p-2">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">هوامش مختلفة لكل صفحة</span>
+                  <span className="text-[10px] text-muted-foreground">للطباعة متعددة الصفحات (أولى / فردية / زوجية)</span>
+                </div>
+                <Switch checked={s.perPageEnabled} onCheckedChange={togglePerPage} />
+              </div>
+
+              {!s.perPageEnabled ? (
+                <>
+                  <SliderRow label="هامش الرأس (أعلى)" value={s.pageTop} unit="مم" min={5} max={90} onChange={(v) => update("pageTop", v)} />
+                  <SliderRow label="هامش التذييل (أسفل)" value={s.pageBottom} unit="مم" min={5} max={70} onChange={(v) => update("pageBottom", v)} />
+                  <SliderRow label="الهامش الأيمن" value={s.pageRight} unit="مم" min={5} max={50} onChange={(v) => update("pageRight", v)} />
+                  <SliderRow label="الهامش الأيسر" value={s.pageLeft} unit="مم" min={5} max={50} onChange={(v) => update("pageLeft", v)} />
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-1">
+                    <Button size="sm" variant={pagePreview === "first" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("first")}>الصفحة الأولى</Button>
+                    <Button size="sm" variant={pagePreview === "odd" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("odd")}>الصفحات الفردية</Button>
+                    <Button size="sm" variant={pagePreview === "even" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("even")}>الصفحات الزوجية</Button>
+                  </div>
+                  <SliderRow label="هامش الرأس (أعلى)" value={s[k("Top")] as number} unit="مم" min={5} max={90} onChange={(v) => update(k("Top"), v as never)} />
+                  <SliderRow label="هامش التذييل (أسفل)" value={s[k("Bottom")] as number} unit="مم" min={5} max={70} onChange={(v) => update(k("Bottom"), v as never)} />
+                  <SliderRow label="الهامش الأيمن" value={s[k("Right")] as number} unit="مم" min={5} max={50} onChange={(v) => update(k("Right"), v as never)} />
+                  <SliderRow label="الهامش الأيسر" value={s[k("Left")] as number} unit="مم" min={5} max={50} onChange={(v) => update(k("Left"), v as never)} />
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    ملاحظة: متصفح الطباعة يعتمد على ترقيم الصفحات — الصفحة الأولى تأخذ "الأولى"، ثم تتناوب "الفردية/الزوجية" للبقية.
+                  </p>
+                </>
+              )}
             </TabsContent>
 
             <TabsContent value="content" className="space-y-3 mt-3">
@@ -339,14 +401,7 @@ export function PrintSpacingControl() {
           </Tabs>
 
           <div className="flex gap-2 pt-2 border-t">
-            <Button
-              size="sm"
-              className="flex-1 gap-1"
-              onClick={() => {
-                setOpen(false);
-                setTimeout(() => window.print(), 150);
-              }}
-            >
+            <Button size="sm" className="flex-1 gap-1" onClick={() => { setOpen(false); setTimeout(() => window.print(), 150); }}>
               <Printer className="size-4" /> طباعة الآن
             </Button>
             <Button size="sm" variant="outline" className="gap-1" onClick={resetAll}>
@@ -360,23 +415,10 @@ export function PrintSpacingControl() {
 }
 
 function SliderRow({
-  label,
-  value,
-  unit,
-  min,
-  max,
-  step = 1,
-  onChange,
-  format,
+  label, value, unit, min, max, step = 1, onChange, format,
 }: {
-  label: string;
-  value: number;
-  unit: string;
-  min: number;
-  max: number;
-  step?: number;
-  onChange: (v: number) => void;
-  format?: (n: number) => string;
+  label: string; value: number; unit: string; min: number; max: number; step?: number;
+  onChange: (v: number) => void; format?: (n: number) => string;
 }) {
   return (
     <div className="space-y-1.5">
