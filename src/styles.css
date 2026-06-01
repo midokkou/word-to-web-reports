@@ -454,13 +454,32 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .print-letterhead-header { top: 0 !important; }
-  .print-letterhead-footer { bottom: 0 !important; }
-  .print-letterhead-header img,
+  .print-letterhead-header {
+    top: 0 !important;
+    height: var(--print-page-top, 42mm) !important;
+    overflow: hidden !important;
+  }
+  .print-letterhead-footer {
+    bottom: 0 !important;
+    height: var(--print-page-bottom, 28mm) !important;
+    overflow: hidden !important;
+  }
+  .print-letterhead-header img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: top center !important;
+    filter: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   .print-letterhead-footer img {
     display: block !important;
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: bottom center !important;
     filter: none !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
