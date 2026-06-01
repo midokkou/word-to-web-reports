@@ -85,6 +85,13 @@ export function applyPageStyle(opts: {
   orientation: "portrait" | "landscape";
 }) {
   if (typeof document === "undefined") return;
+  // Expose margins as CSS variables so the fixed letterhead header/footer
+  // images can size themselves to the exact configured margin on every page.
+  document.documentElement.style.setProperty("--print-page-top", `${opts.top}mm`);
+  document.documentElement.style.setProperty("--print-page-bottom", `${opts.bottom}mm`);
+  document.documentElement.style.setProperty("--print-page-left", `${opts.left}mm`);
+  document.documentElement.style.setProperty("--print-page-right", `${opts.right}mm`);
+
   let style = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
   if (!style) {
     style = document.createElement("style");
@@ -93,8 +100,12 @@ export function applyPageStyle(opts: {
   }
   const headerCSS = opts.showHeader ? "" : ".print-letterhead-header{display:none !important;}";
   const footerCSS = opts.showFooter ? "" : ".print-letterhead-footer{display:none !important;}";
+  // A single @page rule applies to every printed page (first, left, right, last).
   style.textContent = `@media print {
     @page { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
+    @page :first { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
+    @page :left  { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
+    @page :right { size: A4 ${opts.orientation}; margin: ${opts.top}mm ${opts.right}mm ${opts.bottom}mm ${opts.left}mm; }
     ${headerCSS}
     ${footerCSS}
     body { font-size: calc(10.5pt * var(--print-font-scale, 1)) !important; line-height: var(--print-line-height, 1.55) !important; }
