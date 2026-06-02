@@ -203,6 +203,16 @@ export function applyPageStyle(opts: {
     ${footerCSS}
     body { font-size: calc(10.5pt * var(--print-font-scale, 1)) !important; line-height: var(--print-line-height, 1.55) !important; }
     main, [data-view-frame] { padding-bottom: var(--print-bottom-padding, 0mm) !important; }
+    /* منع اقتصاص العناصر بين الصفحات */
+    table, .form-items-table { border-collapse: collapse !important; }
+    thead { display: table-header-group !important; }
+    tfoot { display: table-footer-group !important; }
+    tr, td, th { break-inside: avoid !important; page-break-inside: avoid !important; }
+    img, svg, figure, picture { break-inside: avoid !important; page-break-inside: avoid !important; max-width: 100% !important; }
+    h1, h2, h3, h4, h5, h6 { break-after: avoid !important; page-break-after: avoid !important; break-inside: avoid !important; }
+    p, li, blockquote { orphans: 3; widows: 3; break-inside: avoid !important; page-break-inside: avoid !important; }
+    .card, [data-card], .form-item, [data-print-keep], .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; }
+    [data-print-page-section] > * { break-inside: avoid-page; }
   }`;
 }
 
