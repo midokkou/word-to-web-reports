@@ -141,9 +141,9 @@ export function applyPageStyle(opts: {
     const namedPages = perPage.pages
       .map((m, i) => `@page p${i + 1} { ${mk(m)} }`)
       .join(" ");
-    // Map each direct child of .form-page to its own named page and force a
-    // page break before it (so each top-level section becomes its own
-    // printed page with independent margins).
+    // Target only printable sections tagged with data-print-page="N".
+    // Using :nth-child here would incorrectly count Toaster, print:hidden
+    // headers, and other non-printable siblings and produce blank pages.
     const childRules = perPage.pages
       .map((m, i) => {
         const n = i + 1;
@@ -152,13 +152,13 @@ export function applyPageStyle(opts: {
             ? ""
             : `break-before: page !important; page-break-before: always !important;`;
         const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
-        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} ${padRule} }`;
+        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${breakRule} ${padRule} }`;
       })
       .join(" ");
-    // Fallback for any extra child beyond the configured pages: reuse the
-    // last page's margins.
+    // Any printable section beyond the configured count inherits the last
+    // page's margins (no forced break to avoid empty pages).
     const last = perPage.pages.length;
-    const fallback = `.form-page > *:nth-child(n+${last + 1}) { page: p${last} !important; break-before: page !important; page-break-before: always !important; }`;
+    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; }`;
     perPageCSS = `${namedPages} ${childRules} ${fallback}`;
   }
 
