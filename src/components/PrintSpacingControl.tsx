@@ -68,7 +68,7 @@ function hasPrintHiddenClass(el: HTMLElement): boolean {
 function isPrintablePageElement(el: HTMLElement, mode: string | null = null): boolean {
   const isFollowup = el.getAttribute("data-print-section") === "followup";
   if (mode === "followup" && !isFollowup) return false;
-  if (mode !== "followup" && isFollowup) return false;
+  if (mode === "normal" && isFollowup) return false;
   if (hasPrintHiddenClass(el)) return false;
   if (el.tagName === "HEADER") return false;
   if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") return false;
@@ -179,20 +179,17 @@ export function applyPageStyle(opts: {
     const childRules = perPage.pages
       .map((m, i) => {
         const n = i + 1;
-        const breakRule =
-          n === 1
-            ? ""
-            : `break-before: page !important; page-break-before: always !important;`;
         const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
-        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${breakRule} ${padRule} }`;
+        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${padRule} }`;
       })
       .join(" ");
     // Any printable section beyond the configured count inherits the last
     // page's margins while still starting on its own printed page.
     const last = perPage.pages.length;
     const lastMargins = perPage.pages[last - 1];
-    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; break-before: page !important; page-break-before: always !important; padding-top: ${lastMargins.topPad}mm !important; padding-bottom: ${lastMargins.bottomPad}mm !important; }`;
-    perPageCSS = `${namedPages} ${childRules} ${fallback}`;
+    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; padding-top: ${lastMargins.topPad}mm !important; padding-bottom: ${lastMargins.bottomPad}mm !important; }`;
+    const breakCSS = `.form-page > [data-print-page-break="1"] { break-before: page !important; page-break-before: always !important; }`;
+    perPageCSS = `${namedPages} ${childRules} ${fallback} ${breakCSS}`;
   }
 
   // Use the first configured page as @page base when per-page is enabled, so
