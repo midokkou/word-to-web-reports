@@ -230,6 +230,46 @@ export function PrintSpacingControl() {
     applyAll(next);
   }, []);
 
+  // Tag printable direct children of .form-page with data-print-page="N"
+  // before every print so per-page CSS targets only visible sections (skipping
+  // Toaster, print:hidden header, etc.). This prevents blank printed pages.
+  useEffect(() => {
+    function tagPrintablePages() {
+      const root = document.querySelector(".form-page");
+      if (!root) return;
+      // Clean previous tags first
+      root.querySelectorAll("[data-print-page], [data-print-page-overflow]").forEach((el) => {
+        el.removeAttribute("data-print-page");
+        el.removeAttribute("data-print-page-overflow");
+      });
+      const children = Array.from(root.children) as HTMLElement[];
+      let idx = 0;
+      const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
+      for (const el of children) {
+        // Skip nodes that are not rendered in print
+        const cls = el.className || "";
+        if (typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls)) continue;
+        if (el.tagName === "HEADER") continue;
+        if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") continue;
+        // Skip toasters / portals
+        if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) continue;
+        // Skip zero-size nodes
+        if (el.offsetWidth === 0 && el.offsetHeight === 0) continue;
+        idx += 1;
+        if (idx <= lastPageNum) {
+          el.setAttribute("data-print-page", String(idx));
+        } else {
+          el.setAttribute("data-print-page-overflow", "");
+        }
+      }
+    }
+    window.addEventListener("beforeprint", tagPrintablePages);
+    // Also tag on mount/changes so the preview reflects pagination immediately
+    tagPrintablePages();
+    return () => window.removeEventListener("beforeprint", tagPrintablePages);
+  }, [s.perPageEnabled, s.pages.length]);
+
+
   function persistSimple(next: State) {
     window.localStorage.setItem(KEYS.topPad, String(next.topPad));
     window.localStorage.setItem(KEYS.bottomPad, String(next.bottomPad));
