@@ -213,6 +213,10 @@ export function applyPageStyle(opts: {
     p, li, blockquote { orphans: 3; widows: 3; break-inside: avoid !important; page-break-inside: avoid !important; }
     .card, [data-card], .form-item, [data-print-keep], .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; }
     [data-print-page-section] > * { break-inside: avoid-page; }
+    /* رأس النموذج يبقى مع المحتوى التالي (جدول العناصر) */
+    [data-print-keep-with-next] { break-after: avoid !important; page-break-after: avoid !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+    [data-print-keep-with-next] + [data-print-page-section] { break-before: avoid !important; page-break-before: avoid !important; }
+    [data-print-keep-with-next] .form-banner { break-after: avoid !important; page-break-after: avoid !important; }
   }`;
 }
 
