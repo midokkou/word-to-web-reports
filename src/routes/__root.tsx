@@ -136,7 +136,6 @@ function RootComponent() {
             <div className="h-12 flex items-center justify-between px-2 border-b bg-card/60 backdrop-blur print:hidden">
               <SidebarTrigger />
               <div className="flex items-center gap-1">
-                <PrintSpacingControl />
                 <ViewModeSwitcher />
               </div>
             </div>
