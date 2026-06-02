@@ -13,8 +13,6 @@ import { applyViewMode, loadViewMode } from "@/lib/viewMode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
-import { PrintLetterhead } from "@/components/PrintLetterhead";
-import { PrintSpacingControl } from "@/components/PrintSpacingControl";
 
 import appCss from "../styles.css?url";
 
