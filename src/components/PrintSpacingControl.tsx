@@ -239,9 +239,8 @@ export function PrintSpacingControl() {
   const [s, setS] = useState<State>(D);
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(0.2);
-  const [mainHTML, setMainHTML] = useState<string>("");
+  const [previewHTML, setPreviewHTML] = useState<string>("");
   const [activePageIdx, setActivePageIdx] = useState(0);
-  const previewContentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const next: State = {
@@ -275,19 +274,10 @@ export function PrintSpacingControl() {
         el.removeAttribute("data-print-page");
         el.removeAttribute("data-print-page-overflow");
       });
-      const children = Array.from(root.children) as HTMLElement[];
+      const pages = getPrintablePageElements(root, document.body.getAttribute("data-print-mode"));
       let idx = 0;
       const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
-      for (const el of children) {
-        // Skip nodes that are not rendered in print
-        const cls = el.className || "";
-        if (typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls)) continue;
-        if (el.tagName === "HEADER") continue;
-        if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") continue;
-        // Skip toasters / portals
-        if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) continue;
-        // Skip zero-size nodes
-        if (el.offsetWidth === 0 && el.offsetHeight === 0) continue;
+      for (const el of pages) {
         idx += 1;
         if (idx <= lastPageNum) {
           el.setAttribute("data-print-page", String(idx));
@@ -395,24 +385,22 @@ export function PrintSpacingControl() {
   const bottomPct = (activeMargins.bottom / pageH) * 100;
   const leftPct = (activeMargins.left / pageW) * 100;
   const rightPct = (activeMargins.right / pageW) * 100;
-  const contentTopOffset = (s.topPad / pageH) * 100;
+  const contentTopOffset = (activeMargins.topPad / pageH) * 100;
+  const contentBottomOffset = (activeMargins.bottomPad / pageH) * 100;
   const previewWidth = isLandscape ? 280 : 220;
   const contentAreaWidthPx = previewWidth * (1 - (activeMargins.left + activeMargins.right) / pageW);
 
   useEffect(() => {
     if (!open) return;
-    const main = document.querySelector(
-      "main[data-view-frame], [data-view-frame]"
-    ) as HTMLElement | null;
-    if (!main) return;
-    const mainW = main.offsetWidth || 800;
+    const root = document.querySelector(".form-page") as HTMLElement | null;
+    if (!root) return;
+    const pages = getPrintablePageElements(root, document.body.getAttribute("data-print-mode"));
+    const activePage = pages[activePageIdx] ?? pages[0];
+    if (!activePage) return;
+    const mainW = activePage.offsetWidth || root.offsetWidth || 800;
     setScale(contentAreaWidthPx / mainW);
-    const clone = main.cloneNode(true) as HTMLElement;
-    clone
-      .querySelectorAll("script, [data-radix-popper-content-wrapper], [role='dialog']")
-      .forEach((n) => n.remove());
-    setMainHTML(clone.innerHTML);
-  }, [open, contentAreaWidthPx]);
+    setPreviewHTML(serializePreviewElement(activePage));
+  }, [open, activePageIdx, contentAreaWidthPx, s.fontScale, s.lineHeight, s.pages, s.perPageEnabled, s.orientation]);
 
   const current = s.pages[activePageIdx] ?? activeMargins;
 
