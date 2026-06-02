@@ -286,7 +286,7 @@ function FormPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 pt-4" data-print-page-section>
+      <div className="container mx-auto px-4 pt-4" data-print-keep-with-next>
         <div
           className="form-banner relative rounded-xl p-4 sm:p-5 border-2 border-primary bg-card text-foreground shadow-[var(--shadow-card)]"
         >
