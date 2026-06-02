@@ -315,7 +315,7 @@ export function PrintSpacingControl() {
 
   const activeMargins: PageMargins = s.perPageEnabled && s.pages[activePageIdx]
     ? s.pages[activePageIdx]
-    : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+    : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
 
   const topPct = (activeMargins.top / pageH) * 100;
   const bottomPct = (activeMargins.bottom / pageH) * 100;
