@@ -251,7 +251,7 @@ export function PrintSpacingControl() {
     applyFontScale(next.fontScale);
     applyLineHeight(next.lineHeight);
     applyPageStyle({
-      base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight },
+      base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight, topPad: next.topPad, bottomPad: next.bottomPad },
       perPage: { enabled: next.perPageEnabled, pages: next.pages },
       showHeader: next.showHeader,
       showFooter: next.showFooter,
