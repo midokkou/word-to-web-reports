@@ -65,7 +65,10 @@ function hasPrintHiddenClass(el: HTMLElement): boolean {
   return typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls);
 }
 
-function isPrintablePageElement(el: HTMLElement): boolean {
+function isPrintablePageElement(el: HTMLElement, mode: string | null = null): boolean {
+  const isFollowup = el.getAttribute("data-print-section") === "followup";
+  if (mode === "followup" && !isFollowup) return false;
+  if (mode !== "followup" && isFollowup) return false;
   if (hasPrintHiddenClass(el)) return false;
   if (el.tagName === "HEADER") return false;
   if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") return false;
@@ -74,10 +77,10 @@ function isPrintablePageElement(el: HTMLElement): boolean {
   return true;
 }
 
-function getPrintablePageElements(root: Element): HTMLElement[] {
+function getPrintablePageElements(root: Element, mode: string | null = null): HTMLElement[] {
   const children = Array.from(root.children) as HTMLElement[];
   const marked = children.filter((el) => el.hasAttribute("data-print-page-section"));
-  return (marked.length ? marked : children).filter(isPrintablePageElement);
+  return (marked.length ? marked : children).filter((el) => isPrintablePageElement(el, mode));
 }
 
 function serializePreviewElement(el: HTMLElement): string {
