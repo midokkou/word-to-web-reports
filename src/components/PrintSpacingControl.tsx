@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -50,14 +50,46 @@ const D = {
   showHeader: true,
   showFooter: true,
   orientation: "portrait" as "portrait" | "landscape",
-  perPageEnabled: false,
+  perPageEnabled: true,
   pages: [
+    { ...DEFAULT_MARGINS },
     { ...DEFAULT_MARGINS },
     { ...DEFAULT_MARGINS },
   ] as PageMargins[],
 };
 
 const STYLE_ID = "print-page-margins";
+
+function hasPrintHiddenClass(el: HTMLElement): boolean {
+  const cls = el.className || "";
+  return typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls);
+}
+
+function isPrintablePageElement(el: HTMLElement, mode: string | null = null): boolean {
+  const isFollowup = el.getAttribute("data-print-section") === "followup";
+  if (mode === "followup" && !isFollowup) return false;
+  if (mode === "normal" && isFollowup) return false;
+  if (hasPrintHiddenClass(el)) return false;
+  if (el.tagName === "HEADER") return false;
+  if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") return false;
+  if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) return false;
+  if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
+  return true;
+}
+
+function getPrintablePageElements(root: Element, mode: string | null = null): HTMLElement[] {
+  const children = Array.from(root.children) as HTMLElement[];
+  const marked = children.filter((el) => el.hasAttribute("data-print-page-section"));
+  return (marked.length ? marked : children).filter((el) => isPrintablePageElement(el, mode));
+}
+
+function serializePreviewElement(el: HTMLElement): string {
+  const clone = el.cloneNode(true) as HTMLElement;
+  clone
+    .querySelectorAll("script, .print\\:hidden, [data-radix-popper-content-wrapper], [role='dialog'], [data-sonner-toaster]")
+    .forEach((n) => n.remove());
+  return clone.outerHTML;
+}
 
 function loadNum(key: string, fallback: number): number {
   if (typeof window === "undefined") return fallback;
@@ -147,19 +179,17 @@ export function applyPageStyle(opts: {
     const childRules = perPage.pages
       .map((m, i) => {
         const n = i + 1;
-        const breakRule =
-          n === 1
-            ? ""
-            : `break-before: page !important; page-break-before: always !important;`;
         const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
-        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${breakRule} ${padRule} }`;
+        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${padRule} }`;
       })
       .join(" ");
     // Any printable section beyond the configured count inherits the last
-    // page's margins (no forced break to avoid empty pages).
+    // page's margins while still starting on its own printed page.
     const last = perPage.pages.length;
-    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; }`;
-    perPageCSS = `${namedPages} ${childRules} ${fallback}`;
+    const lastMargins = perPage.pages[last - 1];
+    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; padding-top: ${lastMargins.topPad}mm !important; padding-bottom: ${lastMargins.bottomPad}mm !important; }`;
+    const breakCSS = `.form-page > [data-print-page-break="1"] { break-before: page !important; page-break-before: always !important; }`;
+    perPageCSS = `${namedPages} ${childRules} ${fallback} ${breakCSS}`;
   }
 
   // Use the first configured page as @page base when per-page is enabled, so
@@ -206,9 +236,8 @@ export function PrintSpacingControl() {
   const [s, setS] = useState<State>(D);
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(0.2);
-  const [mainHTML, setMainHTML] = useState<string>("");
+  const [previewHTML, setPreviewHTML] = useState<string>("");
   const [activePageIdx, setActivePageIdx] = useState(0);
-  const previewContentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const next: State = {
@@ -223,7 +252,7 @@ export function PrintSpacingControl() {
       showHeader: loadBool(KEYS.showHeader, D.showHeader),
       showFooter: loadBool(KEYS.showFooter, D.showFooter),
       orientation: loadStr(KEYS.orientation, D.orientation) as State["orientation"],
-      perPageEnabled: loadBool(KEYS.perPageEnabled, D.perPageEnabled),
+      perPageEnabled: true,
       pages: loadPages(D.pages),
     };
     setS(next);
@@ -238,29 +267,23 @@ export function PrintSpacingControl() {
       const root = document.querySelector(".form-page");
       if (!root) return;
       // Clean previous tags first
-      root.querySelectorAll("[data-print-page], [data-print-page-overflow]").forEach((el) => {
+      root.querySelectorAll("[data-print-page], [data-print-page-overflow], [data-print-page-break]").forEach((el) => {
         el.removeAttribute("data-print-page");
         el.removeAttribute("data-print-page-overflow");
+        el.removeAttribute("data-print-page-break");
       });
-      const children = Array.from(root.children) as HTMLElement[];
-      let idx = 0;
+      const printMode = document.body.getAttribute("data-print-mode") === "followup" ? "followup" : "normal";
+      const allPages = getPrintablePageElements(root);
+      const pages = getPrintablePageElements(root, printMode);
       const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
-      for (const el of children) {
-        // Skip nodes that are not rendered in print
-        const cls = el.className || "";
-        if (typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls)) continue;
-        if (el.tagName === "HEADER") continue;
-        if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") continue;
-        // Skip toasters / portals
-        if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) continue;
-        // Skip zero-size nodes
-        if (el.offsetWidth === 0 && el.offsetHeight === 0) continue;
-        idx += 1;
+      for (const el of pages) {
+        const idx = allPages.indexOf(el) + 1;
         if (idx <= lastPageNum) {
           el.setAttribute("data-print-page", String(idx));
         } else {
           el.setAttribute("data-print-page-overflow", "");
         }
+        if (printMode !== "followup" && idx > 1) el.setAttribute("data-print-page-break", "1");
       }
     }
     window.addEventListener("beforeprint", tagPrintablePages);
@@ -268,6 +291,17 @@ export function PrintSpacingControl() {
     tagPrintablePages();
     return () => window.removeEventListener("beforeprint", tagPrintablePages);
   }, [s.perPageEnabled, s.pages.length]);
+
+  useEffect(() => {
+    const root = document.querySelector(".form-page");
+    if (!root || !s.perPageEnabled) return;
+    const printableCount = getPrintablePageElements(root).length;
+    if (printableCount <= s.pages.length) return;
+    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
+    const pages = [...s.pages];
+    while (pages.length < printableCount) pages.push({ ...seed });
+    commit({ ...s, pages });
+  }, [open, s.perPageEnabled, s.pages.length]);
 
 
   function persistSimple(next: State) {
@@ -341,7 +375,20 @@ export function PrintSpacingControl() {
   }
 
   function applyPreset(name: keyof typeof PRESETS) {
-    const next = { ...s, ...PRESETS[name] } as State;
+    const preset = PRESETS[name];
+    const next = {
+      ...s,
+      ...preset,
+      pages: s.pages.map((page) => ({
+        ...page,
+        top: preset.pageTop ?? page.top,
+        bottom: preset.pageBottom ?? page.bottom,
+        left: preset.pageLeft ?? page.left,
+        right: preset.pageRight ?? page.right,
+        topPad: preset.topPad ?? page.topPad,
+        bottomPad: preset.bottomPad ?? page.bottomPad,
+      })),
+    } as State;
     commit(next);
   }
 
@@ -362,24 +409,22 @@ export function PrintSpacingControl() {
   const bottomPct = (activeMargins.bottom / pageH) * 100;
   const leftPct = (activeMargins.left / pageW) * 100;
   const rightPct = (activeMargins.right / pageW) * 100;
-  const contentTopOffset = (s.topPad / pageH) * 100;
+  const contentTopOffset = (activeMargins.topPad / pageH) * 100;
+  const contentBottomOffset = (activeMargins.bottomPad / pageH) * 100;
   const previewWidth = isLandscape ? 280 : 220;
   const contentAreaWidthPx = previewWidth * (1 - (activeMargins.left + activeMargins.right) / pageW);
 
   useEffect(() => {
     if (!open) return;
-    const main = document.querySelector(
-      "main[data-view-frame], [data-view-frame]"
-    ) as HTMLElement | null;
-    if (!main) return;
-    const mainW = main.offsetWidth || 800;
+    const root = document.querySelector(".form-page") as HTMLElement | null;
+    if (!root) return;
+    const pages = getPrintablePageElements(root);
+    const activePage = pages[activePageIdx] ?? pages[0];
+    if (!activePage) return;
+    const mainW = activePage.offsetWidth || root.offsetWidth || 800;
     setScale(contentAreaWidthPx / mainW);
-    const clone = main.cloneNode(true) as HTMLElement;
-    clone
-      .querySelectorAll("script, [data-radix-popper-content-wrapper], [role='dialog']")
-      .forEach((n) => n.remove());
-    setMainHTML(clone.innerHTML);
-  }, [open, contentAreaWidthPx]);
+    setPreviewHTML(serializePreviewElement(activePage));
+  }, [open, activePageIdx, contentAreaWidthPx, s.fontScale, s.lineHeight, s.pages, s.perPageEnabled, s.orientation]);
 
   const current = s.pages[activePageIdx] ?? activeMargins;
 
@@ -409,12 +454,11 @@ export function PrintSpacingControl() {
                   <img src="/print-footer.jpg" alt="" className="w-full h-full object-cover object-bottom" onError={(e) => ((e.currentTarget.style.display = "none"))} />
                 </div>
               )}
-              <div className="absolute overflow-hidden" style={{ top: `calc(${topPct}% + ${contentTopOffset}%)`, bottom: `${bottomPct}%`, left: `${leftPct}%`, right: `${rightPct}%` }}>
+              <div className="absolute overflow-hidden" style={{ top: `calc(${topPct}% + ${contentTopOffset}%)`, bottom: `calc(${bottomPct}% + ${contentBottomOffset}%)`, left: `${leftPct}%`, right: `${rightPct}%` }}>
                 <div
-                  ref={previewContentRef}
                   dir="rtl"
                   style={{ transform: `scale(${scale})`, transformOrigin: "top right", width: `${100 / scale}%`, pointerEvents: "none", fontSize: `${s.fontScale}%`, lineHeight: s.lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: mainHTML }}
+                  dangerouslySetInnerHTML={{ __html: previewHTML }}
                 />
               </div>
             </div>
@@ -439,7 +483,7 @@ export function PrintSpacingControl() {
                   <span className="text-sm font-medium">هوامش مستقلة لكل صفحة</span>
                   <span className="text-[10px] text-muted-foreground">كل صفحة لها إعدادات منفصلة بالكامل</span>
                 </div>
-                <Switch checked={s.perPageEnabled} onCheckedChange={togglePerPage} />
+                <span className="text-[10px] font-bold text-primary bg-primary/10 rounded px-2 py-1">مفعّل</span>
               </div>
 
               {!s.perPageEnabled ? (
