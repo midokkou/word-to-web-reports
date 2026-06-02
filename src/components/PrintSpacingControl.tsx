@@ -185,9 +185,10 @@ export function applyPageStyle(opts: {
       })
       .join(" ");
     // Any printable section beyond the configured count inherits the last
-    // page's margins (no forced break to avoid empty pages).
+    // page's margins while still starting on its own printed page.
     const last = perPage.pages.length;
-    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; }`;
+    const lastMargins = perPage.pages[last - 1];
+    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; break-before: page !important; page-break-before: always !important; padding-top: ${lastMargins.topPad}mm !important; padding-bottom: ${lastMargins.bottomPad}mm !important; }`;
     perPageCSS = `${namedPages} ${childRules} ${fallback}`;
   }
 
