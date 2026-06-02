@@ -620,23 +620,25 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 
   .form-page header { display: none !important; }
 
-  /* Ensure follow-up section is always visible in print */
+  /* By default, hide the follow-up section when printing the form
+     (the main print button prints items only). */
   [data-print-section="followup"] {
-    display: block !important;
-    visibility: visible !important;
-  }
-  [data-print-section="followup"] * {
-    visibility: visible !important;
+    display: none !important;
   }
 
-  /* Print only the follow-up section when this mode is active */
+  /* Follow-up-only print mode: hide everything else, show follow-up. */
   body[data-print-mode="followup"] .form-page > *:not([data-print-section="followup"]) {
     display: none !important;
   }
   body[data-print-mode="followup"] [data-print-section="followup"] {
+    display: block !important;
+    visibility: visible !important;
     break-before: auto !important;
     page-break-before: auto !important;
     margin-top: 0 !important;
+  }
+  body[data-print-mode="followup"] [data-print-section="followup"] * {
+    visibility: visible !important;
   }
 
   /* === Smart page breaks: keep important blocks together === */
