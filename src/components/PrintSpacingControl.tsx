@@ -272,7 +272,7 @@ export function PrintSpacingControl() {
         el.removeAttribute("data-print-page-overflow");
         el.removeAttribute("data-print-page-break");
       });
-      const pages = getPrintablePageElements(root, document.body.getAttribute("data-print-mode"));
+      const pages = getPrintablePageElements(root);
       let idx = 0;
       const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
       for (const el of pages) {
@@ -294,7 +294,7 @@ export function PrintSpacingControl() {
   useEffect(() => {
     const root = document.querySelector(".form-page");
     if (!root || !s.perPageEnabled) return;
-    const printableCount = getPrintablePageElements(root, document.body.getAttribute("data-print-mode")).length;
+    const printableCount = getPrintablePageElements(root).length;
     if (printableCount <= s.pages.length) return;
     const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
     const pages = [...s.pages];
@@ -417,7 +417,7 @@ export function PrintSpacingControl() {
     if (!open) return;
     const root = document.querySelector(".form-page") as HTMLElement | null;
     if (!root) return;
-    const pages = getPrintablePageElements(root, document.body.getAttribute("data-print-mode"));
+    const pages = getPrintablePageElements(root);
     const activePage = pages[activePageIdx] ?? pages[0];
     if (!activePage) return;
     const mainW = activePage.offsetWidth || root.offsetWidth || 800;
