@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -50,14 +50,43 @@ const D = {
   showHeader: true,
   showFooter: true,
   orientation: "portrait" as "portrait" | "landscape",
-  perPageEnabled: false,
+  perPageEnabled: true,
   pages: [
+    { ...DEFAULT_MARGINS },
     { ...DEFAULT_MARGINS },
     { ...DEFAULT_MARGINS },
   ] as PageMargins[],
 };
 
 const STYLE_ID = "print-page-margins";
+
+function hasPrintHiddenClass(el: HTMLElement): boolean {
+  const cls = el.className || "";
+  return typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls);
+}
+
+function isPrintablePageElement(el: HTMLElement): boolean {
+  if (hasPrintHiddenClass(el)) return false;
+  if (el.tagName === "HEADER") return false;
+  if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") return false;
+  if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) return false;
+  if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
+  return true;
+}
+
+function getPrintablePageElements(root: Element): HTMLElement[] {
+  const children = Array.from(root.children) as HTMLElement[];
+  const marked = children.filter((el) => el.hasAttribute("data-print-page-section"));
+  return (marked.length ? marked : children).filter(isPrintablePageElement);
+}
+
+function serializePreviewElement(el: HTMLElement): string {
+  const clone = el.cloneNode(true) as HTMLElement;
+  clone
+    .querySelectorAll("script, .print\\:hidden, [data-radix-popper-content-wrapper], [role='dialog'], [data-sonner-toaster]")
+    .forEach((n) => n.remove());
+  return clone.outerHTML;
+}
 
 function loadNum(key: string, fallback: number): number {
   if (typeof window === "undefined") return fallback;
