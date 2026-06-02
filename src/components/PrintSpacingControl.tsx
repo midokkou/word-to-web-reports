@@ -141,9 +141,9 @@ export function applyPageStyle(opts: {
     const namedPages = perPage.pages
       .map((m, i) => `@page p${i + 1} { ${mk(m)} }`)
       .join(" ");
-    // Map each direct child of .form-page to its own named page and force a
-    // page break before it (so each top-level section becomes its own
-    // printed page with independent margins).
+    // Target only printable sections tagged with data-print-page="N".
+    // Using :nth-child here would incorrectly count Toaster, print:hidden
+    // headers, and other non-printable siblings and produce blank pages.
     const childRules = perPage.pages
       .map((m, i) => {
         const n = i + 1;
@@ -152,13 +152,13 @@ export function applyPageStyle(opts: {
             ? ""
             : `break-before: page !important; page-break-before: always !important;`;
         const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
-        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} ${padRule} }`;
+        return `.form-page > [data-print-page="${n}"] { page: p${n} !important; ${breakRule} ${padRule} }`;
       })
       .join(" ");
-    // Fallback for any extra child beyond the configured pages: reuse the
-    // last page's margins.
+    // Any printable section beyond the configured count inherits the last
+    // page's margins (no forced break to avoid empty pages).
     const last = perPage.pages.length;
-    const fallback = `.form-page > *:nth-child(n+${last + 1}) { page: p${last} !important; break-before: page !important; page-break-before: always !important; }`;
+    const fallback = `.form-page > [data-print-page-overflow] { page: p${last} !important; }`;
     perPageCSS = `${namedPages} ${childRules} ${fallback}`;
   }
 
@@ -229,6 +229,46 @@ export function PrintSpacingControl() {
     setS(next);
     applyAll(next);
   }, []);
+
+  // Tag printable direct children of .form-page with data-print-page="N"
+  // before every print so per-page CSS targets only visible sections (skipping
+  // Toaster, print:hidden header, etc.). This prevents blank printed pages.
+  useEffect(() => {
+    function tagPrintablePages() {
+      const root = document.querySelector(".form-page");
+      if (!root) return;
+      // Clean previous tags first
+      root.querySelectorAll("[data-print-page], [data-print-page-overflow]").forEach((el) => {
+        el.removeAttribute("data-print-page");
+        el.removeAttribute("data-print-page-overflow");
+      });
+      const children = Array.from(root.children) as HTMLElement[];
+      let idx = 0;
+      const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
+      for (const el of children) {
+        // Skip nodes that are not rendered in print
+        const cls = el.className || "";
+        if (typeof cls === "string" && /(^|\s)print:hidden(\s|$)/.test(cls)) continue;
+        if (el.tagName === "HEADER") continue;
+        if (el.getAttribute("aria-hidden") === "true" && el.tagName !== "DIV") continue;
+        // Skip toasters / portals
+        if (el.matches?.("[data-sonner-toaster], [data-radix-popper-content-wrapper], [role='region'][aria-label*='toast' i]")) continue;
+        // Skip zero-size nodes
+        if (el.offsetWidth === 0 && el.offsetHeight === 0) continue;
+        idx += 1;
+        if (idx <= lastPageNum) {
+          el.setAttribute("data-print-page", String(idx));
+        } else {
+          el.setAttribute("data-print-page-overflow", "");
+        }
+      }
+    }
+    window.addEventListener("beforeprint", tagPrintablePages);
+    // Also tag on mount/changes so the preview reflects pagination immediately
+    tagPrintablePages();
+    return () => window.removeEventListener("beforeprint", tagPrintablePages);
+  }, [s.perPageEnabled, s.pages.length]);
+
 
   function persistSimple(next: State) {
     window.localStorage.setItem(KEYS.topPad, String(next.topPad));
