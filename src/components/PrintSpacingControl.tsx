@@ -8,7 +8,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Printer, RotateCcw } from "lucide-react";
+import { Printer, RotateCcw, Plus, Trash2 } from "lucide-react";
 
 // Storage keys
 const KEYS = {
@@ -23,23 +23,14 @@ const KEYS = {
   showHeader: "print-show-header",
   showFooter: "print-show-footer",
   orientation: "print-orientation",
-  // Per-page overrides
   perPageEnabled: "print-per-page-enabled",
-  firstTop: "print-first-top-mm",
-  firstBottom: "print-first-bottom-mm",
-  firstLeft: "print-first-left-mm",
-  firstRight: "print-first-right-mm",
-  oddTop: "print-odd-top-mm",
-  oddBottom: "print-odd-bottom-mm",
-  oddLeft: "print-odd-left-mm",
-  oddRight: "print-odd-right-mm",
-  evenTop: "print-even-top-mm",
-  evenBottom: "print-even-bottom-mm",
-  evenLeft: "print-even-left-mm",
-  evenRight: "print-even-right-mm",
+  pagesJSON: "print-pages-json",
 } as const;
 
-// Defaults
+type PageMargins = { top: number; bottom: number; left: number; right: number };
+
+const DEFAULT_MARGINS: PageMargins = { top: 48, bottom: 22, left: 14, right: 14 };
+
 const D = {
   topPad: 0,
   bottomPad: 0,
@@ -53,9 +44,10 @@ const D = {
   showFooter: true,
   orientation: "portrait" as "portrait" | "landscape",
   perPageEnabled: false,
-  firstTop: 48, firstBottom: 22, firstLeft: 14, firstRight: 14,
-  oddTop: 48, oddBottom: 22, oddLeft: 14, oddRight: 14,
-  evenTop: 48, evenBottom: 22, evenLeft: 14, evenRight: 14,
+  pages: [
+    { ...DEFAULT_MARGINS },
+    { ...DEFAULT_MARGINS },
+  ] as PageMargins[],
 };
 
 const STYLE_ID = "print-page-margins";
@@ -75,6 +67,23 @@ function loadStr(key: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
   return window.localStorage.getItem(key) ?? fallback;
 }
+function loadPages(fallback: PageMargins[]): PageMargins[] {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.localStorage.getItem(KEYS.pagesJSON);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return fallback;
+    return parsed.map((m) => ({
+      top: Number(m?.top) || 0,
+      bottom: Number(m?.bottom) || 0,
+      left: Number(m?.left) || 0,
+      right: Number(m?.right) || 0,
+    }));
+  } catch {
+    return fallback;
+  }
+}
 
 export function applyPrintTopPadding(mm: number) {
   if (typeof document === "undefined") return;
@@ -93,11 +102,9 @@ export function applyLineHeight(lh: number) {
   document.documentElement.style.setProperty("--print-line-height", String(lh));
 }
 
-type PageMargins = { top: number; bottom: number; left: number; right: number };
-
 export function applyPageStyle(opts: {
   base: PageMargins;
-  perPage: { enabled: boolean; first: PageMargins; odd: PageMargins; even: PageMargins };
+  perPage: { enabled: boolean; pages: PageMargins[] };
   showHeader: boolean;
   showFooter: boolean;
   orientation: "portrait" | "landscape";
@@ -118,19 +125,40 @@ export function applyPageStyle(opts: {
   const headerCSS = showHeader ? "" : ".print-letterhead-header{display:none !important;}";
   const footerCSS = showFooter ? "" : ".print-letterhead-footer{display:none !important;}";
   const mk = (m: PageMargins) => `size: A4 ${orientation}; margin: ${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;`;
-  const first = perPage.enabled ? perPage.first : base;
-  const odd = perPage.enabled ? perPage.odd : base;
-  const even = perPage.enabled ? perPage.even : base;
-  // When per-page is enabled, set the BASE @page to the "odd" values so all
-  // pages (except :first and :left) inherit them reliably across browsers —
-  // some print engines silently ignore margin overrides inside @page :right.
-  const baseRule = perPage.enabled ? odd : base;
-  const perPageBlock = perPage.enabled
-    ? `@page :first { ${mk(first)} } @page :left { ${mk(even)} } @page :right { ${mk(odd)} }`
-    : `@page :first { ${mk(base)} }`;
+
+  let perPageCSS = "";
+  if (perPage.enabled && perPage.pages.length > 0) {
+    // Named @page rules for each configured page
+    const namedPages = perPage.pages
+      .map((m, i) => `@page p${i + 1} { ${mk(m)} }`)
+      .join(" ");
+    // Map each direct child of .form-page to its own named page and force a
+    // page break before it (so each top-level section becomes its own
+    // printed page with independent margins).
+    const childRules = perPage.pages
+      .map((_, i) => {
+        const n = i + 1;
+        const breakRule =
+          n === 1
+            ? ""
+            : `break-before: page !important; page-break-before: always !important;`;
+        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} }`;
+      })
+      .join(" ");
+    // Fallback for any extra child beyond the configured pages: reuse the
+    // last page's margins.
+    const last = perPage.pages.length;
+    const fallback = `.form-page > *:nth-child(n+${last + 1}) { page: p${last} !important; break-before: page !important; page-break-before: always !important; }`;
+    perPageCSS = `${namedPages} ${childRules} ${fallback}`;
+  }
+
+  // Use the first configured page as @page base when per-page is enabled, so
+  // any uncategorised content still gets sensible margins.
+  const baseRule = perPage.enabled && perPage.pages[0] ? perPage.pages[0] : base;
+
   style.textContent = `@media print {
     @page { ${mk(baseRule)} }
-    ${perPageBlock}
+    ${perPageCSS}
     ${headerCSS}
     ${footerCSS}
     body { font-size: calc(10.5pt * var(--print-font-scale, 1)) !important; line-height: var(--print-line-height, 1.55) !important; }
@@ -142,7 +170,21 @@ export function loadPrintTopPadding(): number {
   return loadNum(KEYS.topPad, D.topPad);
 }
 
-type State = typeof D;
+type State = {
+  topPad: number;
+  bottomPad: number;
+  pageTop: number;
+  pageBottom: number;
+  pageLeft: number;
+  pageRight: number;
+  fontScale: number;
+  lineHeight: number;
+  showHeader: boolean;
+  showFooter: boolean;
+  orientation: "portrait" | "landscape";
+  perPageEnabled: boolean;
+  pages: PageMargins[];
+};
 
 const PRESETS: Record<string, Partial<State>> = {
   compact: { pageTop: 30, pageBottom: 15, pageLeft: 10, pageRight: 10, topPad: 0, bottomPad: 0, fontScale: 90, lineHeight: 1.4 },
@@ -155,7 +197,7 @@ export function PrintSpacingControl() {
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(0.2);
   const [mainHTML, setMainHTML] = useState<string>("");
-  const [pagePreview, setPagePreview] = useState<"first" | "odd" | "even">("first");
+  const [activePageIdx, setActivePageIdx] = useState(0);
   const previewContentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -170,24 +212,29 @@ export function PrintSpacingControl() {
       lineHeight: loadNum(KEYS.lineHeight, D.lineHeight),
       showHeader: loadBool(KEYS.showHeader, D.showHeader),
       showFooter: loadBool(KEYS.showFooter, D.showFooter),
-      orientation: (loadStr(KEYS.orientation, D.orientation) as State["orientation"]),
+      orientation: loadStr(KEYS.orientation, D.orientation) as State["orientation"],
       perPageEnabled: loadBool(KEYS.perPageEnabled, D.perPageEnabled),
-      firstTop: loadNum(KEYS.firstTop, D.firstTop),
-      firstBottom: loadNum(KEYS.firstBottom, D.firstBottom),
-      firstLeft: loadNum(KEYS.firstLeft, D.firstLeft),
-      firstRight: loadNum(KEYS.firstRight, D.firstRight),
-      oddTop: loadNum(KEYS.oddTop, D.oddTop),
-      oddBottom: loadNum(KEYS.oddBottom, D.oddBottom),
-      oddLeft: loadNum(KEYS.oddLeft, D.oddLeft),
-      oddRight: loadNum(KEYS.oddRight, D.oddRight),
-      evenTop: loadNum(KEYS.evenTop, D.evenTop),
-      evenBottom: loadNum(KEYS.evenBottom, D.evenBottom),
-      evenLeft: loadNum(KEYS.evenLeft, D.evenLeft),
-      evenRight: loadNum(KEYS.evenRight, D.evenRight),
+      pages: loadPages(D.pages),
     };
     setS(next);
     applyAll(next);
   }, []);
+
+  function persistSimple(next: State) {
+    window.localStorage.setItem(KEYS.topPad, String(next.topPad));
+    window.localStorage.setItem(KEYS.bottomPad, String(next.bottomPad));
+    window.localStorage.setItem(KEYS.pageTop, String(next.pageTop));
+    window.localStorage.setItem(KEYS.pageBottom, String(next.pageBottom));
+    window.localStorage.setItem(KEYS.pageLeft, String(next.pageLeft));
+    window.localStorage.setItem(KEYS.pageRight, String(next.pageRight));
+    window.localStorage.setItem(KEYS.fontScale, String(next.fontScale));
+    window.localStorage.setItem(KEYS.lineHeight, String(next.lineHeight));
+    window.localStorage.setItem(KEYS.showHeader, next.showHeader ? "1" : "0");
+    window.localStorage.setItem(KEYS.showFooter, next.showFooter ? "1" : "0");
+    window.localStorage.setItem(KEYS.orientation, next.orientation);
+    window.localStorage.setItem(KEYS.perPageEnabled, next.perPageEnabled ? "1" : "0");
+    window.localStorage.setItem(KEYS.pagesJSON, JSON.stringify(next.pages));
+  }
 
   function applyAll(next: State) {
     applyPrintTopPadding(next.topPad);
@@ -196,85 +243,78 @@ export function PrintSpacingControl() {
     applyLineHeight(next.lineHeight);
     applyPageStyle({
       base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight },
-      perPage: {
-        enabled: next.perPageEnabled,
-        first: { top: next.firstTop, bottom: next.firstBottom, left: next.firstLeft, right: next.firstRight },
-        odd: { top: next.oddTop, bottom: next.oddBottom, left: next.oddLeft, right: next.oddRight },
-        even: { top: next.evenTop, bottom: next.evenBottom, left: next.evenLeft, right: next.evenRight },
-      },
+      perPage: { enabled: next.perPageEnabled, pages: next.pages },
       showHeader: next.showHeader,
       showFooter: next.showFooter,
       orientation: next.orientation,
     });
   }
 
-  function update<K extends keyof State>(key: K, value: State[K]) {
-    const next = { ...s, [key]: value };
+  function commit(next: State) {
     setS(next);
     applyAll(next);
-    const raw = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
-    window.localStorage.setItem((KEYS as Record<string, string>)[key], raw);
+    persistSimple(next);
   }
 
-  function syncPerPageFromBase(next: State): State {
-    // When per-page is first enabled, seed the overrides with the base values.
-    return {
-      ...next,
-      firstTop: next.pageTop, firstBottom: next.pageBottom, firstLeft: next.pageLeft, firstRight: next.pageRight,
-      oddTop: next.pageTop, oddBottom: next.pageBottom, oddLeft: next.pageLeft, oddRight: next.pageRight,
-      evenTop: next.pageTop, evenBottom: next.pageBottom, evenLeft: next.pageLeft, evenRight: next.pageRight,
-    };
+  function update<K extends keyof State>(key: K, value: State[K]) {
+    commit({ ...s, [key]: value });
   }
 
   function togglePerPage(v: boolean) {
-    let next = { ...s, perPageEnabled: v };
-    if (v) next = syncPerPageFromBase(next);
-    setS(next);
-    applyAll(next);
-    (Object.keys(KEYS) as (keyof typeof KEYS)[]).forEach((k) => {
-      const val = (next as State)[k];
-      const raw = typeof val === "boolean" ? (val ? "1" : "0") : String(val);
-      window.localStorage.setItem(KEYS[k], raw);
-    });
+    let next: State = { ...s, perPageEnabled: v };
+    if (v && (!next.pages || next.pages.length === 0)) {
+      // Seed pages from current base margins
+      const base: PageMargins = { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+      next = { ...next, pages: [{ ...base }, { ...base }] };
+    }
+    commit(next);
+  }
+
+  function updatePageMargin(idx: number, key: keyof PageMargins, value: number) {
+    const pages = s.pages.map((p, i) => (i === idx ? { ...p, [key]: value } : p));
+    commit({ ...s, pages });
+  }
+
+  function addPage() {
+    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+    const pages = [...s.pages, { ...seed }];
+    const next = { ...s, pages };
+    commit(next);
+    setActivePageIdx(pages.length - 1);
+  }
+
+  function removePage(idx: number) {
+    if (s.pages.length <= 1) return;
+    const pages = s.pages.filter((_, i) => i !== idx);
+    commit({ ...s, pages });
+    setActivePageIdx((cur) => Math.min(cur, pages.length - 1));
   }
 
   function applyPreset(name: keyof typeof PRESETS) {
     const next = { ...s, ...PRESETS[name] } as State;
-    setS(next);
-    applyAll(next);
-    (Object.keys(PRESETS[name]) as (keyof State)[]).forEach((k) => {
-      const v = (next as State)[k];
-      const raw = typeof v === "boolean" ? (v ? "1" : "0") : String(v);
-      window.localStorage.setItem((KEYS as Record<string, string>)[k], raw);
-    });
+    commit(next);
   }
 
   function resetAll() {
-    setS(D);
-    applyAll(D);
-    Object.values(KEYS).forEach((k) => window.localStorage.removeItem(k));
+    commit(D);
+    setActivePageIdx(0);
   }
 
   const isLandscape = s.orientation === "landscape";
   const pageW = isLandscape ? 297 : 210;
   const pageH = isLandscape ? 210 : 297;
 
-  // Preview reflects the selected page type when per-page is enabled
-  const previewMargins: PageMargins = s.perPageEnabled
-    ? pagePreview === "first"
-      ? { top: s.firstTop, bottom: s.firstBottom, left: s.firstLeft, right: s.firstRight }
-      : pagePreview === "odd"
-      ? { top: s.oddTop, bottom: s.oddBottom, left: s.oddLeft, right: s.oddRight }
-      : { top: s.evenTop, bottom: s.evenBottom, left: s.evenLeft, right: s.evenRight }
+  const activeMargins: PageMargins = s.perPageEnabled && s.pages[activePageIdx]
+    ? s.pages[activePageIdx]
     : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
 
-  const topPct = (previewMargins.top / pageH) * 100;
-  const bottomPct = (previewMargins.bottom / pageH) * 100;
-  const leftPct = (previewMargins.left / pageW) * 100;
-  const rightPct = (previewMargins.right / pageW) * 100;
+  const topPct = (activeMargins.top / pageH) * 100;
+  const bottomPct = (activeMargins.bottom / pageH) * 100;
+  const leftPct = (activeMargins.left / pageW) * 100;
+  const rightPct = (activeMargins.right / pageW) * 100;
   const contentTopOffset = (s.topPad / pageH) * 100;
   const previewWidth = isLandscape ? 280 : 220;
-  const contentAreaWidthPx = previewWidth * (1 - (previewMargins.left + previewMargins.right) / pageW);
+  const contentAreaWidthPx = previewWidth * (1 - (activeMargins.left + activeMargins.right) / pageW);
 
   useEffect(() => {
     if (!open) return;
@@ -291,9 +331,7 @@ export function PrintSpacingControl() {
     setMainHTML(clone.innerHTML);
   }, [open, contentAreaWidthPx]);
 
-  // Per-page sliders bound to the currently previewed page type
-  const prefix = pagePreview === "first" ? "first" : pagePreview === "odd" ? "odd" : "even";
-  const k = (suffix: "Top" | "Bottom" | "Left" | "Right") => `${prefix}${suffix}` as keyof State;
+  const current = s.pages[activePageIdx] ?? activeMargins;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -348,8 +386,8 @@ export function PrintSpacingControl() {
             <TabsContent value="margins" className="space-y-3 mt-3">
               <div className="flex items-center justify-between rounded-md bg-muted/40 p-2">
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">هوامش مختلفة لكل صفحة</span>
-                  <span className="text-[10px] text-muted-foreground">للطباعة متعددة الصفحات (أولى / فردية / زوجية)</span>
+                  <span className="text-sm font-medium">هوامش مستقلة لكل صفحة</span>
+                  <span className="text-[10px] text-muted-foreground">كل صفحة لها إعدادات منفصلة بالكامل</span>
                 </div>
                 <Switch checked={s.perPageEnabled} onCheckedChange={togglePerPage} />
               </div>
@@ -363,17 +401,45 @@ export function PrintSpacingControl() {
                 </>
               ) : (
                 <>
-                  <div className="grid grid-cols-3 gap-1">
-                    <Button size="sm" variant={pagePreview === "first" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("first")}>الصفحة الأولى</Button>
-                    <Button size="sm" variant={pagePreview === "odd" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("odd")}>الصفحات الفردية</Button>
-                    <Button size="sm" variant={pagePreview === "even" ? "default" : "outline"} className="h-7 text-xs" onClick={() => setPagePreview("even")}>الصفحات الزوجية</Button>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 flex flex-wrap gap-1">
+                      {s.pages.map((_, i) => (
+                        <Button
+                          key={i}
+                          size="sm"
+                          variant={activePageIdx === i ? "default" : "outline"}
+                          className="h-7 text-xs px-2"
+                          onClick={() => setActivePageIdx(i)}
+                        >
+                          صفحة {i + 1}
+                        </Button>
+                      ))}
+                      <Button size="sm" variant="ghost" className="h-7 text-xs px-2 gap-1" onClick={addPage} title="إضافة صفحة">
+                        <Plus className="size-3.5" />
+                      </Button>
+                    </div>
+                    {s.pages.length > 1 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-destructive hover:text-destructive"
+                        onClick={() => removePage(activePageIdx)}
+                        title="حذف هذه الصفحة"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    )}
                   </div>
-                  <SliderRow label="هامش الرأس (أعلى)" value={s[k("Top")] as number} unit="مم" min={5} max={90} onChange={(v) => update(k("Top"), v as never)} />
-                  <SliderRow label="هامش التذييل (أسفل)" value={s[k("Bottom")] as number} unit="مم" min={5} max={70} onChange={(v) => update(k("Bottom"), v as never)} />
-                  <SliderRow label="الهامش الأيمن" value={s[k("Right")] as number} unit="مم" min={5} max={50} onChange={(v) => update(k("Right"), v as never)} />
-                  <SliderRow label="الهامش الأيسر" value={s[k("Left")] as number} unit="مم" min={5} max={50} onChange={(v) => update(k("Left"), v as never)} />
+
+                  <div className="rounded-md border bg-muted/20 p-2 space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground">إعدادات الصفحة {activePageIdx + 1}</div>
+                    <SliderRow label="هامش الرأس (أعلى)" value={current.top} unit="مم" min={5} max={90} onChange={(v) => updatePageMargin(activePageIdx, "top", v)} />
+                    <SliderRow label="هامش التذييل (أسفل)" value={current.bottom} unit="مم" min={5} max={70} onChange={(v) => updatePageMargin(activePageIdx, "bottom", v)} />
+                    <SliderRow label="الهامش الأيمن" value={current.right} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "right", v)} />
+                    <SliderRow label="الهامش الأيسر" value={current.left} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "left", v)} />
+                  </div>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    ملاحظة: متصفح الطباعة يعتمد على ترقيم الصفحات — الصفحة الأولى تأخذ "الأولى"، ثم تتناوب "الفردية/الزوجية" للبقية.
+                    ملاحظة: كل قسم رئيسي من الاستمارة يُطبع كصفحة مستقلة بإعداداتها الخاصة. الصفحات الإضافية بعد آخر إعداد ترث هوامش آخر صفحة معرّفة.
                   </p>
                 </>
               )}
