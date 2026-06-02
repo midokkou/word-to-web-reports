@@ -121,11 +121,16 @@ export function applyPageStyle(opts: {
   const first = perPage.enabled ? perPage.first : base;
   const odd = perPage.enabled ? perPage.odd : base;
   const even = perPage.enabled ? perPage.even : base;
+  // When per-page is enabled, set the BASE @page to the "odd" values so all
+  // pages (except :first and :left) inherit them reliably across browsers —
+  // some print engines silently ignore margin overrides inside @page :right.
+  const baseRule = perPage.enabled ? odd : base;
+  const perPageBlock = perPage.enabled
+    ? `@page :first { ${mk(first)} } @page :left { ${mk(even)} } @page :right { ${mk(odd)} }`
+    : `@page :first { ${mk(base)} }`;
   style.textContent = `@media print {
-    @page { ${mk(base)} }
-    @page :first { ${mk(first)} }
-    @page :right { ${mk(odd)} }
-    @page :left  { ${mk(even)} }
+    @page { ${mk(baseRule)} }
+    ${perPageBlock}
     ${headerCSS}
     ${footerCSS}
     body { font-size: calc(10.5pt * var(--print-font-scale, 1)) !important; line-height: var(--print-line-height, 1.55) !important; }
