@@ -286,7 +286,7 @@ export function PrintSpacingControl() {
   }
 
   function addPage() {
-    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
     const pages = [...s.pages, { ...seed }];
     const next = { ...s, pages };
     commit(next);
