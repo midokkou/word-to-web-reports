@@ -273,17 +273,17 @@ export function PrintSpacingControl() {
         el.removeAttribute("data-print-page-break");
       });
       const printMode = document.body.getAttribute("data-print-mode") === "followup" ? "followup" : "normal";
+      const allPages = getPrintablePageElements(root);
       const pages = getPrintablePageElements(root, printMode);
-      let idx = 0;
       const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
       for (const el of pages) {
-        idx += 1;
+        const idx = allPages.indexOf(el) + 1;
         if (idx <= lastPageNum) {
           el.setAttribute("data-print-page", String(idx));
         } else {
           el.setAttribute("data-print-page-overflow", "");
         }
-        if (idx > 1) el.setAttribute("data-print-page-break", "1");
+        if (printMode !== "followup" && idx > 1) el.setAttribute("data-print-page-break", "1");
       }
     }
     window.addEventListener("beforeprint", tagPrintablePages);
