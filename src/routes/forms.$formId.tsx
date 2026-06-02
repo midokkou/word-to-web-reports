@@ -334,7 +334,7 @@ function FormPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-4" data-print-page-section>
+      <div className="container mx-auto px-4 mt-4">
         <div className="rounded-xl border overflow-hidden bg-card">
           <table className="form-items-table w-full text-xs">
             <thead className="bg-secondary/50 text-[10px]">
