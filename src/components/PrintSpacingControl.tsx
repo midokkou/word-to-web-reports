@@ -255,7 +255,7 @@ export function PrintSpacingControl() {
       showHeader: loadBool(KEYS.showHeader, D.showHeader),
       showFooter: loadBool(KEYS.showFooter, D.showFooter),
       orientation: loadStr(KEYS.orientation, D.orientation) as State["orientation"],
-      perPageEnabled: loadBool(KEYS.perPageEnabled, D.perPageEnabled),
+      perPageEnabled: true,
       pages: loadPages(D.pages),
     };
     setS(next);
@@ -459,7 +459,7 @@ export function PrintSpacingControl() {
                   <span className="text-sm font-medium">هوامش مستقلة لكل صفحة</span>
                   <span className="text-[10px] text-muted-foreground">كل صفحة لها إعدادات منفصلة بالكامل</span>
                 </div>
-                <Switch checked={s.perPageEnabled} onCheckedChange={togglePerPage} />
+                <span className="text-[10px] font-bold text-primary bg-primary/10 rounded px-2 py-1">مفعّل</span>
               </div>
 
               {!s.perPageEnabled ? (
