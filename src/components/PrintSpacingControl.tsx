@@ -273,7 +273,7 @@ export function PrintSpacingControl() {
     let next: State = { ...s, perPageEnabled: v };
     if (v && (!next.pages || next.pages.length === 0)) {
       // Seed pages from current base margins
-      const base: PageMargins = { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+      const base: PageMargins = { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
       next = { ...next, pages: [{ ...base }, { ...base }] };
     }
     commit(next);
