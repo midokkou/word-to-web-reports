@@ -13,8 +13,6 @@ import { applyViewMode, loadViewMode } from "@/lib/viewMode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
-import { PrintLetterhead } from "@/components/PrintLetterhead";
-import { PrintSpacingControl } from "@/components/PrintSpacingControl";
 
 import appCss from "../styles.css?url";
 
@@ -113,7 +111,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <PrintLetterhead />
+        
         {children}
         <Scripts />
       </body>
@@ -138,7 +136,6 @@ function RootComponent() {
             <div className="h-12 flex items-center justify-between px-2 border-b bg-card/60 backdrop-blur print:hidden">
               <SidebarTrigger />
               <div className="flex items-center gap-1">
-                <PrintSpacingControl />
                 <ViewModeSwitcher />
               </div>
             </div>

@@ -286,7 +286,7 @@ function FormPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 pt-4" data-print-keep-with-next>
+      <div className="container mx-auto px-4 pt-4">
         <div
           className="form-banner relative rounded-xl p-4 sm:p-5 border-2 border-primary bg-card text-foreground shadow-[var(--shadow-card)]"
         >
@@ -334,7 +334,7 @@ function FormPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-4" data-print-page-section>
+      <div className="container mx-auto px-4 mt-4">
         <div className="rounded-xl border overflow-hidden bg-card">
           <table className="form-items-table w-full text-xs">
             <thead className="bg-secondary/50 text-[10px]">
@@ -464,9 +464,8 @@ function FormPage() {
 
 
       <div
-        className="container mx-auto px-4 mt-4 space-y-3 print:break-before-page print:block"
+        className="container mx-auto px-4 mt-4 space-y-3"
         data-print-section="followup"
-        data-print-page-section
       >
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-bold flex items-center gap-1.5">
