@@ -640,6 +640,17 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   body[data-print-mode="followup"] [data-print-section="followup"] * {
     visibility: visible !important;
   }
+  /* Ensure the configured page margins + letterhead apply in follow-up
+     print mode (same as the normal print). */
+  body[data-print-mode="followup"] .print-letterhead-header,
+  body[data-print-mode="followup"] .print-letterhead-footer {
+    display: block !important;
+  }
+  body[data-print-mode="followup"] main,
+  body[data-print-mode="followup"] [data-view-frame] {
+    padding-top: var(--print-top-padding, 0mm) !important;
+    padding-bottom: var(--print-bottom-padding, 0mm) !important;
+  }
 
   /* === Smart page breaks: keep important blocks together === */
   /* Headings should never be orphaned at the bottom of a page */
