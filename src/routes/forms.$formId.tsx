@@ -464,9 +464,8 @@ function FormPage() {
 
 
       <div
-        className="container mx-auto px-4 mt-4 space-y-3 print:break-before-page print:block"
+        className="container mx-auto px-4 mt-4 space-y-3"
         data-print-section="followup"
-        data-print-page-section
       >
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-bold flex items-center gap-1.5">
