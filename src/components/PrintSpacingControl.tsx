@@ -267,9 +267,10 @@ export function PrintSpacingControl() {
       const root = document.querySelector(".form-page");
       if (!root) return;
       // Clean previous tags first
-      root.querySelectorAll("[data-print-page], [data-print-page-overflow]").forEach((el) => {
+      root.querySelectorAll("[data-print-page], [data-print-page-overflow], [data-print-page-break]").forEach((el) => {
         el.removeAttribute("data-print-page");
         el.removeAttribute("data-print-page-overflow");
+        el.removeAttribute("data-print-page-break");
       });
       const pages = getPrintablePageElements(root, document.body.getAttribute("data-print-mode"));
       let idx = 0;
@@ -281,6 +282,7 @@ export function PrintSpacingControl() {
         } else {
           el.setAttribute("data-print-page-overflow", "");
         }
+        if (idx > 1) el.setAttribute("data-print-page-break", "1");
       }
     }
     window.addEventListener("beforeprint", tagPrintablePages);
