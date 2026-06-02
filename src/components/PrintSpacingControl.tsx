@@ -430,12 +430,11 @@ export function PrintSpacingControl() {
                   <img src="/print-footer.jpg" alt="" className="w-full h-full object-cover object-bottom" onError={(e) => ((e.currentTarget.style.display = "none"))} />
                 </div>
               )}
-              <div className="absolute overflow-hidden" style={{ top: `calc(${topPct}% + ${contentTopOffset}%)`, bottom: `${bottomPct}%`, left: `${leftPct}%`, right: `${rightPct}%` }}>
+              <div className="absolute overflow-hidden" style={{ top: `calc(${topPct}% + ${contentTopOffset}%)`, bottom: `calc(${bottomPct}% + ${contentBottomOffset}%)`, left: `${leftPct}%`, right: `${rightPct}%` }}>
                 <div
-                  ref={previewContentRef}
                   dir="rtl"
                   style={{ transform: `scale(${scale})`, transformOrigin: "top right", width: `${100 / scale}%`, pointerEvents: "none", fontSize: `${s.fontScale}%`, lineHeight: s.lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: mainHTML }}
+                  dangerouslySetInnerHTML={{ __html: previewHTML }}
                 />
               </div>
             </div>
