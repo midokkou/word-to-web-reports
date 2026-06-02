@@ -292,6 +292,17 @@ export function PrintSpacingControl() {
     return () => window.removeEventListener("beforeprint", tagPrintablePages);
   }, [s.perPageEnabled, s.pages.length]);
 
+  useEffect(() => {
+    const root = document.querySelector(".form-page");
+    if (!root || !s.perPageEnabled) return;
+    const printableCount = getPrintablePageElements(root, document.body.getAttribute("data-print-mode")).length;
+    if (printableCount <= s.pages.length) return;
+    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
+    const pages = [...s.pages];
+    while (pages.length < printableCount) pages.push({ ...seed });
+    commit({ ...s, pages });
+  }, [open, s.perPageEnabled, s.pages.length]);
+
 
   function persistSimple(next: State) {
     window.localStorage.setItem(KEYS.topPad, String(next.topPad));
@@ -364,7 +375,20 @@ export function PrintSpacingControl() {
   }
 
   function applyPreset(name: keyof typeof PRESETS) {
-    const next = { ...s, ...PRESETS[name] } as State;
+    const preset = PRESETS[name];
+    const next = {
+      ...s,
+      ...preset,
+      pages: s.pages.map((page) => ({
+        ...page,
+        top: preset.pageTop ?? page.top,
+        bottom: preset.pageBottom ?? page.bottom,
+        left: preset.pageLeft ?? page.left,
+        right: preset.pageRight ?? page.right,
+        topPad: preset.topPad ?? page.topPad,
+        bottomPad: preset.bottomPad ?? page.bottomPad,
+      })),
+    } as State;
     commit(next);
   }
 
