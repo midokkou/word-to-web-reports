@@ -27,9 +27,16 @@ const KEYS = {
   pagesJSON: "print-pages-json",
 } as const;
 
-type PageMargins = { top: number; bottom: number; left: number; right: number };
+type PageMargins = {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  topPad: number;
+  bottomPad: number;
+};
 
-const DEFAULT_MARGINS: PageMargins = { top: 48, bottom: 22, left: 14, right: 14 };
+const DEFAULT_MARGINS: PageMargins = { top: 48, bottom: 22, left: 14, right: 14, topPad: 0, bottomPad: 0 };
 
 const D = {
   topPad: 0,
@@ -79,6 +86,8 @@ function loadPages(fallback: PageMargins[]): PageMargins[] {
       bottom: Number(m?.bottom) || 0,
       left: Number(m?.left) || 0,
       right: Number(m?.right) || 0,
+      topPad: Number(m?.topPad) || 0,
+      bottomPad: Number(m?.bottomPad) || 0,
     }));
   } catch {
     return fallback;
@@ -136,13 +145,14 @@ export function applyPageStyle(opts: {
     // page break before it (so each top-level section becomes its own
     // printed page with independent margins).
     const childRules = perPage.pages
-      .map((_, i) => {
+      .map((m, i) => {
         const n = i + 1;
         const breakRule =
           n === 1
             ? ""
             : `break-before: page !important; page-break-before: always !important;`;
-        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} }`;
+        const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
+        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} ${padRule} }`;
       })
       .join(" ");
     // Fallback for any extra child beyond the configured pages: reuse the
@@ -242,7 +252,7 @@ export function PrintSpacingControl() {
     applyFontScale(next.fontScale);
     applyLineHeight(next.lineHeight);
     applyPageStyle({
-      base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight },
+      base: { top: next.pageTop, bottom: next.pageBottom, left: next.pageLeft, right: next.pageRight, topPad: next.topPad, bottomPad: next.bottomPad },
       perPage: { enabled: next.perPageEnabled, pages: next.pages },
       showHeader: next.showHeader,
       showFooter: next.showFooter,
@@ -264,7 +274,7 @@ export function PrintSpacingControl() {
     let next: State = { ...s, perPageEnabled: v };
     if (v && (!next.pages || next.pages.length === 0)) {
       // Seed pages from current base margins
-      const base: PageMargins = { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+      const base: PageMargins = { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
       next = { ...next, pages: [{ ...base }, { ...base }] };
     }
     commit(next);
@@ -276,7 +286,7 @@ export function PrintSpacingControl() {
   }
 
   function addPage() {
-    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+    const seed = s.pages[s.pages.length - 1] ?? { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
     const pages = [...s.pages, { ...seed }];
     const next = { ...s, pages };
     commit(next);
@@ -306,7 +316,7 @@ export function PrintSpacingControl() {
 
   const activeMargins: PageMargins = s.perPageEnabled && s.pages[activePageIdx]
     ? s.pages[activePageIdx]
-    : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight };
+    : { top: s.pageTop, bottom: s.pageBottom, left: s.pageLeft, right: s.pageRight, topPad: s.topPad, bottomPad: s.bottomPad };
 
   const topPct = (activeMargins.top / pageH) * 100;
   const bottomPct = (activeMargins.bottom / pageH) * 100;
@@ -433,13 +443,17 @@ export function PrintSpacingControl() {
 
                   <div className="rounded-md border bg-muted/20 p-2 space-y-3">
                     <div className="text-xs font-medium text-muted-foreground">إعدادات الصفحة {activePageIdx + 1}</div>
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">هوامش الصفحة</div>
                     <SliderRow label="هامش الرأس (أعلى)" value={current.top} unit="مم" min={5} max={90} onChange={(v) => updatePageMargin(activePageIdx, "top", v)} />
                     <SliderRow label="هامش التذييل (أسفل)" value={current.bottom} unit="مم" min={5} max={70} onChange={(v) => updatePageMargin(activePageIdx, "bottom", v)} />
                     <SliderRow label="الهامش الأيمن" value={current.right} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "right", v)} />
                     <SliderRow label="الهامش الأيسر" value={current.left} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "left", v)} />
+                    <div className="pt-2 border-t border-border/60 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">المحتوى والتذييل</div>
+                    <SliderRow label="مسافة بداية المحتوى" value={current.topPad} unit="مم" min={0} max={60} onChange={(v) => updatePageMargin(activePageIdx, "topPad", v)} />
+                    <SliderRow label="مسافة نهاية المحتوى" value={current.bottomPad} unit="مم" min={0} max={60} onChange={(v) => updatePageMargin(activePageIdx, "bottomPad", v)} />
                   </div>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    ملاحظة: كل قسم رئيسي من الاستمارة يُطبع كصفحة مستقلة بإعداداتها الخاصة. الصفحات الإضافية بعد آخر إعداد ترث هوامش آخر صفحة معرّفة.
+                    ملاحظة: كل قسم رئيسي من الاستمارة يُطبع كصفحة مستقلة بإعداداتها الخاصة (هوامش + بداية محتوى + نهاية تذييل). الصفحات الإضافية بعد آخر إعداد ترث إعدادات آخر صفحة معرّفة.
                   </p>
                 </>
               )}
