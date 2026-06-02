@@ -27,9 +27,16 @@ const KEYS = {
   pagesJSON: "print-pages-json",
 } as const;
 
-type PageMargins = { top: number; bottom: number; left: number; right: number };
+type PageMargins = {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  topPad: number;
+  bottomPad: number;
+};
 
-const DEFAULT_MARGINS: PageMargins = { top: 48, bottom: 22, left: 14, right: 14 };
+const DEFAULT_MARGINS: PageMargins = { top: 48, bottom: 22, left: 14, right: 14, topPad: 0, bottomPad: 0 };
 
 const D = {
   topPad: 0,
