@@ -544,9 +544,6 @@ function FormPage() {
         >
           <Save className="size-4 ml-1" /> حفظ الاستمارة
         </Button>
-        <Button size="lg" variant="outline" onClick={() => window.print()}>
-          <Printer className="size-4 ml-1" /> طباعة
-        </Button>
       </div>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
