@@ -86,6 +86,8 @@ function loadPages(fallback: PageMargins[]): PageMargins[] {
       bottom: Number(m?.bottom) || 0,
       left: Number(m?.left) || 0,
       right: Number(m?.right) || 0,
+      topPad: Number(m?.topPad) || 0,
+      bottomPad: Number(m?.bottomPad) || 0,
     }));
   } catch {
     return fallback;
