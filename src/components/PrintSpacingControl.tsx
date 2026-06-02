@@ -443,13 +443,17 @@ export function PrintSpacingControl() {
 
                   <div className="rounded-md border bg-muted/20 p-2 space-y-3">
                     <div className="text-xs font-medium text-muted-foreground">إعدادات الصفحة {activePageIdx + 1}</div>
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">هوامش الصفحة</div>
                     <SliderRow label="هامش الرأس (أعلى)" value={current.top} unit="مم" min={5} max={90} onChange={(v) => updatePageMargin(activePageIdx, "top", v)} />
                     <SliderRow label="هامش التذييل (أسفل)" value={current.bottom} unit="مم" min={5} max={70} onChange={(v) => updatePageMargin(activePageIdx, "bottom", v)} />
                     <SliderRow label="الهامش الأيمن" value={current.right} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "right", v)} />
                     <SliderRow label="الهامش الأيسر" value={current.left} unit="مم" min={5} max={50} onChange={(v) => updatePageMargin(activePageIdx, "left", v)} />
+                    <div className="pt-2 border-t border-border/60 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">المحتوى والتذييل</div>
+                    <SliderRow label="مسافة بداية المحتوى" value={current.topPad} unit="مم" min={0} max={60} onChange={(v) => updatePageMargin(activePageIdx, "topPad", v)} />
+                    <SliderRow label="مسافة نهاية المحتوى" value={current.bottomPad} unit="مم" min={0} max={60} onChange={(v) => updatePageMargin(activePageIdx, "bottomPad", v)} />
                   </div>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    ملاحظة: كل قسم رئيسي من الاستمارة يُطبع كصفحة مستقلة بإعداداتها الخاصة. الصفحات الإضافية بعد آخر إعداد ترث هوامش آخر صفحة معرّفة.
+                    ملاحظة: كل قسم رئيسي من الاستمارة يُطبع كصفحة مستقلة بإعداداتها الخاصة (هوامش + بداية محتوى + نهاية تذييل). الصفحات الإضافية بعد آخر إعداد ترث إعدادات آخر صفحة معرّفة.
                   </p>
                 </>
               )}
