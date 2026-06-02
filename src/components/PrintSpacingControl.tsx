@@ -145,13 +145,14 @@ export function applyPageStyle(opts: {
     // page break before it (so each top-level section becomes its own
     // printed page with independent margins).
     const childRules = perPage.pages
-      .map((_, i) => {
+      .map((m, i) => {
         const n = i + 1;
         const breakRule =
           n === 1
             ? ""
             : `break-before: page !important; page-break-before: always !important;`;
-        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} }`;
+        const padRule = `padding-top: ${m.topPad}mm !important; padding-bottom: ${m.bottomPad}mm !important;`;
+        return `.form-page > *:nth-child(${n}) { page: p${n} !important; ${breakRule} ${padRule} }`;
       })
       .join(" ");
     // Fallback for any extra child beyond the configured pages: reuse the
