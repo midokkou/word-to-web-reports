@@ -272,7 +272,8 @@ export function PrintSpacingControl() {
         el.removeAttribute("data-print-page-overflow");
         el.removeAttribute("data-print-page-break");
       });
-      const pages = getPrintablePageElements(root);
+      const printMode = document.body.getAttribute("data-print-mode") === "followup" ? "followup" : "normal";
+      const pages = getPrintablePageElements(root, printMode);
       let idx = 0;
       const lastPageNum = s.perPageEnabled ? s.pages.length : Infinity;
       for (const el of pages) {
