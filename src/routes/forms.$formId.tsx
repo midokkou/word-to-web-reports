@@ -37,7 +37,6 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ExportButtons } from "@/components/ExportButtons";
 import letterheadHeader from "@/assets/letterhead-header.jpg";
-import letterheadFooter from "@/assets/moe-logo.png";
 
 
 export const Route = createFileRoute("/forms/$formId")({
@@ -269,9 +268,6 @@ function FormPage() {
     <div className="form-page min-h-screen pb-16" ref={pdfRef}>
       <div className="print-letterhead-header" aria-hidden>
         <img src={letterheadHeader} alt="" />
-      </div>
-      <div className="print-letterhead-footer" aria-hidden>
-        <img src={letterheadFooter} alt="" />
       </div>
       <Toaster richColors position="top-center" />
       <header className="border-b bg-card/70 backdrop-blur sticky top-0 z-10 print:hidden">
