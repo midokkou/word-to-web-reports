@@ -222,10 +222,14 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
 }
 
 @media print {
-  /* @page margins are controlled dynamically by PrintSpacingControl
-     (injected <style id="print-page-margins">) so slider changes apply
-     uniformly to every printed page. Do NOT hardcode margins here. */
+  /* Reserve space at top/bottom of every printed page for the
+     fixed letterhead/footer images. */
+  @page {
+    size: A4;
+    margin: 42mm 12mm 28mm 12mm;
+  }
   .form-page { }
+
 
   /* Neutralize forced mobile/desktop view modes so print always fits A4 */
   html[data-view-mode="mobile"] [data-view-frame],
@@ -279,7 +283,7 @@ html[data-view-mode="desktop"] [data-view-frame-scroll] {
   aside[data-sidebar="sidebar"] { display: none !important; }
 
   .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-  main, [data-view-frame] { padding-top: var(--print-top-padding, 0mm) !important; }
+
 
   /* Typography — compact, readable */
   body {
