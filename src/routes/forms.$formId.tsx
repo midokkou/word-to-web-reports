@@ -37,7 +37,6 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ExportButtons } from "@/components/ExportButtons";
 import letterheadHeader from "@/assets/letterhead-header.jpg";
-import letterheadFooter from "@/assets/moe-logo.png";
 
 
 export const Route = createFileRoute("/forms/$formId")({
