@@ -36,6 +36,7 @@ import {
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { ExportButtons } from "@/components/ExportButtons";
+import { PrintSettings } from "@/components/PrintSettings";
 import letterheadHeader from "@/assets/letterhead-header.jpg";
 import letterheadFooter from "@/assets/letterhead-footer.png";
 
@@ -284,6 +285,7 @@ function FormPage() {
             <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="size-4 ml-1" /> إضافة عنصر
             </Button>
+            <PrintSettings />
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="size-4 ml-1" /> طباعة
             </Button>
