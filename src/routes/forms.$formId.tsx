@@ -281,6 +281,7 @@ function FormPage() {
               <Plus className="size-4 ml-1" /> إضافة عنصر
             </Button>
             <PrintSettings />
+            <PrintPreview />
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="size-4 ml-1" /> طباعة
             </Button>
