@@ -67,6 +67,20 @@ ${inlineStyles}
   .print-letterhead-footer { height: ${s.footerHeight}mm !important; }
   .pagedjs_page .print-letterhead-header,
   .pagedjs_page .print-letterhead-footer { display: block !important; }
+  /* Visualize printable area (inside margins) */
+  .pagedjs_pagebox { position: relative; }
+  .pagedjs_margin-top, .pagedjs_margin-bottom,
+  .pagedjs_margin-left, .pagedjs_margin-right {
+    background: repeating-linear-gradient(45deg, rgba(59,130,246,0.06) 0 6px, transparent 6px 12px);
+  }
+  .pagedjs_area { outline: 1px dashed hsl(217 91% 60% / 0.7); outline-offset: 0; }
+  .pagedjs_area::before {
+    content: "منطقة الطباعة";
+    position: absolute; top: -18px; right: 0;
+    font-size: 10px; color: hsl(217 91% 50%);
+    background: white; padding: 1px 6px; border-radius: 3px;
+    border: 1px solid hsl(217 91% 60% / 0.5);
+  }
 </style>
 </head>
 <body>
