@@ -38,8 +38,14 @@ export function PrintPreview() {
 
     const baseHref = window.location.origin + window.location.pathname;
     const clone = formPage.cloneNode(true) as HTMLElement;
-    // Remove sticky/screen-only chrome
     clone.querySelectorAll(".print\\:hidden").forEach((el) => el.remove());
+
+    const DEFAULTS = { marginTop: 42, marginRight: 12, marginBottom: 28, marginLeft: 12, headerHeight: 42, footerHeight: 28 };
+    let s = DEFAULTS;
+    try {
+      const raw = localStorage.getItem("print-settings-v1");
+      if (raw) s = { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch { /* ignore */ }
 
     const html = `<!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -53,7 +59,12 @@ ${inlineStyles}
   .preview-stage { padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .pagedjs_pages { display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .pagedjs_page { background: white; box-shadow: 0 6px 18px rgba(0,0,0,0.35); margin: 0 !important; }
-  /* Re-enable letterhead visuals on screen inside the preview */
+  @page {
+    size: A4;
+    margin: ${s.marginTop}mm ${s.marginRight}mm ${s.marginBottom}mm ${s.marginLeft}mm;
+  }
+  .print-letterhead-header { height: ${s.headerHeight}mm !important; }
+  .print-letterhead-footer { height: ${s.footerHeight}mm !important; }
   .pagedjs_page .print-letterhead-header,
   .pagedjs_page .print-letterhead-footer { display: block !important; }
 </style>
