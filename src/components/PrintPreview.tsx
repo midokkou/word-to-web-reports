@@ -47,6 +47,9 @@ export function PrintPreview() {
       if (raw) s = { ...DEFAULTS, ...JSON.parse(raw) };
     } catch { /* ignore */ }
 
+    const effTop = Math.max(s.marginTop, s.headerHeight);
+    const effBottom = Math.max(s.marginBottom, s.footerHeight);
+
     const html = `<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
@@ -56,31 +59,34 @@ ${styles}
 ${inlineStyles}
 <style>
   html, body { margin: 0; padding: 0; background: #525659; }
+  :root { --print-page-top: ${s.headerHeight}mm; --print-page-bottom: ${s.footerHeight}mm; }
   .preview-stage { padding: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .pagedjs_pages { display: flex; flex-direction: column; align-items: center; gap: 16px; }
   .pagedjs_page { background: white; box-shadow: 0 6px 18px rgba(0,0,0,0.35); margin: 0 !important; }
   @page {
     size: A4;
-    margin: ${s.marginTop}mm ${s.marginRight}mm ${s.marginBottom}mm ${s.marginLeft}mm;
+    margin: ${effTop}mm ${s.marginRight}mm ${effBottom}mm ${s.marginLeft}mm;
   }
   .print-letterhead-header { height: ${s.headerHeight}mm !important; }
   .print-letterhead-footer { height: ${s.footerHeight}mm !important; }
   .pagedjs_page .form-page { padding: ${s.contentPaddingTop}mm ${s.contentPaddingRight}mm ${s.contentPaddingBottom}mm ${s.contentPaddingLeft}mm !important; }
   .pagedjs_page .print-letterhead-header,
-  .pagedjs_page .print-letterhead-footer { display: block !important; }
-  /* Visualize printable area (inside margins) */
+  .pagedjs_page .print-letterhead-footer { display: block !important; position: absolute !important; left: 0 !important; right: 0 !important; }
+  .pagedjs_page .print-letterhead-header { top: 0 !important; }
+  .pagedjs_page .print-letterhead-footer { bottom: 0 !important; }
+  /* Visualize margins and printable area */
   .pagedjs_pagebox { position: relative; }
   .pagedjs_margin-top, .pagedjs_margin-bottom,
   .pagedjs_margin-left, .pagedjs_margin-right {
-    background: repeating-linear-gradient(45deg, rgba(59,130,246,0.06) 0 6px, transparent 6px 12px);
+    background: repeating-linear-gradient(45deg, rgba(59,130,246,0.08) 0 6px, transparent 6px 12px);
+    outline: 1px dashed hsl(217 91% 60% / 0.4);
   }
-  .pagedjs_area { outline: 1px dashed hsl(217 91% 60% / 0.7); outline-offset: 0; }
+  .pagedjs_area { outline: 2px dashed hsl(217 91% 55% / 0.85); outline-offset: 0; box-shadow: 0 0 0 9999px rgba(59,130,246,0.04) inset; }
   .pagedjs_area::before {
     content: "منطقة الطباعة";
-    position: absolute; top: -18px; right: 0;
-    font-size: 10px; color: hsl(217 91% 50%);
-    background: white; padding: 1px 6px; border-radius: 3px;
-    border: 1px solid hsl(217 91% 60% / 0.5);
+    position: absolute; top: -20px; right: 0;
+    font-size: 10px; color: white;
+    background: hsl(217 91% 55%); padding: 2px 8px; border-radius: 3px;
   }
 </style>
 </head>

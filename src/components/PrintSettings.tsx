@@ -64,10 +64,19 @@ export function PrintSettings() {
     }
   }, [v]);
 
+  // Effective margins must reserve at least the letterhead heights so content
+  // never overlaps the fixed header/footer.
+  const effTop = Math.max(v.marginTop, v.headerHeight);
+  const effBottom = Math.max(v.marginBottom, v.footerHeight);
+
   const css = `@media print {
     @page {
       size: A4;
-      margin: ${v.marginTop}mm ${v.marginRight}mm ${v.marginBottom}mm ${v.marginLeft}mm !important;
+      margin: ${effTop}mm ${v.marginRight}mm ${effBottom}mm ${v.marginLeft}mm !important;
+    }
+    :root {
+      --print-page-top: ${v.headerHeight}mm;
+      --print-page-bottom: ${v.footerHeight}mm;
     }
     .print-letterhead-header { height: ${v.headerHeight}mm !important; }
     .print-letterhead-footer { height: ${v.footerHeight}mm !important; }
