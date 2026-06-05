@@ -40,7 +40,7 @@ export function PrintPreview() {
     const clone = formPage.cloneNode(true) as HTMLElement;
     clone.querySelectorAll(".print\\:hidden").forEach((el) => el.remove());
 
-    const DEFAULTS = { marginTop: 42, marginRight: 12, marginBottom: 28, marginLeft: 12, headerHeight: 42, footerHeight: 28 };
+    const DEFAULTS = { marginTop: 42, marginRight: 12, marginBottom: 28, marginLeft: 12, headerHeight: 42, footerHeight: 28, contentPaddingTop: 0, contentPaddingRight: 0, contentPaddingBottom: 0, contentPaddingLeft: 0 };
     let s = DEFAULTS;
     try {
       const raw = localStorage.getItem("print-settings-v1");
@@ -65,6 +65,7 @@ ${inlineStyles}
   }
   .print-letterhead-header { height: ${s.headerHeight}mm !important; }
   .print-letterhead-footer { height: ${s.footerHeight}mm !important; }
+  .pagedjs_page .form-page { padding: ${s.contentPaddingTop}mm ${s.contentPaddingRight}mm ${s.contentPaddingBottom}mm ${s.contentPaddingLeft}mm !important; }
   .pagedjs_page .print-letterhead-header,
   .pagedjs_page .print-letterhead-footer { display: block !important; }
   /* Visualize printable area (inside margins) */
