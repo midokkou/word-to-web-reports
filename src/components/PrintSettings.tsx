@@ -17,6 +17,10 @@ export type PrintSettingsValue = {
   marginLeft: number;
   headerHeight: number;
   footerHeight: number;
+  contentPaddingTop: number;
+  contentPaddingRight: number;
+  contentPaddingBottom: number;
+  contentPaddingLeft: number;
 };
 
 const DEFAULTS: PrintSettingsValue = {
@@ -26,6 +30,10 @@ const DEFAULTS: PrintSettingsValue = {
   marginLeft: 12,
   headerHeight: 42,
   footerHeight: 28,
+  contentPaddingTop: 0,
+  contentPaddingRight: 0,
+  contentPaddingBottom: 0,
+  contentPaddingLeft: 0,
 };
 
 const STORAGE_KEY = "print-settings-v1";
@@ -63,6 +71,7 @@ export function PrintSettings() {
     }
     .print-letterhead-header { height: ${v.headerHeight}mm !important; }
     .print-letterhead-footer { height: ${v.footerHeight}mm !important; }
+    .form-page { padding: ${v.contentPaddingTop}mm ${v.contentPaddingRight}mm ${v.contentPaddingBottom}mm ${v.contentPaddingLeft}mm !important; }
   }`;
 
   const set = (k: keyof PrintSettingsValue, val: number) =>
@@ -104,7 +113,7 @@ export function PrintSettings() {
             <Settings2 className="size-4 ml-1" /> هوامش الطباعة
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-80 space-y-3">
+        <PopoverContent align="end" className="w-80 space-y-3 max-h-[80vh] overflow-y-auto">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold">إعدادات الطباعة (مم)</h3>
             <Button
@@ -118,11 +127,21 @@ export function PrintSettings() {
           </div>
 
           <div className="space-y-2">
-            <p className="text-[11px] font-bold text-muted-foreground">الهوامش</p>
+            <p className="text-[11px] font-bold text-muted-foreground">هوامش الصفحة</p>
             {row("أعلى", "marginTop", 80)}
             {row("أسفل", "marginBottom", 80)}
             {row("يمين", "marginRight", 40)}
             {row("يسار", "marginLeft", 40)}
+          </div>
+
+          <div className="space-y-2 border-t pt-2">
+            <p className="text-[11px] font-bold text-muted-foreground">
+              هوامش المحتوى (داخلية)
+            </p>
+            {row("أعلى", "contentPaddingTop", 60)}
+            {row("أسفل", "contentPaddingBottom", 60)}
+            {row("يمين", "contentPaddingRight", 40)}
+            {row("يسار", "contentPaddingLeft", 40)}
           </div>
 
           <div className="space-y-2 border-t pt-2">
