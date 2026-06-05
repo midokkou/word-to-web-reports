@@ -65,6 +65,7 @@ ${inlineStyles}
   }
   .print-letterhead-header { height: ${s.headerHeight}mm !important; }
   .print-letterhead-footer { height: ${s.footerHeight}mm !important; }
+  .pagedjs_page .form-page { padding: ${s.contentPaddingTop}mm ${s.contentPaddingRight}mm ${s.contentPaddingBottom}mm ${s.contentPaddingLeft}mm !important; }
   .pagedjs_page .print-letterhead-header,
   .pagedjs_page .print-letterhead-footer { display: block !important; }
   /* Visualize printable area (inside margins) */
